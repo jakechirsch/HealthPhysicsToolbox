@@ -1,14 +1,14 @@
 ##### IMPORTS #####
 import csv
-import tkinter as tk
+from tkinter import *
 
 ##### WINDOW SETUP #####
-root = tk.Tk()
+root = Tk()
 root.title("Coefficient Request")
-root.geometry("500x200")
+root.geometry("500x225")
 
 ##### HOME SCREEN BUTTONS #####
-tac_button = tk.Button(root)
+tac_button = Button(root)
 
 ### ERROR MESSAGES ###
 non_number = "Error: Non-number energy input."
@@ -21,24 +21,26 @@ screen_list = []
 advanced_list = []
 
 # Displays the requested coefficient
-result_label = tk.Label(root, text="")
+result_label = Text(root, height=1, borderwidth=0)
+result_label.config(bg='white', fg='grey')
 
-def total_attenuation_coefficient(mode="Element"):
+def total_attenuation_coefficient(selection="Element",
+                                  mode="Mass Attenuation Coefficient (cm^2/g)"):
     global tac_button
     global screen_list
 
-    x = []
+    choices = []
 
     # Stores element/material selection
-    var = tk.StringVar(root)
+    var = StringVar(root)
 
-    if mode == "Element":
+    if selection == "Element":
         # Obtains list of elements
         with open('attenuation/Elements/Elements.csv', 'r') as file:
             reader = csv.reader(file)
             for row in reader:
                 if row[0] != 'Name':
-                    x.append(row[0])
+                    choices.append(row[0])
 
         # Sets default element selection
         var.set('Ac')
@@ -48,93 +50,124 @@ def total_attenuation_coefficient(mode="Element"):
             reader = csv.reader(file)
             for row in reader:
                 if row[0] != 'Name':
-                    x.append(row[0])
+                    choices.append(row[0])
 
-        # Sets default element selection
+        # Sets default material selection
         var.set('Acetone')
 
     # Changes to T.A.C. screen
     tac_button.pack_forget()
 
-    top_frame = tk.Frame(root)
+    # Frame for element selection and advanced settings button
+    top_frame = Frame(root)
     top_frame.pack(pady=10)
 
     # Creates dropdown menu for element selection
-    dropdown = tk.OptionMenu(top_frame, var, *x)
+    dropdown = OptionMenu(top_frame, var, *choices)
     dropdown.pack(side="left", padx=5)
 
     # Creates an advanced settings button
-    advanced = tk.Button(top_frame, text="Advanced Settings",
-                       command=lambda: tac_advanced(mode))
+    advanced = Button(top_frame, text="Advanced Settings",
+                      command=lambda: tac_advanced(selection, mode))
     advanced.pack(side="left", padx=5)
 
     # Creates label for energy input
-    label = tk.Label(root, text="Energy:")
-    label.pack()
+    label = Label(root, text="Energy (MeV):")
 
     # Creates input box for energy input
-    entry = tk.Entry(root, width=30)
+    entry = Entry(root, width=30)
     entry.config(bg='white', fg='grey')
-    entry.pack()
+
+    # Energy input is not necessary if mode is density
+    if mode != "Density (g/cm^3)":
+        label.pack()
+        entry.pack()
 
     # Creates calculate button
-    calc = tk.Button(root, text="Calculate",
-                       command=lambda: find_tac(mode, var.get(), entry.get()))
+    calc = Button(root, text="Calculate",
+                  command=lambda: handle_calculation(selection, mode, var.get(), entry.get()))
     calc.pack(pady=5)
 
     # Creates exit button to return to home screen
-    exit_button = tk.Button(root, text="Exit", command=exit_to_home)
+    exit_button = Button(root, text="Exit", command=exit_to_home)
     exit_button.pack(pady=5)
 
     # Stores nodes into global list
     screen_list = [top_frame, dropdown, advanced, label, entry, calc, exit_button]
 
-def tac_advanced(mode_start):
+def tac_advanced(selection_start, mode_start):
     global advanced_list
 
     # Hides T.A.C. screen
     clear()
 
-    # Stores mode selection and sets default
-    var = tk.StringVar(root)
-    var.set(mode_start)
+    # Stores selection and sets default
+    var_selection = StringVar(root)
+    var_selection.set(selection_start)
 
-    # Creates dropdown menu for mode
-    mode = ["Element", "Material"]
-    dropdown = tk.OptionMenu(root, var, *mode)
-    dropdown.pack(pady=10)
+    # Creates dropdown menu for selection
+    selection = ["Element", "Material"]
+    selection_dropdown = OptionMenu(root, var_selection, *selection)
+    selection_dropdown.pack(pady=10)
+
+    # Stores mode and sets default
+    var_mode = StringVar(root)
+    var_mode.set(mode_start)
+
+    # Creates dropdown menu for selection
+    mode_choices = ["Mass Attenuation Coefficient (cm^2/g)", "Density (g/cm^3)",
+                    "Linear Attenuation Coefficient (cm^-1)"]
+    mode_dropdown = OptionMenu(root, var_mode, *mode_choices)
+    mode_dropdown.pack(pady=10)
 
     # Creates exit button to return to T.A.C. screen
-    exit_button = tk.Button(root, text="Back", command=lambda: tac_back(var.get()))
+    exit_button = Button(root, text="Back", command=lambda: tac_back(var_selection.get(),
+                                                                     var_mode.get()))
     exit_button.pack(pady=5)
 
     # Stores nodes into global list
-    advanced_list = [dropdown, exit_button]
+    advanced_list = [selection_dropdown, mode_dropdown, exit_button]
 
-def tac_back(mode):
+def tac_back(selection, mode):
     clear_advanced()
-    total_attenuation_coefficient(mode=mode)
+    total_attenuation_coefficient(selection=selection, mode=mode)
 
-def find_tac(mode, element, energy_str):
+def handle_calculation(selection, mode, element, energy_str):
     global result_label
 
     # Removes result label from past calculations
     result_label.pack_forget()
 
-    # Error-check for a non-number energy input
-    try:
-        energy_target = float(energy_str)
-    except ValueError:
-        result_label = tk.Label(root, text=non_number)
-        result_label.pack(pady=5)
-        return
+    # Energy input in float format
+    energy_target = 0.0
 
-    if mode == "Element":
-        tac = calculate_tac_for_element(element, energy_target)
+    if mode != "Density (g/cm^3)":
+        # Error-check for a non-number energy input
+        try:
+            energy_target = float(energy_str)
+        except ValueError:
+            edit_result(non_number)
+            result_label.pack(pady=5)
+            return
 
-        # Displays result label
-        result_label = tk.Label(root, text=tac)
-        result_label.pack(pady=5)
+    if mode == "Mass Attenuation Coefficient (cm^2/g)":
+        result = find_tac(selection, element, energy_target)
+    elif mode == "Density (g/cm^3)":
+        result = find_density(selection, element)
+    else:
+        tac = find_tac(selection, element, energy_target)
+        if tac in errors:
+            result = tac
+        else:
+            result = tac * find_density(selection, element)
+
+    # Displays result label
+    edit_result(f"{result:.5g}")
+    result_label.pack(pady=5)
+
+def find_tac(selection, element, energy_target):
+    if selection == "Element":
+        tac = find_tac_for_element(element, energy_target)
     else:
         tac = 0
         with open('attenuation/Materials/' + element + '.csv', 'r') as file:
@@ -143,18 +176,16 @@ def find_tac(mode, element, energy_str):
 
             # Sums each component's weighted T.A.C.
             for row in reader:
-                tac_of_element = calculate_tac_for_element(row['Element'], energy_target)
+                tac_of_element = find_tac_for_element(row['Element'], energy_target)
                 if tac_of_element in errors:
                     tac = tac_of_element
                     break
                 tac_component = float(row['Weight']) * float(tac_of_element)
                 tac += tac_component
 
-        # Displays result label
-        result_label = tk.Label(root, text=tac)
-        result_label.pack(pady=5)
+    return tac
 
-def calculate_tac_for_element(element, energy_target):
+def find_tac_for_element(element, energy_target):
     # Variables for the nearest energy value on either side
     closest_low = 0.0
     closest_high = float('inf')
@@ -175,7 +206,7 @@ def calculate_tac_for_element(element, energy_target):
             # If energy value matches target exactly, uses
             # the T.A.C. of this row
             if energy == energy_target:
-                return row["Total Attenuation with Coherent Scattering"]
+                return float(row["Total Attenuation with Coherent Scattering"])
 
             # If energy value is less than the target, uses
             # this energy and its coefficient as the closest
@@ -208,7 +239,39 @@ def calculate_tac_for_element(element, energy_target):
     difference = closest_high - closest_low
     percentage = (energy_target - closest_low) / difference
     coefficient = low_coefficient + percentage * (high_coefficient - low_coefficient)
-    return str(coefficient)
+    return coefficient
+
+def find_density(selection, element):
+    density = None
+    if selection == "Element":
+        density = find_density_for_element(element)
+    else:
+        with open('attenuation/Materials/Materials.csv', 'r') as file:
+            # Reads in file
+            reader = csv.reader(file)
+
+            # Sums each component's weighted density
+            for row in reader:
+                if row and row[0] == element:
+                    density = float(row[1])
+                    break
+                density = None
+    return density
+
+def find_density_for_element(element):
+    with open('attenuation/Elements/Periodic Table of Elements.csv', 'r') as file:
+        reader = csv.DictReader(file)
+        for row in reader:
+            if row and row['Symbol'] == element:
+                return float(row['Density'])
+        return None
+
+def edit_result(result):
+    # Clears result label and inserts new result
+    result_label.config(state="normal")
+    result_label.delete("1.0", END)
+    result_label.insert(END, result)
+    result_label.config(state="disabled")
 
 def clear():
     global screen_list
@@ -231,7 +294,7 @@ def return_home():
     global tac_button
 
     # Creates buttons for home screen
-    tac_button = tk.Button(root, text="Total Attenuation Coefficient", command=total_attenuation_coefficient)
+    tac_button = Button(root, text="Total Attenuation Coefficient", command=total_attenuation_coefficient)
     tac_button.pack(pady=5)
 
 def exit_to_home():

@@ -25,7 +25,8 @@ result_label = Text(root, height=1, borderwidth=0)
 result_label.config(bg='white', fg='grey')
 
 def total_attenuation_coefficient(selection="Element",
-                                  mode="Mass Attenuation Coefficient (cm^2/g)"):
+                                  mode="Mass Attenuation Coefficient (cm^2/g)",
+                                  interaction="Total Attenuation with Coherent Scattering"):
     global tac_button
     global screen_list
 
@@ -68,7 +69,7 @@ def total_attenuation_coefficient(selection="Element",
 
     # Creates an advanced settings button
     advanced = Button(top_frame, text="Advanced Settings",
-                      command=lambda: tac_advanced(selection, mode))
+                      command=lambda: tac_advanced(selection, mode, interaction))
     advanced.pack(side="left", padx=5)
 
     # Creates label for energy input
@@ -85,7 +86,7 @@ def total_attenuation_coefficient(selection="Element",
 
     # Creates calculate button
     calc = Button(root, text="Calculate",
-                  command=lambda: handle_calculation(selection, mode, var.get(), entry.get()))
+                  command=lambda: handle_calculation(selection, mode, interaction, var.get(), entry.get()))
     calc.pack(pady=5)
 
     # Creates exit button to return to home screen
@@ -95,7 +96,7 @@ def total_attenuation_coefficient(selection="Element",
     # Stores nodes into global list
     screen_list = [top_frame, dropdown, advanced, label, entry, calc, exit_button]
 
-def tac_advanced(selection_start, mode_start):
+def tac_advanced(selection_start, mode_start, interaction_start):
     global advanced_list
 
     # Hides T.A.C. screen
@@ -114,25 +115,41 @@ def tac_advanced(selection_start, mode_start):
     var_mode = StringVar(root)
     var_mode.set(mode_start)
 
-    # Creates dropdown menu for selection
+    # Creates dropdown menu for mode
     mode_choices = ["Mass Attenuation Coefficient (cm^2/g)", "Density (g/cm^3)",
                     "Linear Attenuation Coefficient (cm^-1)"]
     mode_dropdown = OptionMenu(root, var_mode, *mode_choices)
     mode_dropdown.pack(pady=10)
 
+    # Stores interaction and sets default
+    var_interaction = StringVar(root)
+    var_interaction.set(interaction_start)
+
+    # Creates dropdown menu for mode
+    interaction_choices = ["Total Attenuation with Coherent Scattering",
+                    "Total Attenuation without Coherent Scattering",
+                    "Pair Production in Electron Field",
+                    "Pair Production in Nuclear Field",
+                    "Scattering - Incoherent",
+                    "Scattering - Coherent",
+                    "Photo-Electric Absorption"]
+    interaction_dropdown = OptionMenu(root, var_interaction, *interaction_choices)
+    interaction_dropdown.pack(pady=10)
+
     # Creates exit button to return to T.A.C. screen
     exit_button = Button(root, text="Back", command=lambda: tac_back(var_selection.get(),
-                                                                     var_mode.get()))
+                                                                     var_mode.get(),
+                                                                     var_interaction.get()))
     exit_button.pack(pady=5)
 
     # Stores nodes into global list
-    advanced_list = [selection_dropdown, mode_dropdown, exit_button]
+    advanced_list = [selection_dropdown, mode_dropdown, interaction_dropdown, exit_button]
 
-def tac_back(selection, mode):
+def tac_back(selection, mode, interaction):
     clear_advanced()
-    total_attenuation_coefficient(selection=selection, mode=mode)
+    total_attenuation_coefficient(selection=selection, mode=mode, interaction=interaction)
 
-def handle_calculation(selection, mode, element, energy_str):
+def handle_calculation(selection, mode, interaction, element, energy_str):
     global result_label
 
     # Removes result label from past calculations
@@ -151,11 +168,11 @@ def handle_calculation(selection, mode, element, energy_str):
             return
 
     if mode == "Mass Attenuation Coefficient (cm^2/g)":
-        result = find_tac(selection, element, energy_target)
+        result = find_tac(selection, interaction, element, energy_target)
     elif mode == "Density (g/cm^3)":
         result = find_density(selection, element)
     else:
-        tac = find_tac(selection, element, energy_target)
+        tac = find_tac(selection, interaction, element, energy_target)
         if tac in errors:
             result = tac
         else:
@@ -165,9 +182,9 @@ def handle_calculation(selection, mode, element, energy_str):
     edit_result(f"{result:.5g}")
     result_label.pack(pady=5)
 
-def find_tac(selection, element, energy_target):
+def find_tac(selection, interaction, element, energy_target):
     if selection == "Element":
-        tac = find_tac_for_element(element, energy_target)
+        tac = find_tac_for_element(element, interaction, energy_target)
     else:
         tac = 0
         with open('attenuation/Materials/' + element + '.csv', 'r') as file:
@@ -176,7 +193,7 @@ def find_tac(selection, element, energy_target):
 
             # Sums each component's weighted T.A.C.
             for row in reader:
-                tac_of_element = find_tac_for_element(row['Element'], energy_target)
+                tac_of_element = find_tac_for_element(row['Element'], interaction, energy_target)
                 if tac_of_element in errors:
                     tac = tac_of_element
                     break
@@ -185,7 +202,7 @@ def find_tac(selection, element, energy_target):
 
     return tac
 
-def find_tac_for_element(element, energy_target):
+def find_tac_for_element(element, interaction, energy_target):
     # Variables for the nearest energy value on either side
     closest_low = 0.0
     closest_high = float('inf')
@@ -206,7 +223,7 @@ def find_tac_for_element(element, energy_target):
             # If energy value matches target exactly, uses
             # the T.A.C. of this row
             if energy == energy_target:
-                return float(row["Total Attenuation with Coherent Scattering"])
+                return float(row[interaction])
 
             # If energy value is less than the target, uses
             # this energy and its coefficient as the closest
@@ -215,7 +232,7 @@ def find_tac_for_element(element, energy_target):
             # by energy
             elif energy < energy_target:
                 closest_low = energy
-                low_coefficient = float(row["Total Attenuation with Coherent Scattering"])
+                low_coefficient = float(row[interaction])
 
             # If energy value is greater than the target, uses
             # this energy and its coefficient as the closest
@@ -224,7 +241,7 @@ def find_tac_for_element(element, energy_target):
             # ascending order by energy
             else:
                 closest_high = energy
-                high_coefficient = float(row["Total Attenuation with Coherent Scattering"])
+                high_coefficient = float(row[interaction])
                 break
 
     # Error-check for an energy input smaller than all data

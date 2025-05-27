@@ -1,11 +1,13 @@
 ##### IMPORTS #####
 import csv
 from tkinter import *
+import matplotlib.pyplot as plt
+import pandas as pd
 
 ##### WINDOW SETUP #####
 root = Tk()
 root.title("Coefficient Request")
-root.geometry("500x225")
+root.geometry("500x275")
 
 ##### HOME SCREEN BUTTONS #####
 tac_button = Button(root)
@@ -89,12 +91,20 @@ def total_attenuation_coefficient(selection="Element",
                   command=lambda: handle_calculation(selection, mode, interaction, var.get(), entry.get()))
     calc.pack(pady=5)
 
+    # Creates plot button
+    plot_button = Button(root, text="Plot", command=lambda: plot_data(var.get(),
+                                                                      selection,
+                                                                      mode,
+                                                                      interaction))
+    plot_button.pack(pady=5)
+
     # Creates exit button to return to home screen
     exit_button = Button(root, text="Exit", command=exit_to_home)
     exit_button.pack(pady=5)
 
     # Stores nodes into global list
-    screen_list = [top_frame, dropdown, advanced, label, entry, calc, exit_button]
+    screen_list = [top_frame, dropdown, advanced, label, entry, calc,
+                   plot_button, exit_button]
 
 def tac_advanced(selection_start, mode_start, interaction_start):
     global advanced_list
@@ -143,7 +153,36 @@ def tac_advanced(selection_start, mode_start, interaction_start):
     exit_button.pack(pady=5)
 
     # Stores nodes into global list
-    advanced_list = [selection_dropdown, mode_dropdown, interaction_dropdown, exit_button]
+    advanced_list = [selection_dropdown, mode_dropdown, interaction_dropdown,
+                     exit_button]
+
+def plot_data(element, selection, mode, interaction):
+    if selection != "Element":
+        return
+
+    # Load the CSV file
+    df = pd.read_csv('attenuation/Elements/' + element + '.csv')
+
+    y = df[interaction].copy()
+    if mode == "Linear Attenuation Coefficient (cm^-1)":
+        print(y)
+        y *= find_density_for_element(element)
+        print(y)
+    elif mode == "Density (g/cm^3)":
+        y[:] = find_density_for_element(element)
+
+    # Plot the data
+    plt.plot(df["Photon Energy"], y, marker='o')
+    plt.title(mode + " of " + element + " over Energy (MeV)")
+    plt.xscale('log')
+    plt.xlabel('Energy (MeV)')
+    plt.ylabel(mode)
+    plt.grid(True)
+    plt.xticks(rotation=45)
+    plt.tight_layout()
+
+    # Show the plot
+    plt.show()
 
 def tac_back(selection, mode, interaction):
     clear_advanced()

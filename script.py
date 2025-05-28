@@ -195,9 +195,9 @@ def plot_data(element, selection, mode, interaction):
 
     # Plot the data
     plt.plot(df["Photon Energy"], df[interaction], marker='o')
-    plt.title(mode + " of " + element + " over Energy (MeV)", fontsize=7)
+    plt.title(mode + " of " + element + " over Photon Energy (MeV)", fontsize=6.75)
     plt.xscale('log')
-    plt.xlabel('Energy (MeV)')
+    plt.xlabel('Photon Energy (MeV)')
     plt.ylabel(mode)
     plt.grid(True)
     plt.xticks(rotation=45)

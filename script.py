@@ -157,23 +157,45 @@ def tac_advanced(selection_start, mode_start, interaction_start):
                      exit_button]
 
 def plot_data(element, selection, mode, interaction):
-    if selection != "Element":
-        return
+    cols = ["Photon Energy", interaction]
+    df = pd.DataFrame(columns=cols)
+    if selection == "Material":
+        with open('attenuation/Materials/' + element + '.csv', 'r') as file:
+            # Reads in file
+            reader = csv.DictReader(file)
 
-    # Load the CSV file
-    df = pd.read_csv('attenuation/Elements/' + element + '.csv')
+            # Create the dataframe
+            vals = []
+            for row in reader:
+                with open('attenuation/Elements/' + row['Element'] + '.csv', 'r') as file2:
+                    # Reads in file
+                    reader2 = csv.DictReader(file2)
 
-    y = df[interaction].copy()
+                    # Gets energy values to use as dots
+                    if len(vals) == 0:
+                        for row2 in reader2:
+                            vals.append(float(row2["Photon Energy"]))
+
+                # Finds the T.A.C. at each energy value and adds to dataframe
+                for index, val in enumerate(vals):
+                    x = find_tac(selection, interaction, element, val)
+                    index_sub = 0
+                    if x not in errors:
+                        df.loc[index - index_sub] = [val, x]
+                    else:
+                        index_sub += 1
+    else:
+        # Load the CSV file
+        df = pd.read_csv('attenuation/Elements/' + element + '.csv')
+
     if mode == "Linear Attenuation Coefficient (cm^-1)":
-        print(y)
-        y *= find_density_for_element(element)
-        print(y)
+        df[interaction] *= find_density(selection, element)
     elif mode == "Density (g/cm^3)":
-        y[:] = find_density_for_element(element)
+        df[interaction][:] = find_density(selection, element)
 
     # Plot the data
-    plt.plot(df["Photon Energy"], y, marker='o')
-    plt.title(mode + " of " + element + " over Energy (MeV)")
+    plt.plot(df["Photon Energy"], df[interaction], marker='o')
+    plt.title(mode + " of " + element + " over Energy (MeV)", fontsize=7)
     plt.xscale('log')
     plt.xlabel('Energy (MeV)')
     plt.ylabel(mode)

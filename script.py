@@ -3,6 +3,8 @@ import csv
 from tkinter import *
 import matplotlib.pyplot as plt
 import pandas as pd
+from tkinter.ttk import Combobox
+from ttkwidgets.autocomplete import AutocompleteCombobox
 
 ##### WINDOW SETUP #####
 root = Tk()
@@ -38,15 +40,20 @@ def total_attenuation_coefficient(selection="Element",
     var = StringVar(root)
 
     if selection == "Element":
+        box_width = 5
+        default = 'Ac'
+    else:
+        box_width = 35
+        default = 'A-150 Tissue-Equivalent Plastic (A150TEP)'
+    var.set(default)
+
+    if selection == "Element":
         # Obtains list of elements
         with open('attenuation/Elements/Elements.csv', 'r') as file:
             reader = csv.reader(file)
             for row in reader:
                 if row[0] != 'Name':
                     choices.append(row[0])
-
-        # Sets default element selection
-        var.set('Ac')
     else:
         # Obtains list of elements
         with open('attenuation/Materials/Materials.csv', 'r') as file:
@@ -55,9 +62,6 @@ def total_attenuation_coefficient(selection="Element",
                 if row[0] != 'Name':
                     choices.append(row[0])
 
-        # Sets default material selection
-        var.set('Acetone')
-
     # Changes to T.A.C. screen
     tac_button.pack_forget()
 
@@ -65,9 +69,24 @@ def total_attenuation_coefficient(selection="Element",
     top_frame = Frame(root)
     top_frame.pack(pady=10)
 
+    def on_enter(_):
+        value = dropdown.get()
+        if value not in choices:
+            dropdown.set('Ac')
+        else:
+            # Move focus away from the combobox
+            root.focus()
+
+    def on_select(event):
+        event.widget.get()
+
     # Creates dropdown menu for element selection
-    dropdown = OptionMenu(top_frame, var, *choices)
+    dropdown = AutocompleteCombobox(top_frame, textvariable=var, completevalues=choices,
+                                    width=box_width)
     dropdown.pack(side="left", padx=5)
+    dropdown.bind('<Return>', on_enter)
+    dropdown.bind("<<ComboboxSelected>>", on_select)
+    dropdown.bind("<FocusOut>", on_enter)
 
     # Creates an advanced settings button
     advanced = Button(top_frame, text="Advanced Settings",
@@ -88,7 +107,8 @@ def total_attenuation_coefficient(selection="Element",
 
     # Creates calculate button
     calc = Button(root, text="Calculate",
-                  command=lambda: handle_calculation(selection, mode, interaction, var.get(), entry.get()))
+                  command=lambda: handle_calculation(selection, mode, interaction, var.get(),
+                                                     entry.get()))
     calc.pack(pady=5)
 
     # Creates plot button
@@ -116,35 +136,54 @@ def tac_advanced(selection_start, mode_start, interaction_start):
     var_selection = StringVar(root)
     var_selection.set(selection_start)
 
+    def select_selection(event):
+        event.widget.selection_clear()
+        root.focus()
+
     # Creates dropdown menu for selection
     selection = ["Element", "Material"]
-    selection_dropdown = OptionMenu(root, var_selection, *selection)
+    selection_dropdown = Combobox(root, textvariable=var_selection, values=selection, width=6,
+                                  state='readonly')
     selection_dropdown.pack(pady=10)
+    selection_dropdown.bind("<<ComboboxSelected>>", select_selection)
 
     # Stores mode and sets default
     var_mode = StringVar(root)
     var_mode.set(mode_start)
 
+    def select_mode(event):
+        event.widget.selection_clear()
+        root.focus()
+
     # Creates dropdown menu for mode
-    mode_choices = ["Mass Attenuation Coefficient (cm^2/g)", "Density (g/cm^3)",
-                    "Linear Attenuation Coefficient (cm^-1)"]
-    mode_dropdown = OptionMenu(root, var_mode, *mode_choices)
+    mode_choices = ["Mass Attenuation Coefficient (cm\u00B2/g)",
+                    "Density (g/cm\u00B3)",
+                    "Linear Attenuation Coefficient (cm\u207B\u00B9)"]
+    mode_dropdown = Combobox(root, textvariable=var_mode, values=mode_choices, width=26,
+                             state='readonly')
     mode_dropdown.pack(pady=10)
+    mode_dropdown.bind("<<ComboboxSelected>>", select_mode)
 
     # Stores interaction and sets default
     var_interaction = StringVar(root)
     var_interaction.set(interaction_start)
 
+    def select_interaction(event):
+        event.widget.selection_clear()
+        root.focus()
+
     # Creates dropdown menu for mode
     interaction_choices = ["Total Attenuation with Coherent Scattering",
-                    "Total Attenuation without Coherent Scattering",
-                    "Pair Production in Electron Field",
-                    "Pair Production in Nuclear Field",
-                    "Scattering - Incoherent",
-                    "Scattering - Coherent",
-                    "Photo-Electric Absorption"]
-    interaction_dropdown = OptionMenu(root, var_interaction, *interaction_choices)
+                           "Total Attenuation without Coherent Scattering",
+                           "Pair Production in Electron Field",
+                           "Pair Production in Nuclear Field",
+                           "Scattering - Incoherent",
+                           "Scattering - Coherent",
+                           "Photo-Electric Absorption"]
+    interaction_dropdown = Combobox(root, textvariable=var_interaction,
+                                    values=interaction_choices, width=32, state='readonly')
     interaction_dropdown.pack(pady=10)
+    interaction_dropdown.bind("<<ComboboxSelected>>", select_interaction)
 
     # Creates exit button to return to T.A.C. screen
     exit_button = Button(root, text="Back", command=lambda: tac_back(var_selection.get(),
@@ -372,7 +411,8 @@ def return_home():
     global tac_button
 
     # Creates buttons for home screen
-    tac_button = Button(root, text="Total Attenuation Coefficient", command=total_attenuation_coefficient)
+    tac_button = Button(root, text="Total Attenuation Coefficient",
+                        command=total_attenuation_coefficient)
     tac_button.pack(pady=5)
 
 def exit_to_home():

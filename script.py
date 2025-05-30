@@ -24,13 +24,18 @@ errors = [non_number, too_low, too_high]
 screen_list = []
 advanced_list = []
 
+# Choices using an element or a material
+element_choices = ["Common Elements", "All Elements"]
+material_choices = ["Common Materials", "All Materials"]
+
 # Displays the requested coefficient
 result_label = Text(root, height=1, borderwidth=0)
 result_label.config(bg='white', fg='grey')
 
-def total_attenuation_coefficient(selection_start="Element",
+def total_attenuation_coefficient(selection_start="Common Elements",
                                   mode_start="Mass Attenuation Coefficient (cm\u00B2/g)",
                                   interaction="Total Attenuation with Coherent Scattering",
+                                  common_el="Ag", common_mat="Air (dry, near sea level)",
                                   element="Ac",
                                   material="A-150 Tissue-Equivalent Plastic (A150TEP)"):
     global tac_button
@@ -38,7 +43,7 @@ def total_attenuation_coefficient(selection_start="Element",
 
     choices = get_choices(selection_start)
 
-    box_width = 5 if selection_start == "Element" else 35
+    box_width = 5 if selection_start in element_choices else 35
 
     # Stores selection and sets default
     var_selection = StringVar(root)
@@ -46,7 +51,9 @@ def total_attenuation_coefficient(selection_start="Element",
 
     # Stores element/material selection
     var = StringVar(root)
-    var.set(element if selection_start == "Element" else material)
+    var.set(common_el if selection_start == "Common Elements" else
+            common_mat if selection_start == "Common Materials" else
+            element if selection_start == "All Elements" else material)
 
     # Changes to T.A.C. screen
     tac_button.pack_forget()
@@ -60,25 +67,42 @@ def total_attenuation_coefficient(selection_start="Element",
         nonlocal box_width
 
         event.widget.selection_clear()
-        choices = get_choices(var_selection.get())
-        var.set(element if var_selection.get() == "Element" else material)
-        box_width = 5 if var_selection.get() == "Element" else 35
+        selection = var_selection.get()
+        choices = get_choices(selection)
+        var.set(common_el if selection == "Common Elements" else
+                common_mat if selection == "Common Materials" else
+                element if selection == "All Elements" else material)
+        box_width = 5 if selection in element_choices else 35
         dropdown.config(completevalues=choices, width=box_width)
         root.focus()
 
     # Creates dropdown menu for selection
-    selection = ["Element", "Material"]
+    selections = ["Common Elements", "All Elements",
+                  "Common Materials", "All Materials"]
     selection_dropdown = Combobox(top_frame, textvariable=var_selection,
-                                  values=selection, width=6, state='readonly')
+                                  values=selections, width=13, state='readonly')
     selection_dropdown.pack(side="left", padx=5)
     selection_dropdown.bind("<<ComboboxSelected>>", select_selection)
 
     def on_enter(_):
+        nonlocal common_el, common_mat, element, material
         value = dropdown.get()
+        selection = var_selection.get()
         if value not in choices:
-            dropdown.set(element if selection == "Element" else material)
+            dropdown.set(common_el if selection == "Common Elements" else
+                         common_mat if selection == "Common Materials" else
+                         element if selection == "All Elements" else material)
         else:
             # Move focus away from the combobox
+            selection = var_selection.get()
+            if selection == "Common Elements":
+                common_el = var.get()
+            elif selection == "All Elements":
+                element = var.get()
+            elif selection == "Common Materials":
+                common_mat = var.get()
+            elif selection == "All Materials":
+                material = var.get()
             root.focus()
 
     def on_select(event):
@@ -96,33 +120,38 @@ def total_attenuation_coefficient(selection_start="Element",
     # Stores mode and sets default
     var_mode = StringVar(root)
     var_mode.set(mode_start)
+    mode = mode_start
 
-    label = make_energy_label()
-    entry = make_energy_input()
+    label = Label(root, text="Energy (MeV):")
+    entry = Entry(root, width=30)
+    entry.config(bg='white', fg='grey')
 
     def select_mode(event):
-        nonlocal label
-        nonlocal entry
-
+        nonlocal label, entry
+        nonlocal mode
         event.widget.selection_clear()
-        if event.widget.get() == "Density (g/cm\u00B3)":
-            label.destroy()
-            entry.destroy()
-        else:
+        result_label.pack_forget()
+        if event.widget.get() == "Density (g/cm\u00B3)"\
+           and mode != "Density (g/cm\u00B3)":
+            label.pack_forget()
+            entry.pack_forget()
+        elif mode == "Density (g/cm\u00B3)"\
+             and event.widget.get() != "Density (g/cm\u00B3)":
             screen_list.remove(label)
             screen_list.remove(entry)
-            label.destroy()
-            entry.destroy()
+            label.pack_forget()
+            entry.pack_forget()
             calc.pack_forget()
+            advanced.pack_forget()
             exit_button.pack_forget()
-            label = make_energy_label()
-            entry = make_energy_input()
             label.pack()
             entry.pack()
             calc.pack(pady=5)
-            exit_button.pack(pady=5)
+            advanced.pack(pady=2)
+            exit_button.pack(pady=2)
             screen_list.append(label)
             screen_list.append(entry)
+        mode = var_mode.get()
         root.focus()
 
     # Creates dropdown menu for mode
@@ -148,7 +177,8 @@ def total_attenuation_coefficient(selection_start="Element",
 
     # Creates an advanced settings button
     advanced = Button(root, text="Advanced Settings",
-                      command=lambda: tac_advanced(var.get(), var_selection.get(),
+                      command=lambda: tac_advanced(common_el, common_mat, element, material,
+                                                   var_selection.get(),
                                                    var_mode.get(), interaction))
     advanced.pack(pady=2)
 
@@ -157,31 +187,32 @@ def total_attenuation_coefficient(selection_start="Element",
     exit_button.pack(pady=2)
 
     # Stores nodes into global list
-    screen_list = [top_frame, dropdown, mode_dropdown, label, entry, calc,
-                   advanced, exit_button]
-
-def make_energy_label():
-    # Creates label for energy input
-    label = Label(root, text="Energy (MeV):")
-    return label
-
-def make_energy_input():
-    # Creates input box for energy input
-    entry = Entry(root, width=30)
-    entry.config(bg='white', fg='grey')
-    return entry
+    screen_list = [top_frame, dropdown, selection_dropdown, mode_dropdown,
+                   label, entry, calc, advanced, exit_button]
 
 def get_choices(selection):
     choices = []
     # Obtains list of elements
-    with open('attenuation/' + selection + 's/' + selection + 's.csv', 'r') as file:
+    if selection == "Common Elements":
+        choices = ["Ag", "Al", "Au", "C", "Cu", "Fe", "H",
+                   "Mg", "N", "Na", "O", "Pb", "S", "Si",
+                   "Ti", "U", "Zn"]
+        return choices
+    folder = "Materials"
+    name = "Common Materials"
+    if selection == "All Materials":
+        name = "Materials"
+    elif selection == "All Elements":
+        folder = "Elements"
+        name = "Elements"
+    with open('attenuation/' + folder + '/' + name + '.csv', 'r') as file:
         reader = csv.reader(file)
         for row in reader:
             if row[0] != 'Name':
                 choices.append(row[0])
     return choices
 
-def tac_advanced(element, selection, mode, interaction_start):
+def tac_advanced(common_el, common_mat, element, material, selection, mode, interaction_start):
     global advanced_list
 
     # Hides T.A.C. screen
@@ -209,14 +240,19 @@ def tac_advanced(element, selection, mode, interaction_start):
     interaction_dropdown.bind("<<ComboboxSelected>>", select_interaction)
 
     # Creates plot button
-    plot_button = Button(root, text="Plot", command=lambda: plot_data(element,
-                                                                      selection, mode,
-                                                                      var_interaction.get()))
+    plot_button = Button(root, text="Plot",
+                         command=lambda: plot_data(common_el if selection == "Common Elements"
+                                                   else common_mat if
+                                                        selection == "Common Materials"
+                                                   else element if selection == "All Elements"
+                                                   else material,
+                                         selection, mode, var_interaction.get()))
     plot_button.pack(pady=5)
 
     # Creates exit button to return to T.A.C. screen
     exit_button = Button(root, text="Back",
-                         command=lambda: tac_back(selection, mode,
+                         command=lambda: tac_back(common_el, common_mat, element, material,
+                                                  selection, mode,
                                                   var_interaction.get()))
     exit_button.pack(pady=5)
 
@@ -226,7 +262,7 @@ def tac_advanced(element, selection, mode, interaction_start):
 def plot_data(element, selection, mode, interaction):
     cols = ["Photon Energy", interaction]
     df = pd.DataFrame(columns=cols)
-    if selection == "Material":
+    if selection in material_choices:
         with open('attenuation/Materials/' + element + '.csv', 'r') as file:
             # Reads in file
             reader = csv.DictReader(file)
@@ -262,8 +298,9 @@ def plot_data(element, selection, mode, interaction):
 
     # Plot the data
     plt.plot(df["Photon Energy"], df[interaction], marker='o')
-    plt.title(mode + " of " + element + " over Photon Energy (MeV)", fontsize=6.75)
+    plt.title(element + " - " + interaction, fontsize=8.5)
     plt.xscale('log')
+    plt.yscale('log')
     plt.xlabel('Photon Energy (MeV)')
     plt.ylabel(mode)
     plt.grid(True)
@@ -273,10 +310,11 @@ def plot_data(element, selection, mode, interaction):
     # Show the plot
     plt.show()
 
-def tac_back(selection, mode, interaction):
+def tac_back(common_el, common_mat, element, material, selection, mode, interaction):
     clear_advanced()
     total_attenuation_coefficient(selection_start=selection, mode_start=mode,
-                                  interaction=interaction)
+                                  interaction=interaction, common_el=common_el,
+                                  common_mat=common_mat, element=element, material=material)
 
 def handle_calculation(selection, mode, interaction, element, energy_str):
     global result_label
@@ -308,11 +346,11 @@ def handle_calculation(selection, mode, interaction, element, energy_str):
             result = tac * find_density(selection, element)
 
     # Displays result label
-    edit_result(f"{result:.5g}")
+    edit_result(f"{result:.4g}")
     result_label.pack(pady=5)
 
 def find_tac(selection, interaction, element, energy_target):
-    if selection == "Element":
+    if selection in element_choices:
         tac = find_tac_for_element(element, interaction, energy_target)
     else:
         tac = 0
@@ -389,7 +427,7 @@ def find_tac_for_element(element, interaction, energy_target):
 
 def find_density(selection, element):
     density = None
-    if selection == "Element":
+    if selection in element_choices:
         density = find_density_for_element(element)
     else:
         with open('attenuation/Materials/Materials.csv', 'r') as file:

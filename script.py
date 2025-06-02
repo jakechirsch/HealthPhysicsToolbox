@@ -5,6 +5,8 @@ import matplotlib.pyplot as plt
 import pandas as pd
 from tkinter.ttk import Combobox
 from ttkwidgets.autocomplete import AutocompleteCombobox
+import defaults
+import shelve
 
 ##### WINDOW SETUP #####
 root = Tk()
@@ -192,25 +194,21 @@ def total_attenuation_coefficient(selection_start="Common Elements",
 
 def get_choices(selection):
     choices = []
-    # Obtains list of elements
-    if selection == "Common Elements":
-        choices = ["Ag", "Al", "Au", "C", "Cu", "Fe", "H",
-                   "Mg", "N", "Na", "O", "Pb", "S", "Si",
-                   "Ti", "U", "Zn"]
+
+    if selection == "All Elements" or selection == "All Materials":
+        # Obtains list of elements from csv file
+        name = "Elements" if selection == "All Elements" else "Materials"
+        with open('attenuation/' + name + '/' + name + '.csv', 'r') as file:
+            reader = csv.reader(file)
+            for row in reader:
+                if row[0] != 'Name':
+                    choices.append(row[0])
         return choices
-    folder = "Materials"
-    name = "Common Materials"
-    if selection == "All Materials":
-        name = "Materials"
-    elif selection == "All Elements":
-        folder = "Elements"
-        name = "Elements"
-    with open('attenuation/' + folder + '/' + name + '.csv', 'r') as file:
-        reader = csv.reader(file)
-        for row in reader:
-            if row[0] != 'Name':
-                choices.append(row[0])
-    return choices
+
+    # Obtains list of elements from shelve
+    with shelve.open(selection) as prefs:
+        return prefs.get(selection, defaults.common_elements if selection == "Common Elements"
+                                    else defaults.common_materials)
 
 def tac_advanced(common_el, common_mat, element, material, selection, mode, interaction_start):
     global advanced_list

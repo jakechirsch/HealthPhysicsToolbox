@@ -1,12 +1,11 @@
 ##### IMPORTS #####
-import csv
-from tkinter import *
 import matplotlib.pyplot as plt
 import pandas as pd
 from tkinter.ttk import Combobox
 from ttkwidgets.autocomplete import AutocompleteCombobox
 import defaults
 import shelve
+from tac_calculations import *
 
 ##### WINDOW SETUP #####
 root = Tk()
@@ -16,23 +15,17 @@ root.geometry("525x275")
 ##### HOME SCREEN BUTTONS #####
 tac_button = Button(root)
 
-### ERROR MESSAGES ###
-non_number = "Error: Non-number energy input."
-too_low = "Error: Energy too low."
-too_high = "Error: Energy too high."
-errors = [non_number, too_low, too_high]
-
 # For global access to nodes on non-home screen
 screen_list = []
 advanced_list = []
 
-# Choices using an element or a material
-element_choices = ["Common Elements", "All Elements"]
-material_choices = ["Common Materials", "All Materials"]
-
 # Displays the requested coefficient
 result_label = Text(root, height=1, borderwidth=0)
 result_label.config(bg='white', fg='grey')
+
+def on_select(event):
+    event.widget.selection_clear()
+    root.focus()
 
 def total_attenuation_coefficient(selection_start="Common Elements",
                                   mode_start="Mass Attenuation Coefficient (cm\u00B2/g)",
@@ -53,7 +46,8 @@ def total_attenuation_coefficient(selection_start="Common Elements",
 
     # Stores element/material selection
     var = StringVar(root)
-    var.set(common_el if selection_start == "Common Elements" else
+    var.set("" if choices == [] else
+            common_el if selection_start == "Common Elements" else
             common_mat if selection_start == "Common Materials" else
             element if selection_start == "All Elements" else material)
 
@@ -71,7 +65,8 @@ def total_attenuation_coefficient(selection_start="Common Elements",
         event.widget.selection_clear()
         selection = var_selection.get()
         choices = get_choices(selection)
-        var.set(common_el if selection == "Common Elements" else
+        var.set("" if choices == [] else
+                common_el if selection == "Common Elements" else
                 common_mat if selection == "Common Materials" else
                 element if selection == "All Elements" else material)
         box_width = 5 if selection in element_choices else 35
@@ -91,7 +86,8 @@ def total_attenuation_coefficient(selection_start="Common Elements",
         value = dropdown.get()
         selection = var_selection.get()
         if value not in choices:
-            dropdown.set(common_el if selection == "Common Elements" else
+            dropdown.set("" if choices == [] else
+                         common_el if selection == "Common Elements" else
                          common_mat if selection == "Common Materials" else
                          element if selection == "All Elements" else material)
         else:
@@ -106,10 +102,6 @@ def total_attenuation_coefficient(selection_start="Common Elements",
             elif selection == "All Materials":
                 material = var.get()
             root.focus()
-
-    def on_select(event):
-        event.widget.selection_clear()
-        root.focus()
 
     # Creates dropdown menu for element selection
     dropdown = AutocompleteCombobox(top_frame, textvariable=var, completevalues=choices,
@@ -174,7 +166,7 @@ def total_attenuation_coefficient(selection_start="Common Elements",
     calc = Button(root, text="Calculate",
                   command=lambda: handle_calculation(var_selection.get(), var_mode.get(),
                                                      interaction, var.get(),
-                                                     entry.get()))
+                                                     entry.get(), result_label))
     calc.pack(pady=5)
 
     # Creates an advanced settings button
@@ -201,7 +193,7 @@ def get_choices(selection):
         with open('attenuation/' + name + '/' + name + '.csv', 'r') as file:
             reader = csv.reader(file)
             for row in reader:
-                if row[0] != 'Name':
+                if row and row[0] != 'Name':
                     choices.append(row[0])
         return choices
 
@@ -220,10 +212,6 @@ def tac_advanced(common_el, common_mat, element, material, selection, mode, inte
     var_interaction = StringVar(root)
     var_interaction.set(interaction_start)
 
-    def select_interaction(event):
-        event.widget.selection_clear()
-        root.focus()
-
     # Creates dropdown menu for mode
     interaction_choices = ["Total Attenuation with Coherent Scattering",
                            "Total Attenuation without Coherent Scattering",
@@ -235,7 +223,7 @@ def tac_advanced(common_el, common_mat, element, material, selection, mode, inte
     interaction_dropdown = Combobox(root, textvariable=var_interaction,
                                     values=interaction_choices, width=32, state='readonly')
     interaction_dropdown.pack(pady=10)
-    interaction_dropdown.bind("<<ComboboxSelected>>", select_interaction)
+    interaction_dropdown.bind("<<ComboboxSelected>>", on_select)
 
     # Creates plot button
     plot_button = Button(root, text="Plot",
@@ -247,15 +235,127 @@ def tac_advanced(common_el, common_mat, element, material, selection, mode, inte
                                          selection, mode, var_interaction.get()))
     plot_button.pack(pady=5)
 
+    # Frame for add common elements option
+    e_frame = Frame(root)
+    e_frame.pack(pady=10)
+
+    # Frame for add common elements option
+    add_ce_frame = Frame(e_frame)
+    add_ce_frame.pack(side='left', padx=5)
+
+    add_ce_label = Label(add_ce_frame, text="Add Common Element:")
+    add_ce_label.pack()
+
+    # Gets non-common elements
+    elements = get_choices("All Elements")
+    common = get_choices("Common Elements")
+    non_common = [element for element in elements if element not in common]
+
+    # Stores element and sets default
+    var_add = StringVar(root)
+    var_add.set(non_common[0] if len(non_common) > 0 else "")
+
+    on_enter_add_ce = make_enter(var_add, non_common)
+    add_ce_dropdown = make_ac_box(add_ce_frame, var_add, non_common, on_enter_add_ce)
+
+    # Creates add common element button
+    add_ce_button = Button(add_ce_frame, text="Add",
+                           command=lambda:add_ce(selection, common, non_common, var_add,
+                                                 add_ce_dropdown, var_remove, remove_ce_dropdown))
+    add_ce_button.pack()
+
+    # Frame for remove common elements option
+    remove_ce_frame = Frame(e_frame)
+    remove_ce_frame.pack(side='left', padx=5)
+
+    remove_ce_label = Label(remove_ce_frame, text="Remove Common Element:")
+    remove_ce_label.pack()
+
+    # Stores element and sets default
+    var_remove = StringVar(root)
+    var_remove.set(common[0] if len(common) > 0 else "")
+
+    on_enter_remove_ce = make_enter(var_remove, common)
+    remove_ce_dropdown = make_ac_box(remove_ce_frame, var_remove, common, on_enter_remove_ce)
+
+    # Creates add common element button
+    remove_ce_button = Button(remove_ce_frame, text="Remove",
+                              command=lambda: remove_ce(selection, common, non_common, var_add,
+                                                        add_ce_dropdown, var_remove,
+                                                        remove_ce_dropdown))
+    remove_ce_button.pack()
+
     # Creates exit button to return to T.A.C. screen
     exit_button = Button(root, text="Back",
-                         command=lambda: tac_back(common_el, common_mat, element, material,
-                                                  selection, mode,
-                                                  var_interaction.get()))
+                         command=lambda: tac_back(common_el if common_el in common
+                                                  else common[0] if len(common) > 0 else "",
+                                                  common_mat, element, material,
+                                                  selection, mode, var_interaction.get()))
     exit_button.pack(pady=5)
 
     # Stores nodes into global list
-    advanced_list = [interaction_dropdown, plot_button, exit_button]
+    advanced_list = [interaction_dropdown, plot_button, add_ce_frame, add_ce_label,
+                     add_ce_dropdown, add_ce_button, remove_ce_frame, remove_ce_label,
+                     remove_ce_dropdown, remove_ce_button, e_frame, exit_button]
+
+def make_enter(var, choices):
+    def on_enter(_):
+        value = var.get()
+        if value not in choices:
+            var.set(choices[0] if len(choices) > 0 else "")
+        else:
+            # Move focus away from the combobox
+            root.focus()
+    return on_enter
+
+def make_ac_box(frame, var, choices, enter):
+    dropdown = AutocompleteCombobox(frame, textvariable=var,
+                                    completevalues=choices, width=5)
+    dropdown.pack()
+    dropdown.bind('<Return>', enter)
+    dropdown.bind("<<ComboboxSelected>>", on_select)
+    dropdown.bind("<FocusOut>", enter)
+    return dropdown
+
+def add_ce(selection, common, non_common, var_add, add_ce_dropdown, var_remove, remove_ce_dropdown):
+    with shelve.open(selection) as prefs:
+        # Adds element to common elements
+        element = var_add.get()
+        if element == "":
+            return
+        choices = prefs.get(selection, defaults.common_elements if selection == "Common Elements"
+                                       else defaults.common_materials)
+        choices.append(element)
+        common.append(element)
+        prefs[selection] = choices
+        remove_ce_dropdown.config(completevalues=choices)
+        if var_remove.get() == "":
+            var_remove.set(element)
+
+        # Removes element from non-common elements
+        non_common.remove(element)
+        add_ce_dropdown.config(completevalues=non_common)
+        var_add.set(non_common[0] if len(non_common) > 0 else "")
+
+def remove_ce(selection, common, non_common, var_add, add_ce_dropdown, var_remove, remove_ce_dropdown):
+    with shelve.open(selection) as prefs:
+        # Removes element from common elements
+        element = var_remove.get()
+        if element == "":
+            return
+        choices = prefs.get(selection, defaults.common_elements if selection == "Common Elements"
+                                       else defaults.common_materials)
+        choices.remove(element)
+        common.remove(element)
+        prefs[selection] = choices
+        remove_ce_dropdown.config(completevalues=choices)
+        var_remove.set(choices[0] if len(choices) > 0 else "")
+
+        # Adds element to non-common elements
+        non_common.append(element)
+        add_ce_dropdown.config(completevalues=non_common)
+        if var_add.get() == "":
+            var_add.set(element)
 
 def plot_data(element, selection, mode, interaction):
     cols = ["Photon Energy", interaction]
@@ -313,147 +413,6 @@ def tac_back(common_el, common_mat, element, material, selection, mode, interact
     total_attenuation_coefficient(selection_start=selection, mode_start=mode,
                                   interaction=interaction, common_el=common_el,
                                   common_mat=common_mat, element=element, material=material)
-
-def handle_calculation(selection, mode, interaction, element, energy_str):
-    global result_label
-
-    # Removes result label from past calculations
-    result_label.pack_forget()
-
-    # Energy input in float format
-    energy_target = 0.0
-
-    if mode != "Density (g/cm\u00B3)":
-        # Error-check for a non-number energy input
-        try:
-            energy_target = float(energy_str)
-        except ValueError:
-            edit_result(non_number)
-            result_label.pack(pady=5)
-            return
-
-    if mode == "Mass Attenuation Coefficient (cm\u00B2/g)":
-        result = find_tac(selection, interaction, element, energy_target)
-    elif mode == "Density (g/cm\u00B3)":
-        result = find_density(selection, element)
-    else:
-        tac = find_tac(selection, interaction, element, energy_target)
-        if tac in errors:
-            result = tac
-        else:
-            result = tac * find_density(selection, element)
-
-    # Displays result label
-    edit_result(f"{result:.4g}")
-    result_label.pack(pady=5)
-
-def find_tac(selection, interaction, element, energy_target):
-    if selection in element_choices:
-        tac = find_tac_for_element(element, interaction, energy_target)
-    else:
-        tac = 0
-        with open('attenuation/Materials/' + element + '.csv', 'r') as file:
-            # Reads in file
-            reader = csv.DictReader(file)
-
-            # Sums each component's weighted T.A.C.
-            for row in reader:
-                tac_of_element = find_tac_for_element(row['Element'], interaction, energy_target)
-                if tac_of_element in errors:
-                    tac = tac_of_element
-                    break
-                tac_component = float(row['Weight']) * float(tac_of_element)
-                tac += tac_component
-
-    return tac
-
-def find_tac_for_element(element, interaction, energy_target):
-    # Variables for the nearest energy value on either side
-    closest_low = 0.0
-    closest_high = float('inf')
-
-    # Variables for the T.A.C. of the nearest energy values on either side
-    low_coefficient = 0.0
-    high_coefficient = float('inf')
-
-    # Opens file
-    with open('attenuation/Elements/' + element + '.csv', 'r') as file:
-        # Reads in file in dictionary format
-        reader = csv.DictReader(file)
-
-        for row in reader:
-            # Retrieves energy value of row
-            energy = float(row["Photon Energy"])
-
-            # If energy value matches target exactly, uses
-            # the T.A.C. of this row
-            if energy == energy_target:
-                return float(row[interaction])
-
-            # If energy value is less than the target, uses
-            # this energy and its coefficient as the closest
-            # value lower than the energy so far, which we know
-            # is true because the data is sorted in ascending order
-            # by energy
-            elif energy < energy_target:
-                closest_low = energy
-                low_coefficient = float(row[interaction])
-
-            # If energy value is greater than the target, uses
-            # this energy and its coefficient as the closest
-            # value higher than the energy and then exits the loop,
-            # which we know is true because the data is sorted in
-            # ascending order by energy
-            else:
-                closest_high = energy
-                high_coefficient = float(row[interaction])
-                break
-
-    # Error-check for an energy input smaller than all data
-    if closest_low == 0.0:
-        return too_low
-
-    # Error-check for an energy input larger than all data
-    if closest_high == float('inf'):
-        return too_high
-
-    # Uses linear interpolation to find the T.A.C.
-    difference = closest_high - closest_low
-    percentage = (energy_target - closest_low) / difference
-    coefficient = low_coefficient + percentage * (high_coefficient - low_coefficient)
-    return coefficient
-
-def find_density(selection, element):
-    density = None
-    if selection in element_choices:
-        density = find_density_for_element(element)
-    else:
-        with open('attenuation/Materials/Materials.csv', 'r') as file:
-            # Reads in file
-            reader = csv.reader(file)
-
-            # Sums each component's weighted density
-            for row in reader:
-                if row and row[0] == element:
-                    density = float(row[1])
-                    break
-                density = None
-    return density
-
-def find_density_for_element(element):
-    with open('attenuation/Elements/Periodic Table of Elements.csv', 'r') as file:
-        reader = csv.DictReader(file)
-        for row in reader:
-            if row and row['Symbol'] == element:
-                return float(row['Density'])
-        return None
-
-def edit_result(result):
-    # Clears result label and inserts new result
-    result_label.config(state="normal")
-    result_label.delete("1.0", END)
-    result_label.insert(END, result)
-    result_label.config(state="disabled")
 
 def clear():
     global screen_list

@@ -2,7 +2,7 @@ common_elements = ["Ag", "Al", "Au", "C", "Cu", "Fe", "H",
                    "Mg", "N", "Na", "O", "Pb", "S", "Si",
                    "Ti", "U", "Zn"]
 
-common_materials = ["Air (dry near sea level)",
+common_materials = ["Air (dry, near sea level)",
                     "Aluminum alloy 2024-O",
                     "Aluminum alloy 2090-T83",
                     "Aluminum alloy 3003",

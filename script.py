@@ -10,7 +10,7 @@ from tac_calculations import *
 ##### WINDOW SETUP #####
 root = Tk()
 root.title("Coefficient Request")
-root.geometry("525x275")
+root.geometry("725x350")
 
 ##### HOME SCREEN BUTTONS #####
 tac_button = Button(root)
@@ -39,6 +39,14 @@ def total_attenuation_coefficient(selection_start="Common Elements",
     choices = get_choices(selection_start)
 
     box_width = 5 if selection_start in element_choices else 35
+
+    # Make sure common default choices are valid selections
+    common_elements = get_choices("Common Elements")
+    if not common_el in common_elements:
+        common_el = common_elements[0] if len(common_elements) > 0 else ""
+    common_materials = get_choices("Common Materials")
+    if not common_mat in common_materials:
+        common_mat = common_materials[0] if len(common_materials) > 0 else ""
 
     # Stores selection and sets default
     var_selection = StringVar(root)
@@ -208,33 +216,6 @@ def tac_advanced(common_el, common_mat, element, material, selection, mode, inte
     # Hides T.A.C. screen
     clear()
 
-    # Stores interaction and sets default
-    var_interaction = StringVar(root)
-    var_interaction.set(interaction_start)
-
-    # Creates dropdown menu for mode
-    interaction_choices = ["Total Attenuation with Coherent Scattering",
-                           "Total Attenuation without Coherent Scattering",
-                           "Pair Production in Electron Field",
-                           "Pair Production in Nuclear Field",
-                           "Scattering - Incoherent",
-                           "Scattering - Coherent",
-                           "Photo-Electric Absorption"]
-    interaction_dropdown = Combobox(root, textvariable=var_interaction,
-                                    values=interaction_choices, width=32, state='readonly')
-    interaction_dropdown.pack(pady=10)
-    interaction_dropdown.bind("<<ComboboxSelected>>", on_select)
-
-    # Creates plot button
-    plot_button = Button(root, text="Plot",
-                         command=lambda: plot_data(common_el if selection == "Common Elements"
-                                                   else common_mat if
-                                                        selection == "Common Materials"
-                                                   else element if selection == "All Elements"
-                                                   else material,
-                                         selection, mode, var_interaction.get()))
-    plot_button.pack(pady=5)
-
     # Frame for add common elements option
     e_frame = Frame(root)
     e_frame.pack(pady=10)
@@ -256,12 +237,13 @@ def tac_advanced(common_el, common_mat, element, material, selection, mode, inte
     var_add.set(non_common[0] if len(non_common) > 0 else "")
 
     on_enter_add_ce = make_enter(var_add, non_common)
-    add_ce_dropdown = make_ac_box(add_ce_frame, var_add, non_common, on_enter_add_ce)
+    add_ce_dropdown = make_ac_box(add_ce_frame, var_add, non_common,
+                                  on_enter_add_ce, 5)
 
     # Creates add common element button
     add_ce_button = Button(add_ce_frame, text="Add",
-                           command=lambda:add_ce(selection, common, non_common, var_add,
-                                                 add_ce_dropdown, var_remove, remove_ce_dropdown))
+                           command=lambda:add_c("Common Elements", common, non_common, var_add,
+                                                add_ce_dropdown, var_remove, remove_ce_dropdown))
     add_ce_button.pack()
 
     # Frame for remove common elements option
@@ -276,27 +258,112 @@ def tac_advanced(common_el, common_mat, element, material, selection, mode, inte
     var_remove.set(common[0] if len(common) > 0 else "")
 
     on_enter_remove_ce = make_enter(var_remove, common)
-    remove_ce_dropdown = make_ac_box(remove_ce_frame, var_remove, common, on_enter_remove_ce)
+    remove_ce_dropdown = make_ac_box(remove_ce_frame, var_remove, common,
+                                     on_enter_remove_ce, 5)
 
     # Creates add common element button
     remove_ce_button = Button(remove_ce_frame, text="Remove",
-                              command=lambda: remove_ce(selection, common, non_common, var_add,
-                                                        add_ce_dropdown, var_remove,
-                                                        remove_ce_dropdown))
+                              command=lambda: remove_c("Common Elements", common, non_common,
+                                                       var_add, add_ce_dropdown, var_remove,
+                                                       remove_ce_dropdown))
     remove_ce_button.pack()
+
+    # Frame for add common elements option
+    m_frame = Frame(root)
+    m_frame.pack(pady=10)
+
+    # Frame for add common elements option
+    add_cm_frame = Frame(m_frame)
+    add_cm_frame.pack(side='left', padx=5)
+
+    add_cm_label = Label(add_cm_frame, text="Add Common Material:")
+    add_cm_label.pack()
+
+    # Gets non-common elements
+    materials = get_choices("All Materials")
+    common_m = get_choices("Common Materials")
+    non_common_m = [material for material in materials if material not in common_m]
+
+    # Stores element and sets default
+    var_add_m = StringVar(root)
+    var_add_m.set(non_common_m[0] if len(non_common_m) > 0 else "")
+
+    on_enter_add_cm = make_enter(var_add_m, non_common_m)
+    add_cm_dropdown = make_ac_box(add_cm_frame, var_add_m, non_common_m,
+                                  on_enter_add_cm, 35)
+
+    # Creates add common element button
+    add_cm_button = Button(add_cm_frame, text="Add",
+                           command=lambda: add_c("Common Materials", common_m, non_common_m,
+                                                 var_add_m, add_cm_dropdown, var_remove_m,
+                                                 remove_cm_dropdown))
+    add_cm_button.pack()
+
+    # Frame for remove common elements option
+    remove_cm_frame = Frame(m_frame)
+    remove_cm_frame.pack(side='left', padx=5)
+
+    remove_cm_label = Label(remove_cm_frame, text="Remove Common Material:")
+    remove_cm_label.pack()
+
+    # Stores element and sets default
+    var_remove_m = StringVar(root)
+    var_remove_m.set(common_m[0] if len(common_m) > 0 else "")
+
+    on_enter_remove_cm = make_enter(var_remove_m, common_m)
+    remove_cm_dropdown = make_ac_box(remove_cm_frame, var_remove_m, common_m,
+                                     on_enter_remove_cm, 35)
+
+    # Creates add common element button
+    remove_cm_button = Button(remove_cm_frame, text="Remove",
+                              command=lambda: remove_c("Common Materials", common_m,
+                                                       non_common_m, var_add_m, add_cm_dropdown,
+                                                       var_remove_m, remove_cm_dropdown))
+    remove_cm_button.pack()
+
+    # Stores interaction and sets default
+    var_interaction = StringVar(root)
+    var_interaction.set(interaction_start)
+
+    # Creates dropdown menu for mode
+    interaction_choices = ["Total Attenuation with Coherent Scattering",
+                           "Total Attenuation without Coherent Scattering",
+                           "Pair Production in Electron Field",
+                           "Pair Production in Nuclear Field",
+                           "Scattering - Incoherent",
+                           "Scattering - Coherent",
+                           "Photo-Electric Absorption"]
+    interaction_dropdown = Combobox(root, textvariable=var_interaction,
+                                    values=interaction_choices, width=32, state='readonly')
+    interaction_dropdown.pack(pady=10)
+    interaction_dropdown.bind("<<ComboboxSelected>>", on_select)
+
+    # Creates plot button
+    plot_button = Button(root, text="Plot",
+                         command=lambda: plot_data(common_el if selection == "Common Elements"
+                                                   else common_mat if
+                                                   selection == "Common Materials"
+                                                   else element if selection == "All Elements"
+                                                   else material,
+                                                   selection, mode, var_interaction.get()))
+    plot_button.pack(pady=5)
 
     # Creates exit button to return to T.A.C. screen
     exit_button = Button(root, text="Back",
                          command=lambda: tac_back(common_el if common_el in common
                                                   else common[0] if len(common) > 0 else "",
-                                                  common_mat, element, material,
-                                                  selection, mode, var_interaction.get()))
+                                                  common_mat if common_mat in common_m
+                                                  else common_m[0] if len(common_m) > 0 else "",
+                                                  element, material, selection, mode,
+                                                  var_interaction.get()))
     exit_button.pack(pady=5)
 
     # Stores nodes into global list
     advanced_list = [interaction_dropdown, plot_button, add_ce_frame, add_ce_label,
                      add_ce_dropdown, add_ce_button, remove_ce_frame, remove_ce_label,
-                     remove_ce_dropdown, remove_ce_button, e_frame, exit_button]
+                     remove_ce_dropdown, remove_ce_button, e_frame, m_frame, add_cm_frame,
+                     add_cm_label, add_cm_dropdown, add_cm_button, remove_cm_frame,
+                     remove_cm_label, remove_cm_dropdown, remove_cm_button, exit_button]
 
 def make_enter(var, choices):
     def on_enter(_):
@@ -308,16 +375,16 @@ def make_enter(var, choices):
             root.focus()
     return on_enter
 
-def make_ac_box(frame, var, choices, enter):
+def make_ac_box(frame, var, choices, enter, width):
     dropdown = AutocompleteCombobox(frame, textvariable=var,
-                                    completevalues=choices, width=5)
+                                    completevalues=choices, width=width)
     dropdown.pack()
     dropdown.bind('<Return>', enter)
     dropdown.bind("<<ComboboxSelected>>", on_select)
     dropdown.bind("<FocusOut>", enter)
     return dropdown
 
-def add_ce(selection, common, non_common, var_add, add_ce_dropdown, var_remove, remove_ce_dropdown):
+def add_c(selection, common, non_common, var_add, add_c_dropdown, var_remove, remove_c_dropdown):
     with shelve.open(selection) as prefs:
         # Adds element to common elements
         element = var_add.get()
@@ -326,18 +393,19 @@ def add_ce(selection, common, non_common, var_add, add_ce_dropdown, var_remove, 
         choices = prefs.get(selection, defaults.common_elements if selection == "Common Elements"
                                        else defaults.common_materials)
         choices.append(element)
-        common.append(element)
+        if not choices is common:
+            common.append(element)
         prefs[selection] = choices
-        remove_ce_dropdown.config(completevalues=choices)
+        remove_c_dropdown.config(completevalues=choices)
         if var_remove.get() == "":
             var_remove.set(element)
 
         # Removes element from non-common elements
         non_common.remove(element)
-        add_ce_dropdown.config(completevalues=non_common)
+        add_c_dropdown.config(completevalues=non_common)
         var_add.set(non_common[0] if len(non_common) > 0 else "")
 
-def remove_ce(selection, common, non_common, var_add, add_ce_dropdown, var_remove, remove_ce_dropdown):
+def remove_c(selection, common, non_common, var_add, add_c_dropdown, var_remove, remove_c_dropdown):
     with shelve.open(selection) as prefs:
         # Removes element from common elements
         element = var_remove.get()
@@ -346,14 +414,15 @@ def remove_ce(selection, common, non_common, var_add, add_ce_dropdown, var_remov
         choices = prefs.get(selection, defaults.common_elements if selection == "Common Elements"
                                        else defaults.common_materials)
         choices.remove(element)
-        common.remove(element)
+        if not choices is common:
+            common.remove(element)
         prefs[selection] = choices
-        remove_ce_dropdown.config(completevalues=choices)
+        remove_c_dropdown.config(completevalues=choices)
         var_remove.set(choices[0] if len(choices) > 0 else "")
 
         # Adds element to non-common elements
         non_common.append(element)
-        add_ce_dropdown.config(completevalues=non_common)
+        add_c_dropdown.config(completevalues=non_common)
         if var_add.get() == "":
             var_add.set(element)
 

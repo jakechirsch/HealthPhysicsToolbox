@@ -1,6 +1,8 @@
 ##### IMPORTS #####
 import csv
 from tkinter import *
+import shelve
+import io
 
 ### ERROR MESSAGES ###
 non_number = "Error: Non-number energy input."
@@ -50,19 +52,36 @@ def find_tac(selection, interaction, element, energy_target):
     if selection in element_choices:
         tac = find_tac_for_element(element, interaction, energy_target)
     else:
-        tac = 0
-        with open('attenuation/Materials/' + element + '.csv', 'r') as file:
-            # Reads in file
-            reader = csv.DictReader(file)
+        if selection in material_choices:
+            with open('attenuation/Materials/' + element + '.csv', 'r') as file:
+                tac = find_tac_for_material(file, interaction, energy_target)
 
-            # Sums each component's weighted T.A.C.
-            for row in reader:
-                tac_of_element = find_tac_for_element(row['Element'], interaction, energy_target)
-                if tac_of_element in errors:
-                    tac = tac_of_element
-                    break
-                tac_component = float(row['Weight']) * float(tac_of_element)
-                tac += tac_component
+            return tac
+
+        with shelve.open('_' + element) as db:
+            stored_data = db[element]
+            stored_data = stored_data.replace('\\n', '\n')
+
+        # Create file-like object from the stored string
+        csv_file_like = io.StringIO(stored_data)
+
+        tac = find_tac_for_material(csv_file_like, interaction, energy_target)
+
+    return tac
+
+def find_tac_for_material(file_like, interaction, energy_target):
+    tac = 0
+    # Parse it
+    reader = csv.DictReader(file_like)
+
+    # Sums each component's weighted T.A.C.
+    for row in reader:
+        tac_of_element = find_tac_for_element(row['Element'], interaction, energy_target)
+        if tac_of_element in errors:
+            tac = tac_of_element
+            break
+        tac_component = float(row['Weight']) * float(tac_of_element)
+        tac += tac_component
 
     return tac
 
@@ -126,7 +145,7 @@ def find_density(selection, element):
     density = None
     if selection in element_choices:
         density = find_density_for_element(element)
-    else:
+    elif selection in material_choices:
         with open('attenuation/Materials/Materials.csv', 'r') as file:
             # Reads in file
             reader = csv.reader(file)
@@ -137,6 +156,9 @@ def find_density(selection, element):
                     density = float(row[1])
                     break
                 density = None
+    else:
+        with shelve.open('_' + element) as db:
+            density = float(db[element + '_Density'])
     return density
 
 def find_density_for_element(element):

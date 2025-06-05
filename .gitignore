@@ -1,4 +1,2 @@
 attenuation/*.columns
-Common Elements.db
-Common Materials.db
-Custom Materials.db
+*.db

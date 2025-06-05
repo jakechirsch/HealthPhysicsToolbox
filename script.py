@@ -4,7 +4,6 @@ import pandas as pd
 from tkinter.ttk import Combobox
 from ttkwidgets.autocomplete import AutocompleteCombobox
 import defaults
-import shelve
 from tac_calculations import *
 
 ##### WINDOW SETUP #####
@@ -32,7 +31,8 @@ def total_attenuation_coefficient(selection_start="Common Elements",
                                   interaction="Total Attenuation with Coherent Scattering",
                                   common_el="Ag", common_mat="Air (dry, near sea level)",
                                   element="Ac",
-                                  material="A-150 Tissue-Equivalent Plastic (A150TEP)"):
+                                  material="A-150 Tissue-Equivalent Plastic (A150TEP)",
+                                  custom_mat=""):
     global tac_button
     global screen_list
 
@@ -47,6 +47,9 @@ def total_attenuation_coefficient(selection_start="Common Elements",
     common_materials = get_choices("Common Materials")
     if not common_mat in common_materials:
         common_mat = common_materials[0] if len(common_materials) > 0 else ""
+    custom_materials = get_choices("Custom Materials")
+    if not custom_mat in custom_materials:
+        custom_mat = custom_materials[0] if len(custom_materials) > 0 else ""
 
     # Stores selection and sets default
     var_selection = StringVar(root)
@@ -58,7 +61,8 @@ def total_attenuation_coefficient(selection_start="Common Elements",
             common_el if selection_start == "Common Elements" else
             common_mat if selection_start == "Common Materials" else
             element if selection_start == "All Elements" else
-            material if selection_start == "All Materials" else "")
+            material if selection_start == "All Materials" else
+            custom_mat if selection_start == "Custom Materials" else "")
 
     # Changes to T.A.C. screen
     tac_button.pack_forget()
@@ -78,7 +82,8 @@ def total_attenuation_coefficient(selection_start="Common Elements",
                 common_el if selection == "Common Elements" else
                 common_mat if selection == "Common Materials" else
                 element if selection == "All Elements" else
-                material if selection == "All Materials" else "")
+                material if selection == "All Materials" else
+                custom_mat if selection == "Custom Materials" else "")
         box_width = 5 if selection in element_choices else 35
         dropdown.config(completevalues=choices, width=box_width)
         root.focus()
@@ -93,7 +98,7 @@ def total_attenuation_coefficient(selection_start="Common Elements",
     selection_dropdown.bind("<<ComboboxSelected>>", select_selection)
 
     def on_enter(_):
-        nonlocal common_el, common_mat, element, material
+        nonlocal common_el, common_mat, element, material, custom_mat
         value = dropdown.get()
         selection = var_selection.get()
         if value not in choices:
@@ -101,7 +106,8 @@ def total_attenuation_coefficient(selection_start="Common Elements",
                          common_el if selection == "Common Elements" else
                          common_mat if selection == "Common Materials" else
                          element if selection == "All Elements" else
-                         material if selection == "All Materials" else "")
+                         material if selection == "All Materials" else
+                         custom_mat if selection == "Custom Materials" else "")
         else:
             # Move focus away from the combobox
             selection = var_selection.get()
@@ -113,6 +119,8 @@ def total_attenuation_coefficient(selection_start="Common Elements",
                 common_mat = var.get()
             elif selection == "All Materials":
                 material = var.get()
+            elif selection == "Custom Materials":
+                custom_mat = var.get()
             root.focus()
 
     # Creates dropdown menu for element selection
@@ -184,7 +192,7 @@ def total_attenuation_coefficient(selection_start="Common Elements",
     # Creates an advanced settings button
     advanced = Button(root, text="Advanced Settings",
                       command=lambda: tac_advanced(common_el, common_mat, element, material,
-                                                   var_selection.get(),
+                                                   custom_mat, var_selection.get(),
                                                    var_mode.get(), interaction))
     advanced.pack(pady=2)
 
@@ -219,7 +227,8 @@ def get_choices(selection):
         choices.sort()
         return choices
 
-def tac_advanced(common_el, common_mat, element, material, selection, mode, interaction_start):
+def tac_advanced(common_el, common_mat, element, material, custom_mat,
+                 selection, mode, interaction_start):
     global advanced_list
 
     # Hides T.A.C. screen
@@ -235,6 +244,9 @@ def tac_advanced(common_el, common_mat, element, material, selection, mode, inte
     common_m = get_choices("Common Materials")
     non_common_m = [material for material in materials if material not in common_m]
 
+    # Gets custom materials
+    custom = get_choices("Custom Materials")
+
     # Frame for add/remove settings
     top_frame = Frame(root)
     top_frame.pack(pady=10)
@@ -246,7 +258,7 @@ def tac_advanced(common_el, common_mat, element, material, selection, mode, inte
         vertical_frame = Frame(top_frame)
         vertical_frame.pack(side='left', padx=5)
         make_vertical_frame(vertical_frame, action_dropdown.get(), category_dropdown.get(),
-                            non_common, common, non_common_m, common_m)
+                            non_common, common, non_common_m, common_m, custom)
 
     # Creates dropdown menu for action
     action_choices = ["Add", "Remove"]
@@ -266,7 +278,7 @@ def tac_advanced(common_el, common_mat, element, material, selection, mode, inte
     vertical_frame = Frame(top_frame)
     vertical_frame.pack(side='left', padx=5)
     make_vertical_frame(vertical_frame, action_dropdown.get(), category_dropdown.get(),
-                        non_common, common, non_common_m, common_m)
+                        non_common, common, non_common_m, common_m, custom)
 
     # Stores interaction and sets default
     var_interaction = StringVar(root)
@@ -292,6 +304,8 @@ def tac_advanced(common_el, common_mat, element, material, selection, mode, inte
                                                    selection == "Common Materials"
                                                    else element if selection == "All Elements"
                                                    else material if selection == "All Materials"
+                                                   else custom_mat
+                                                   if selection == "Custom Materials"
                                                    else "",
                                                    selection, mode, var_interaction.get()))
     plot_button.pack(pady=5)
@@ -302,7 +316,10 @@ def tac_advanced(common_el, common_mat, element, material, selection, mode, inte
                                                   else common[0] if len(common) > 0 else "",
                                                   common_mat if common_mat in common_m
                                                   else common_m[0] if len(common_m) > 0 else "",
-                                                  element, material, selection, mode,
+                                                  element, material,
+                                                  custom_mat if custom_mat in custom
+                                                  else custom[0] if len(custom) > 0 else "",
+                                                  selection, mode,
                                                   var_interaction.get()))
     exit_button.pack(pady=5)
 
@@ -311,7 +328,7 @@ def tac_advanced(common_el, common_mat, element, material, selection, mode, inte
                      exit_button, top_frame]
 
 def make_vertical_frame(vertical_frame, action, category,
-                        non_common, common, non_common_m, common_m):
+                        non_common, common, non_common_m, common_m, custom):
     label = Label(vertical_frame,
                   text=action + " " + \
                        category + ":")
@@ -340,16 +357,69 @@ def make_vertical_frame(vertical_frame, action, category,
         choices = common_m
         inverse = non_common_m
         width = 35
+    elif action == "Remove" and category == "Custom Materials":
+        var.set(custom[0] if len(custom) > 0 else "")
+        choices = custom
+        width = 35
 
-    on_enter = make_enter(var, choices)
-    dropdown = make_ac_box(vertical_frame, var, choices,
-                           on_enter, width)
+    if action == "Add" and category == "Custom Materials":
+        label = Label(vertical_frame, text="Material Name:")
+        entry = Entry(vertical_frame, width=20)
+        entry.config(bg='white', fg='grey')
+        label.pack()
+        entry.pack()
+        label2 = Label(vertical_frame, text='"Weight","Element"\\n')
+        entry2 = Entry(vertical_frame, width=20)
+        entry2.config(bg='white', fg='grey')
+        label2.pack()
+        entry2.pack()
+        label3 = Label(vertical_frame, text="Density (g/cm\u00B3)")
+        entry3 = Entry(vertical_frame, width=20)
+        entry3.config(bg='white', fg='grey')
+        label3.pack()
+        entry3.pack()
 
-    # Creates button
-    button = Button(vertical_frame, text=action,
-                    command=lambda: carry_action(action, category,
-                                                 choices, inverse, var, dropdown))
-    button.pack()
+        # Creates button
+        button = Button(vertical_frame, text=action,
+                        command=lambda: add_custom(entry, entry2, entry3))
+        button.pack()
+    else:
+        on_enter = make_enter(var, choices)
+        dropdown = make_ac_box(vertical_frame, var, choices,
+                               on_enter, width)
+
+        # Creates button
+        if action == "Remove" and category == "Custom Materials":
+            button = Button(vertical_frame, text=action,
+                            command=lambda: carry_action(action, category,
+                                                         choices, [var.get()], var, dropdown))
+        else:
+            button = Button(vertical_frame, text=action,
+                            command=lambda: carry_action(action, category,
+                                                         choices, inverse, var, dropdown))
+        button.pack()
+
+def add_custom(name_box, weights_box, density_box):
+    name = name_box.get()
+    weights = weights_box.get()
+    density = density_box.get()
+    csv_data = '"Weight","Element"\n' + weights
+
+    with shelve.open("Custom Materials") as prefs:
+        choices = prefs.get("Custom Materials", [])
+        if not name in choices:
+            choices.append(name)
+        prefs["Custom Materials"] = choices
+
+    # Save to shelve
+    with shelve.open('_' + name) as db:
+        db[name] = csv_data
+        db[name + '_Density'] = density
+
+    name_box.delete(0, END)
+    weights_box.delete(0, END)
+    density_box.delete(0, END)
+    root.focus()
 
 def make_enter(var, choices):
     def on_enter(_):
@@ -455,11 +525,13 @@ def plot_data(element, selection, mode, interaction):
     # Show the plot
     plt.show()
 
-def tac_back(common_el, common_mat, element, material, selection, mode, interaction):
+def tac_back(common_el, common_mat, element, material, custom_mat,
+             selection, mode, interaction):
     clear_advanced()
     total_attenuation_coefficient(selection_start=selection, mode_start=mode,
                                   interaction=interaction, common_el=common_el,
-                                  common_mat=common_mat, element=element, material=material)
+                                  common_mat=common_mat, element=element, material=material,
+                                  custom_mat=custom_mat)
 
 def clear():
     global screen_list

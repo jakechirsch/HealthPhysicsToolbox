@@ -5,11 +5,14 @@ from tkinter.ttk import Combobox
 from ttkwidgets.autocomplete import AutocompleteCombobox
 import defaults
 from tac_calculations import *
+import os
+import subprocess
+import platform
 
 ##### WINDOW SETUP #####
 root = Tk()
 root.title("Coefficient Request")
-root.geometry("725x350")
+root.geometry("725x400")
 
 ##### HOME SCREEN BUTTONS #####
 tac_button = Button(root)
@@ -310,6 +313,20 @@ def tac_advanced(common_el, common_mat, element, material, custom_mat,
                                                    selection, mode, var_interaction.get()))
     plot_button.pack(pady=5)
 
+    # Frame for references & help
+    bottom_frame = Frame(root)
+    bottom_frame.pack(pady=10)
+
+    # Creates references button
+    references_button = Button(bottom_frame, text="References",
+                               command=lambda: open_file('References.txt'))
+    references_button.pack(side='left', padx=5)
+
+    # Creates help button
+    help_button = Button(bottom_frame, text="Help",
+                         command=lambda: open_file('Help.txt'))
+    help_button.pack(side='left', padx=5)
+
     # Creates exit button to return to T.A.C. screen
     exit_button = Button(root, text="Back",
                          command=lambda: tac_back(common_el if common_el in common
@@ -325,7 +342,7 @@ def tac_advanced(common_el, common_mat, element, material, custom_mat,
 
     # Stores nodes into global list
     advanced_list = [interaction_dropdown, plot_button,
-                     exit_button, top_frame]
+                     exit_button, top_frame, bottom_frame]
 
 def make_vertical_frame(vertical_frame, action, category,
                         non_common, common, non_common_m, common_m, custom):
@@ -477,34 +494,21 @@ def remove_c(selection, choices, inverse, var, dropdown):
 def plot_data(element, selection, mode, interaction):
     cols = ["Photon Energy", interaction]
     df = pd.DataFrame(columns=cols)
-    if selection in material_choices:
-        with open('attenuation/Materials/' + element + '.csv', 'r') as file:
-            # Reads in file
-            reader = csv.DictReader(file)
-
-            # Create the dataframe
-            vals = []
-            for row in reader:
-                with open('attenuation/Elements/' + row['Element'] + '.csv', 'r') as file2:
-                    # Reads in file
-                    reader2 = csv.DictReader(file2)
-
-                    # Gets energy values to use as dots
-                    if len(vals) == 0:
-                        for row2 in reader2:
-                            vals.append(float(row2["Photon Energy"]))
-
-                # Finds the T.A.C. at each energy value and adds to dataframe
-                for index, val in enumerate(vals):
-                    x = find_tac(selection, interaction, element, val)
-                    index_sub = 0
-                    if x not in errors:
-                        df.loc[index - index_sub] = [val, x]
-                    else:
-                        index_sub += 1
-    else:
+    if selection in element_choices:
         # Load the CSV file
         df = pd.read_csv('attenuation/Elements/' + element + '.csv')
+    elif selection in material_choices:
+        with open('attenuation/Materials/' + element + '.csv', 'r') as file:
+            make_df_for_material(file, df, element, selection, interaction)
+    else:
+        with shelve.open('_' + element) as db:
+            stored_data = db[element]
+            stored_data = stored_data.replace('\\n', '\n')
+
+        # Create file-like object from the stored string
+        csv_file_like = io.StringIO(stored_data)
+
+        make_df_for_material(csv_file_like, df, element, selection, interaction)
 
     if mode == "Linear Attenuation Coefficient (cm\u207B\u00B9)":
         df[interaction] *= find_density(selection, element)
@@ -524,6 +528,31 @@ def plot_data(element, selection, mode, interaction):
 
     # Show the plot
     plt.show()
+
+def make_df_for_material(file_like, df, element, selection, interaction):
+    # Reads in file
+    reader = csv.DictReader(file_like)
+
+    # Create the dataframe
+    vals = []
+    for row in reader:
+        with open('attenuation/Elements/' + row['Element'] + '.csv', 'r') as file:
+            # Reads in file
+            reader2 = csv.DictReader(file)
+
+            # Gets energy values to use as dots
+            if len(vals) == 0:
+                for row2 in reader2:
+                    vals.append(float(row2["Photon Energy"]))
+
+        # Finds the T.A.C. at each energy value and adds to dataframe
+        for index, val in enumerate(vals):
+            x = find_tac(selection, interaction, element, val)
+            index_sub = 0
+            if x not in errors:
+                df.loc[index - index_sub] = [val, x]
+            else:
+                index_sub += 1
 
 def tac_back(common_el, common_mat, element, material, custom_mat,
              selection, mode, interaction):
@@ -561,6 +590,14 @@ def return_home():
 def exit_to_home():
     clear()
     return_home()
+
+def open_file(path):
+    if platform.system() == 'Windows':
+        os.startfile(path)
+    elif platform.system() == 'Darwin':  # macOS
+        subprocess.run(['open', path])
+    else:  # Assume Linux or Unix
+        subprocess.run(['xdg-open', path])
 
 # Creates home screen upon launch
 return_home()

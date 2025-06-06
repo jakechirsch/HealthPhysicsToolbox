@@ -1,0 +1,1 @@
+"Berger, M. J., Hubbell, J. H., Seltzer, S. M., Chang, J., Coursey, J. S., Sukumar, R., Zucker, D. S., & Olsen, K. (2005). XCOM: Photon Cross Section Database (Version 1.3). National Institute of Standards and Technology. Retrieved May 28, 2025, from https://physics.nist.gov/xcom"

@@ -51,13 +51,10 @@ def handle_calculation(selection, mode, interaction, element, energy_str, result
 def find_tac(selection, interaction, element, energy_target):
     if selection in element_choices:
         tac = find_tac_for_element(element, interaction, energy_target)
+    elif selection in material_choices:
+        with open('attenuation/Materials/' + element + '.csv', 'r') as file:
+            tac = find_tac_for_material(file, interaction, energy_target)
     else:
-        if selection in material_choices:
-            with open('attenuation/Materials/' + element + '.csv', 'r') as file:
-                tac = find_tac_for_material(file, interaction, energy_target)
-
-            return tac
-
         with shelve.open('_' + element) as db:
             stored_data = db[element]
             stored_data = stored_data.replace('\\n', '\n')
@@ -71,7 +68,7 @@ def find_tac(selection, interaction, element, energy_target):
 
 def find_tac_for_material(file_like, interaction, energy_target):
     tac = 0
-    # Parse it
+    # Parse file
     reader = csv.DictReader(file_like)
 
     # Sums each component's weighted T.A.C.

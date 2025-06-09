@@ -12,7 +12,7 @@ import platform
 ##### WINDOW SETUP #####
 root = Tk()
 root.title("Coefficient Request")
-root.geometry("725x400")
+root.geometry("725x450")
 
 ##### HOME SCREEN BUTTONS #####
 tac_button = Button(root)
@@ -258,7 +258,7 @@ def tac_advanced(common_el, common_mat, element, material, custom_mat,
 
     # Frame for add/remove settings
     top_frame = Frame(root)
-    top_frame.pack(pady=10)
+    top_frame.pack(pady=5)
 
     def on_select_options(event):
         nonlocal vertical_frame
@@ -308,7 +308,7 @@ def tac_advanced(common_el, common_mat, element, material, custom_mat,
 
     # Frame for units
     unit_frame = Frame(root)
-    unit_frame.pack(pady=10)
+    unit_frame.pack(pady=5)
 
     # Units label
     unit_label = Label(unit_frame, text="Units:")
@@ -350,11 +350,43 @@ def tac_advanced(common_el, common_mat, element, material, custom_mat,
                                                             num_units[2], mode),
                                                    get_unit(den_units[0], den_units[1],
                                                             den_units[2], mode)))
-    plot_button.pack(pady=5)
+    plot_button.pack(pady=2)
+
+    # Frame for export options
+    export_frame = Frame(root)
+    export_frame.pack(pady=5)
+
+    export_label = Label(export_frame, text="Export Options:")
+    export_label.pack(side="left", padx=5)
+
+    # Creates dropdown menu for export
+    export_choices = ["Plot", "Data"]
+    export_dropdown = Combobox(export_frame, values=export_choices, width=6, state='readonly')
+    export_dropdown.set("Plot")
+    export_dropdown.pack(side="left", padx=5)
+    export_dropdown.bind("<<ComboboxSelected>>", on_select)
+
+    # Creates export button
+    export_button = Button(export_frame, text="Export",
+                           command=lambda: plot_data(common_el if selection == "Common Elements"
+                                                     else common_mat if
+                                                     selection == "Common Materials"
+                                                     else element if selection == "All Elements"
+                                                     else material if selection == "All Materials"
+                                                     else custom_mat
+                                                     if selection == "Custom Materials"
+                                                     else "",
+                                                     selection, mode, var_interaction.get(),
+                                                     get_unit(num_units[0], num_units[1],
+                                                              num_units[2], mode),
+                                                     get_unit(den_units[0], den_units[1],
+                                                              den_units[2], mode),
+                                                     export=True, choice=export_dropdown.get()))
+    export_button.pack(side="left", padx=5)
 
     # Frame for references & help
     bottom_frame = Frame(root)
-    bottom_frame.pack(pady=10)
+    bottom_frame.pack(pady=2)
 
     # Creates references button
     references_button = Button(bottom_frame, text="References",
@@ -376,11 +408,11 @@ def tac_advanced(common_el, common_mat, element, material, custom_mat,
                                                   var_interaction.get(), num_units[0],
                                                   num_units[1], num_units[2], den_units[0],
                                                   den_units[1], den_units[2]))
-    exit_button.pack(pady=5)
+    exit_button.pack(pady=2)
 
     # Stores nodes into global list
     advanced_list = [interaction_dropdown, plot_button, exit_button,
-                     unit_frame, top_frame, bottom_frame]
+                     unit_frame, top_frame, bottom_frame, export_frame]
 
 def get_select_unit(units, mode):
     def on_select_unit(event):
@@ -454,12 +486,12 @@ def make_vertical_frame(vertical_frame, action, category,
         entry.config(bg='white', fg='grey')
         label.pack()
         entry.pack()
-        label2 = Label(vertical_frame, text='"Weight","Element"\\n')
+        label2 = Label(vertical_frame, text="Density")
         entry2 = Entry(vertical_frame, width=20)
         entry2.config(bg='white', fg='grey')
         label2.pack()
         entry2.pack()
-        label3 = Label(vertical_frame, text="Density")
+        label3 = Label(vertical_frame, text='"Weight","Element"\\n')
         entry3 = Entry(vertical_frame, width=20)
         entry3.config(bg='white', fg='grey')
         label3.pack()
@@ -485,10 +517,10 @@ def make_vertical_frame(vertical_frame, action, category,
                                                          choices, inverse, var, dropdown))
         button.pack()
 
-def add_custom(name_box, weights_box, density_box):
+def add_custom(name_box, density_box, weights_box):
     name = name_box.get()
-    weights = weights_box.get()
     density = density_box.get()
+    weights = weights_box.get()
     csv_data = '"Weight","Element"\n' + weights
 
     with shelve.open("Custom Materials") as prefs:
@@ -560,12 +592,15 @@ def remove_c(selection, choices, inverse, var, dropdown):
         # Adds element to non-common elements
         inverse.append(element)
 
-def plot_data(element, selection, mode, interaction, num, den):
-    cols = ["Photon Energy", interaction]
+def plot_data(element, selection, mode, interaction, num, den,
+              export=False, choice=""):
+    cols = ["Photon Energy (MeV)", interaction]
     df = pd.DataFrame(columns=cols)
     if selection in element_choices:
         # Load the CSV file
-        df = pd.read_csv('attenuation/Elements/' + element + '.csv')
+        df2 = pd.read_csv('attenuation/Elements/' + element + '.csv')
+        df["Photon Energy (MeV)"] = df2["Photon Energy"]
+        df[interaction] = df2[interaction]
     elif selection in material_choices:
         with open('attenuation/Materials/' + element + '.csv', 'r') as file:
             make_df_for_material(file, df, element, selection, interaction)
@@ -595,18 +630,32 @@ def plot_data(element, selection, mode, interaction, num, den):
         df[interaction] /= lac_denominator[den]
 
     # Plot the data
-    plt.plot(df["Photon Energy"], df[interaction], marker='o')
-    plt.title(element + " - " + interaction, fontsize=8.5)
+    plt.plot(df["Photon Energy (MeV)"], df[interaction], marker='o')
+    title = element + " - " + interaction
+    plt.title(title, fontsize=8.5)
     plt.xscale('log')
     plt.yscale('log')
     plt.xlabel('Photon Energy (MeV)')
-    plt.ylabel(mode + " (" + num + "/" + den + ")")
+    y_label = mode + " (" + num + "/" + den + ")"
+    plt.ylabel(y_label)
     plt.grid(True)
     plt.xticks(rotation=45)
     plt.tight_layout()
 
-    # Show the plot
-    plt.show()
+    if export:
+        if choice == "Plot":
+            # Save the plot as a PNG file
+            plt.savefig(title + ".png")
+            open_file(title + ".png")
+        else:
+            # Save the data as a CSV file
+            unit = " (" + num + "_per_" + den + ")"
+            mode += unit
+            df.to_csv(element + " - " + mode + ".csv", index=False)
+            open_file(element + " - " + mode + ".csv")
+    else:
+        # Show the plot
+        plt.show()
 
 def make_df_for_material(file_like, df, element, selection, interaction):
     # Reads in file

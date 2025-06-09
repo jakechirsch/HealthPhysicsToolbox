@@ -30,12 +30,13 @@ def on_select(event):
     root.focus()
 
 def total_attenuation_coefficient(selection_start="Common Elements",
-                                  mode_start="Mass Attenuation Coefficient (cm\u00B2/g)",
+                                  mode_start="Mass Attenuation Coefficient",
                                   interaction="Total Attenuation with Coherent Scattering",
                                   common_el="Ag", common_mat="Air (dry, near sea level)",
                                   element="Ac",
                                   material="A-150 Tissue-Equivalent Plastic (A150TEP)",
-                                  custom_mat=""):
+                                  custom_mat="", mac_num="cm\u00B2", d_num="g", lac_num="1",
+                                  mac_den="g", d_den="cm\u00B3", lac_den="cm"):
     global tac_button
     global screen_list
 
@@ -148,12 +149,12 @@ def total_attenuation_coefficient(selection_start="Common Elements",
         nonlocal mode
         event.widget.selection_clear()
         result_label.pack_forget()
-        if event.widget.get() == "Density (g/cm\u00B3)"\
-           and mode != "Density (g/cm\u00B3)":
+        if event.widget.get() == "Density"\
+           and mode != "Density":
             label.pack_forget()
             entry.pack_forget()
-        elif mode == "Density (g/cm\u00B3)"\
-             and event.widget.get() != "Density (g/cm\u00B3)":
+        elif mode == "Density"\
+             and event.widget.get() != "Density":
             screen_list.remove(label)
             screen_list.remove(entry)
             label.pack_forget()
@@ -172,16 +173,16 @@ def total_attenuation_coefficient(selection_start="Common Elements",
         root.focus()
 
     # Creates dropdown menu for mode
-    mode_choices = ["Mass Attenuation Coefficient (cm\u00B2/g)",
-                    "Density (g/cm\u00B3)",
-                    "Linear Attenuation Coefficient (cm\u207B\u00B9)"]
-    mode_dropdown = Combobox(root, textvariable=var_mode, values=mode_choices, width=26,
+    mode_choices = ["Mass Attenuation Coefficient",
+                    "Density",
+                    "Linear Attenuation Coefficient"]
+    mode_dropdown = Combobox(root, textvariable=var_mode, values=mode_choices, width=21,
                              state='readonly')
     mode_dropdown.pack(pady=5)
     mode_dropdown.bind("<<ComboboxSelected>>", select_mode)
 
     # Energy input is not necessary if mode is density
-    if var_mode.get() != "Density (g/cm\u00B3)":
+    if var_mode.get() != "Density":
         label.pack()
         entry.pack()
 
@@ -189,14 +190,18 @@ def total_attenuation_coefficient(selection_start="Common Elements",
     calc = Button(root, text="Calculate",
                   command=lambda: handle_calculation(var_selection.get(), var_mode.get(),
                                                      interaction, var.get(),
-                                                     entry.get(), result_label))
+                                                     entry.get(), result_label,
+                                  get_unit(mac_num, d_num, lac_num, var_mode.get()),
+                                  get_unit(mac_den, d_den, lac_den, var_mode.get())))
     calc.pack(pady=5)
 
     # Creates an advanced settings button
     advanced = Button(root, text="Advanced Settings",
                       command=lambda: tac_advanced(common_el, common_mat, element, material,
                                                    custom_mat, var_selection.get(),
-                                                   var_mode.get(), interaction))
+                                                   var_mode.get(), interaction,
+                                                   mac_num, d_num, lac_num,
+                                                   mac_den, d_den, lac_den))
     advanced.pack(pady=2)
 
     # Creates exit button to return to home screen
@@ -231,7 +236,8 @@ def get_choices(selection):
         return choices
 
 def tac_advanced(common_el, common_mat, element, material, custom_mat,
-                 selection, mode, interaction_start):
+                 selection, mode, interaction_start, mac_num, d_num, lac_num,
+                 mac_den, d_den, lac_den):
     global advanced_list
 
     # Hides T.A.C. screen
@@ -300,6 +306,35 @@ def tac_advanced(common_el, common_mat, element, material, custom_mat,
     interaction_dropdown.pack(pady=10)
     interaction_dropdown.bind("<<ComboboxSelected>>", on_select)
 
+    # Frame for units
+    unit_frame = Frame(root)
+    unit_frame.pack(pady=10)
+
+    # Units label
+    unit_label = Label(unit_frame, text="Units:")
+    unit_label.pack(side='left', padx=5)
+
+    num_units = [mac_num, d_num, lac_num]
+    den_units = [mac_den, d_den, lac_den]
+    on_select_num = get_select_unit(num_units, mode)
+    on_select_den = get_select_unit(den_units, mode)
+
+    # Creates dropdown menu for numerator unit
+    numerator_choices = get_unit_keys(mac_numerator, density_numerator,
+                                      lac_numerator, mode)
+    unit_dropdown(unit_frame, numerator_choices,
+                  mac_num, d_num, lac_num, mode, on_select_num)
+
+    # / label
+    slash_label = Label(unit_frame, text="/")
+    slash_label.pack(side='left')
+
+    # Creates dropdown menu for denominator unit
+    denominator_choices = get_unit_keys(mac_denominator, density_denominator,
+                                        lac_denominator, mode)
+    unit_dropdown(unit_frame, denominator_choices,
+                  mac_den, d_den, lac_den, mode, on_select_den)
+
     # Creates plot button
     plot_button = Button(root, text="Plot",
                          command=lambda: plot_data(common_el if selection == "Common Elements"
@@ -310,7 +345,11 @@ def tac_advanced(common_el, common_mat, element, material, custom_mat,
                                                    else custom_mat
                                                    if selection == "Custom Materials"
                                                    else "",
-                                                   selection, mode, var_interaction.get()))
+                                                   selection, mode, var_interaction.get(),
+                                                   get_unit(num_units[0], num_units[1],
+                                                            num_units[2], mode),
+                                                   get_unit(den_units[0], den_units[1],
+                                                            den_units[2], mode)))
     plot_button.pack(pady=5)
 
     # Frame for references & help
@@ -329,20 +368,50 @@ def tac_advanced(common_el, common_mat, element, material, custom_mat,
 
     # Creates exit button to return to T.A.C. screen
     exit_button = Button(root, text="Back",
-                         command=lambda: tac_back(common_el if common_el in common
-                                                  else common[0] if len(common) > 0 else "",
-                                                  common_mat if common_mat in common_m
-                                                  else common_m[0] if len(common_m) > 0 else "",
+                         command=lambda: tac_back(pass_saved(common_el, common),
+                                                  pass_saved(common_mat, common_m),
                                                   element, material,
-                                                  custom_mat if custom_mat in custom
-                                                  else custom[0] if len(custom) > 0 else "",
+                                                  pass_saved(custom_mat, custom),
                                                   selection, mode,
-                                                  var_interaction.get()))
+                                                  var_interaction.get(), num_units[0],
+                                                  num_units[1], num_units[2], den_units[0],
+                                                  den_units[1], den_units[2]))
     exit_button.pack(pady=5)
 
     # Stores nodes into global list
-    advanced_list = [interaction_dropdown, plot_button,
-                     exit_button, top_frame, bottom_frame]
+    advanced_list = [interaction_dropdown, plot_button, exit_button,
+                     unit_frame, top_frame, bottom_frame]
+
+def get_select_unit(units, mode):
+    def on_select_unit(event):
+        nonlocal mode
+        event.widget.selection_clear()
+        root.focus()
+        if mode == "Mass Attenuation Coefficient":
+            units[0] = event.widget.get()
+        elif mode == "Density":
+            units[1] = event.widget.get()
+        else:
+            units[2] = event.widget.get()
+    return on_select_unit
+
+def unit_dropdown(frame, choices, mac, d, lac, mode, on_select_u):
+    dropdown = Combobox(frame, values=choices, width=5, state='readonly')
+    dropdown.set(get_unit(mac, d, lac, mode))
+    dropdown.pack(side='left', padx=5)
+    dropdown.bind("<<ComboboxSelected>>", on_select_u)
+
+def get_unit_keys(mac, density, lac, mode):
+    _dict = get_unit(mac, density, lac, mode)
+    choices = list(_dict.keys())
+    return choices
+
+def pass_saved(saved, choices):
+    return saved if saved in choices else choices[0] if len(choices) > 0 else ""
+
+def get_unit(mac, d, lac, mode):
+    return mac if mode == "Mass Attenuation Coefficient" else\
+           d if mode == "Density" else lac
 
 def make_vertical_frame(vertical_frame, action, category,
                         non_common, common, non_common_m, common_m, custom):
@@ -390,7 +459,7 @@ def make_vertical_frame(vertical_frame, action, category,
         entry2.config(bg='white', fg='grey')
         label2.pack()
         entry2.pack()
-        label3 = Label(vertical_frame, text="Density (g/cm\u00B3)")
+        label3 = Label(vertical_frame, text="Density")
         entry3 = Entry(vertical_frame, width=20)
         entry3.config(bg='white', fg='grey')
         label3.pack()
@@ -491,7 +560,7 @@ def remove_c(selection, choices, inverse, var, dropdown):
         # Adds element to non-common elements
         inverse.append(element)
 
-def plot_data(element, selection, mode, interaction):
+def plot_data(element, selection, mode, interaction, num, den):
     cols = ["Photon Energy", interaction]
     df = pd.DataFrame(columns=cols)
     if selection in element_choices:
@@ -510,10 +579,20 @@ def plot_data(element, selection, mode, interaction):
 
         make_df_for_material(csv_file_like, df, element, selection, interaction)
 
-    if mode == "Linear Attenuation Coefficient (cm\u207B\u00B9)":
+    if mode == "Linear Attenuation Coefficient":
         df[interaction] *= find_density(selection, element)
-    elif mode == "Density (g/cm\u00B3)":
+    elif mode == "Density":
         df[interaction][:] = find_density(selection, element)
+
+    if mode == "Mass Attenuation Coefficient":
+        df[interaction] *= mac_numerator[num]
+        df[interaction] /= mac_denominator[den]
+    elif mode == "Density":
+        df[interaction] *= density_numerator[num]
+        df[interaction] /= density_denominator[den]
+    else:
+        df[interaction] *= lac_numerator[num]
+        df[interaction] /= lac_denominator[den]
 
     # Plot the data
     plt.plot(df["Photon Energy"], df[interaction], marker='o')
@@ -521,7 +600,7 @@ def plot_data(element, selection, mode, interaction):
     plt.xscale('log')
     plt.yscale('log')
     plt.xlabel('Photon Energy (MeV)')
-    plt.ylabel(mode)
+    plt.ylabel(mode + " (" + num + "/" + den + ")")
     plt.grid(True)
     plt.xticks(rotation=45)
     plt.tight_layout()
@@ -555,12 +634,14 @@ def make_df_for_material(file_like, df, element, selection, interaction):
                 index_sub += 1
 
 def tac_back(common_el, common_mat, element, material, custom_mat,
-             selection, mode, interaction):
+             selection, mode, interaction, mac_num, d_num, lac_num,
+             mac_den, d_den, lac_den):
     clear_advanced()
     total_attenuation_coefficient(selection_start=selection, mode_start=mode,
                                   interaction=interaction, common_el=common_el,
                                   common_mat=common_mat, element=element, material=material,
-                                  custom_mat=custom_mat)
+                                  custom_mat=custom_mat, mac_num=mac_num, d_num=d_num,
+                                  lac_num=lac_num, mac_den=mac_den, d_den=d_den, lac_den=lac_den)
 
 def clear():
     global screen_list

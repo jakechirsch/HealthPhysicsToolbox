@@ -14,7 +14,18 @@ errors = [non_number, too_low, too_high]
 element_choices = ["Common Elements", "All Elements"]
 material_choices = ["Common Materials", "All Materials"]
 
-def handle_calculation(selection, mode, interaction, element, energy_str, result_label):
+# Unit choices related to their factor in relation to the default
+mac_numerator = {"mm\u00B2" : 10 ** 2, "cm\u00B2" : 1,
+                 "dm\u00B2" : 0.1 ** 2, "m\u00B2" : 0.01 ** 2}
+density_numerator = {"mg" : 1000, "g" : 1, "kg" : 0.001}
+lac_numerator= {"1" : 1}
+mac_denominator = {"mg" : 1000, "g" : 1, "kg" : 0.001}
+density_denominator = {"mm\u00B3" : 10 ** 3, "cm\u00B3" : 1,
+                       "dm\u00B3" : 0.1 ** 3, "m\u00B3" : 0.01 ** 3}
+lac_denominator = {"mm" : 10, "cm" : 1, "dm" : 0.1, "m" : 0.01}
+
+def handle_calculation(selection, mode, interaction, element, energy_str, result_label,
+                       num, den):
     if element == "":
         return
 
@@ -24,7 +35,7 @@ def handle_calculation(selection, mode, interaction, element, energy_str, result
     # Energy input in float format
     energy_target = 0.0
 
-    if mode != "Density (g/cm\u00B3)":
+    if mode != "Density":
         # Error-check for a non-number energy input
         try:
             energy_target = float(energy_str)
@@ -33,9 +44,9 @@ def handle_calculation(selection, mode, interaction, element, energy_str, result
             result_label.pack(pady=5)
             return
 
-    if mode == "Mass Attenuation Coefficient (cm\u00B2/g)":
+    if mode == "Mass Attenuation Coefficient":
         result = find_tac(selection, interaction, element, energy_target)
-    elif mode == "Density (g/cm\u00B3)":
+    elif mode == "Density":
         result = find_density(selection, element)
     else:
         tac = find_tac(selection, interaction, element, energy_target)
@@ -45,7 +56,19 @@ def handle_calculation(selection, mode, interaction, element, energy_str, result
             result = tac * find_density(selection, element)
 
     # Displays result label
-    edit_result(f"{result:.4g}", result_label)
+    if not result in errors:
+        if mode == "Mass Attenuation Coefficient":
+            result *= mac_numerator[num]
+            result /= mac_denominator[den]
+        elif mode == "Density":
+            result *= density_numerator[num]
+            result /= density_denominator[den]
+        else:
+            result *= lac_numerator[num]
+            result /= lac_denominator[den]
+        edit_result(f"{result:.4g}", result_label, num=num, den=den)
+    else:
+        edit_result(result, result_label)
     result_label.pack(pady=5)
 
 def find_tac(selection, interaction, element, energy_target):
@@ -147,7 +170,7 @@ def find_density(selection, element):
             # Reads in file
             reader = csv.reader(file)
 
-            # Sums each component's weighted density
+            # Finds material's density
             for row in reader:
                 if row and row[0] == element:
                     density = float(row[1])
@@ -166,9 +189,14 @@ def find_density_for_element(element):
                 return float(row['Density'])
         return None
 
-def edit_result(result, result_label):
+def edit_result(result, result_label, num="", den=""):
     # Clears result label and inserts new result
     result_label.config(state="normal")
     result_label.delete("1.0", END)
     result_label.insert(END, result)
+    if not result in errors:
+        result_label.insert(END, " ")
+        result_label.insert(END, num)
+        result_label.insert(END, "/")
+        result_label.insert(END, den)
     result_label.config(state="disabled")

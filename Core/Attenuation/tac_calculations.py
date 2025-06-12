@@ -1,18 +1,7 @@
 ##### IMPORTS #####
-import csv
-from tkinter import *
-import shelve
 import io
-
-### ERROR MESSAGES ###
-non_number = "Error: Non-number energy input."
-too_low = "Error: Energy too low."
-too_high = "Error: Energy too high."
-errors = [non_number, too_low, too_high]
-
-# Choices using an element or a material
-element_choices = ["Common Elements", "All Elements"]
-material_choices = ["Common Materials", "All Materials"]
+from Utility.Functions.math_utility import *
+from Utility.Functions.gui_utility import *
 
 # Unit choices related to their factor in relation to the default
 mac_numerator = {"mm\u00B2" : 10 ** 2, "cm\u00B2" : 1,
@@ -156,47 +145,5 @@ def find_tac_for_element(element, interaction, energy_target):
         return too_high
 
     # Uses linear interpolation to find the T.A.C.
-    difference = closest_high - closest_low
-    percentage = (energy_target - closest_low) / difference
-    coefficient = low_coefficient + percentage * (high_coefficient - low_coefficient)
-    return coefficient
-
-def find_density(selection, element):
-    density = None
-    if selection in element_choices:
-        density = find_density_for_element(element)
-    elif selection in material_choices:
-        with open('Data/General Data/Density/Materials.csv', 'r') as file:
-            # Reads in file
-            reader = csv.reader(file)
-
-            # Finds material's density
-            for row in reader:
-                if row and row[0] == element:
-                    density = float(row[1])
-                    break
-                density = None
-    else:
-        with shelve.open('_' + element) as db:
-            density = float(db[element + '_Density'])
-    return density
-
-def find_density_for_element(element):
-    with open('Data/General Data/Density/Elements.csv', 'r') as file:
-        reader = csv.DictReader(file)
-        for row in reader:
-            if row and row['Name'] == element:
-                return float(row['Density'])
-        return None
-
-def edit_result(result, result_label, num="", den=""):
-    # Clears result label and inserts new result
-    result_label.config(state="normal")
-    result_label.delete("1.0", END)
-    result_label.insert(END, result)
-    if not result in errors:
-        result_label.insert(END, " ")
-        result_label.insert(END, num)
-        result_label.insert(END, "/")
-        result_label.insert(END, den)
-    result_label.config(state="disabled")
+    return linear_interpolation(energy_target, closest_low, closest_high,
+                                low_coefficient, high_coefficient)

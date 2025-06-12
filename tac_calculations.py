@@ -75,7 +75,7 @@ def find_tac(selection, interaction, element, energy_target):
     if selection in element_choices:
         tac = find_tac_for_element(element, interaction, energy_target)
     elif selection in material_choices:
-        with open('attenuation/Materials/' + element + '.csv', 'r') as file:
+        with open('Data/General Data/Material Composition/' + element + '.csv', 'r') as file:
             tac = find_tac_for_material(file, interaction, energy_target)
     else:
         with shelve.open('_' + element) as db:
@@ -115,7 +115,7 @@ def find_tac_for_element(element, interaction, energy_target):
     high_coefficient = float('inf')
 
     # Opens file
-    with open('attenuation/Elements/' + element + '.csv', 'r') as file:
+    with open('Data/Modules/Mass Attenuation/Elements/' + element + '.csv', 'r') as file:
         # Reads in file in dictionary format
         reader = csv.DictReader(file)
 

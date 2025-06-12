@@ -3,7 +3,6 @@ import matplotlib.pyplot as plt
 import pandas as pd
 from tkinter.ttk import Combobox
 from ttkwidgets.autocomplete import AutocompleteCombobox
-import defaults
 from tac_calculations import *
 import os
 import subprocess
@@ -223,15 +222,18 @@ def get_choices(selection):
             for row in reader:
                 if row and row[0] != 'Name':
                     choices.append(row[0])
-        choices.sort()
         return choices
 
     # Obtains list of elements from shelve
     with shelve.open(selection) as prefs:
-        choices = prefs.get(selection,
-                            defaults.common_elements if selection == "Common Elements"
-                            else defaults.common_materials if selection == "Common Materials"
-                            else [])
+        default = []
+        if selection != "Custom Materials":
+            with open('Data/Modules/Mass Attenuation/' + selection + '.csv', 'r') as file:
+                reader = csv.reader(file)
+                for row in reader:
+                    if row and row[0] != 'Name':
+                        default.append(row[0])
+        choices = prefs.get(selection, default)
         choices.sort()
         return choices
 
@@ -598,11 +600,12 @@ def plot_data(element, selection, mode, interaction, num, den,
     df = pd.DataFrame(columns=cols)
     if selection in element_choices:
         # Load the CSV file
-        df2 = pd.read_csv('attenuation/Elements/' + element + '.csv')
+        df2 = pd.read_csv('Data/Modules/Mass Attenuation/Elements/' + element + '.csv')
         df["Photon Energy (MeV)"] = df2["Photon Energy"]
         df[interaction] = df2[interaction]
     elif selection in material_choices:
-        with open('attenuation/Materials/' + element + '.csv', 'r') as file:
+        with open('Data/General Data/Material Composition/' + element + '.csv',
+                  'r') as file:
             make_df_for_material(file, df, element, selection, interaction)
     else:
         with shelve.open('_' + element) as db:
@@ -664,7 +667,7 @@ def make_df_for_material(file_like, df, element, selection, interaction):
     # Create the dataframe
     vals = []
     for row in reader:
-        with open('attenuation/Elements/' + row['Element'] + '.csv', 'r') as file:
+        with open('Data/Modules/Mass Attenuation/Elements/' + row['Element'] + '.csv', 'r') as file:
             # Reads in file
             reader2 = csv.DictReader(file)
 

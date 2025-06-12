@@ -11,7 +11,7 @@ import platform
 
 ##### WINDOW SETUP #####
 root = Tk()
-root.title("Coefficient Request")
+root.title("Health Physics Toolbox")
 root.geometry("725x450")
 
 ##### HOME SCREEN BUTTONS #####
@@ -218,7 +218,7 @@ def get_choices(selection):
     if selection == "All Elements" or selection == "All Materials":
         # Obtains list of elements from csv file
         name = "Elements" if selection == "All Elements" else "Materials"
-        with open('attenuation/' + name + '/' + name + '.csv', 'r') as file:
+        with open('Data/General Data/Density/' + name + '.csv', 'r') as file:
             reader = csv.reader(file)
             for row in reader:
                 if row and row[0] != 'Name':

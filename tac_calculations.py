@@ -16,13 +16,13 @@ material_choices = ["Common Materials", "All Materials"]
 
 # Unit choices related to their factor in relation to the default
 mac_numerator = {"mm\u00B2" : 10 ** 2, "cm\u00B2" : 1,
-                 "dm\u00B2" : 0.1 ** 2, "m\u00B2" : 0.01 ** 2}
+                 "m\u00B2" : 0.01 ** 2}
 density_numerator = {"mg" : 1000, "g" : 1, "kg" : 0.001}
 lac_numerator= {"1" : 1}
 mac_denominator = {"mg" : 1000, "g" : 1, "kg" : 0.001}
 density_denominator = {"mm\u00B3" : 10 ** 3, "cm\u00B3" : 1,
-                       "dm\u00B3" : 0.1 ** 3, "m\u00B3" : 0.01 ** 3}
-lac_denominator = {"mm" : 10, "cm" : 1, "dm" : 0.1, "m" : 0.01}
+                       "m\u00B3" : 0.01 ** 3}
+lac_denominator = {"mm" : 10, "cm" : 1, "m" : 0.01}
 
 def handle_calculation(selection, mode, interaction, element, energy_str, result_label,
                        num, den):
@@ -166,7 +166,7 @@ def find_density(selection, element):
     if selection in element_choices:
         density = find_density_for_element(element)
     elif selection in material_choices:
-        with open('attenuation/Materials/Materials.csv', 'r') as file:
+        with open('Data/General Data/Density/Materials.csv', 'r') as file:
             # Reads in file
             reader = csv.reader(file)
 
@@ -182,10 +182,10 @@ def find_density(selection, element):
     return density
 
 def find_density_for_element(element):
-    with open('attenuation/Elements/Periodic Table of Elements.csv', 'r') as file:
+    with open('Data/General Data/Density/Elements.csv', 'r') as file:
         reader = csv.DictReader(file)
         for row in reader:
-            if row and row['Symbol'] == element:
+            if row and row['Name'] == element:
                 return float(row['Density'])
         return None
 

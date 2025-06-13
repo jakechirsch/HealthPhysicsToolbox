@@ -191,7 +191,8 @@ def total_attenuation_coefficient(root, selection_start="Common Elements",
     advanced_button.pack(pady=2)
 
     # Creates exit button to return to home screen
-    exit_button = Button(root, text="Exit", command=lambda: exit_to_home(result_label))
+    exit_button = Button(root, text="Exit",
+                         command=lambda: exit_to_home(root, result_label))
     exit_button.pack(pady=2)
 
     # Stores nodes into global list
@@ -221,7 +222,7 @@ def clear_screen(result_label):
         node.destroy()
     screen_list.clear()
 
-def exit_to_home(result_label):
-    from script import return_home
+def exit_to_home(root, result_label):
+    from App.app import return_home
     clear_screen(result_label)
-    return_home()
+    return_home(root)

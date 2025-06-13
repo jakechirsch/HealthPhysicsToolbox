@@ -1,10 +1,10 @@
 ##### IMPORTS #####
 from tkinter.ttk import Combobox
 
-def unit_dropdown(frame, choices, mac, d, lac, mode, on_select_u):
+def unit_dropdown(frame, choices, unit, on_select_u):
     # Creates a unit dropdown
     dropdown = Combobox(frame, values=choices, width=5, state='readonly')
-    dropdown.set(get_unit(mac, d, lac, mode))
+    dropdown.set(unit)
     dropdown.pack(side='left', padx=5)
     dropdown.bind("<<ComboboxSelected>>", on_select_u)
 

@@ -4,13 +4,15 @@ import pandas as pd
 from Core.Attenuation.tac_calculations import *
 
 def plot_data(element, selection, mode, interaction, num, den,
-              export=False, choice=""):
-    cols = ["Photon Energy (MeV)", interaction]
+              energy_unit, export=False, choice=""):
+    energy_col = "Photon Energy (" + energy_unit + ")"
+    cols = [energy_col, interaction]
     df = pd.DataFrame(columns=cols)
     if selection in element_choices:
         # Load the CSV file
         df2 = pd.read_csv('Data/Modules/Mass Attenuation/Elements/' + element + '.csv')
-        df["Photon Energy (MeV)"] = df2["Photon Energy"]
+        df[energy_col] = df2["Photon Energy"]
+        df[energy_col] /= energy_units[energy_unit]
         df[interaction] = df2[interaction]
     elif selection in material_choices:
         with open('Data/General Data/Material Composition/' + element + '.csv',
@@ -42,12 +44,12 @@ def plot_data(element, selection, mode, interaction, num, den,
         df[interaction] /= lac_denominator[den]
 
     # Plot the data
-    plt.plot(df["Photon Energy (MeV)"], df[interaction], marker='o')
+    plt.plot(df[energy_col], df[interaction], marker='o')
     title = element + " - " + interaction
     plt.title(title, fontsize=8.5)
     plt.xscale('log')
     plt.yscale('log')
-    plt.xlabel('Photon Energy (MeV)')
+    plt.xlabel(energy_col)
     y_label = mode + " (" + num + "/" + den + ")"
     plt.ylabel(y_label)
     plt.grid(True)

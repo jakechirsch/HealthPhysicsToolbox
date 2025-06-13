@@ -5,7 +5,7 @@ from App.app import return_home
 ##### WINDOW SETUP #####
 root = Tk()
 root.title("Health Physics Toolbox")
-root.geometry("725x450")
+root.geometry("725x475")
 root.configure(bg="#00274C")
 
 # Creates home screen upon launch

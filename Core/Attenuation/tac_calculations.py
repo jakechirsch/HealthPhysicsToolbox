@@ -13,8 +13,11 @@ density_denominator = {"mm\u00B3" : 10 ** 3, "cm\u00B3" : 1,
                        "m\u00B3" : 0.01 ** 3}
 lac_denominator = {"mm" : 10, "cm" : 1, "m" : 0.01}
 
+energy_units = {"eV" : 0.001 ** 2, "keV" : 0.001,
+                "MeV" : 1, "GeV" : 1000}
+
 def handle_calculation(selection, mode, interaction, element, energy_str, result_label,
-                       num, den):
+                       num, den, energy_unit):
     if element == "":
         return
 
@@ -32,6 +35,8 @@ def handle_calculation(selection, mode, interaction, element, energy_str, result
             edit_result(non_number, result_label)
             result_label.pack(pady=5)
             return
+
+    energy_target *= energy_units[energy_unit]
 
     if mode == "Mass Attenuation Coefficient":
         result = find_tac(selection, interaction, element, energy_target)

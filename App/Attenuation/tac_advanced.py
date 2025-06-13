@@ -10,7 +10,7 @@ advanced_list = []
 
 def tac_advanced(root, common_el, common_mat, element, material, custom_mat,
                  selection, mode, interaction_start, mac_num, d_num, lac_num,
-                 mac_den, d_den, lac_den):
+                 mac_den, d_den, lac_den, energy_unit):
     global advanced_list
 
     # Gets common and non-common elements
@@ -95,12 +95,17 @@ def tac_advanced(root, common_el, common_mat, element, material, custom_mat,
     den_units = [mac_den, d_den, lac_den]
     on_select_num = get_select_unit(root, num_units, mode)
     on_select_den = get_select_unit(root, den_units, mode)
+    def on_select_energy(event):
+        nonlocal energy_unit
+        event.widget.selection_clear()
+        root.focus()
+        energy_unit = event.widget.get()
 
     # Creates dropdown menu for numerator unit
     numerator_choices = get_unit_keys(mac_numerator, density_numerator,
                                       lac_numerator, mode)
     unit_dropdown(unit_frame, numerator_choices,
-                  mac_num, d_num, lac_num, mode, on_select_num)
+                  get_unit(mac_num, d_num, lac_num, mode), on_select_num)
 
     # / label
     slash_label = Label(unit_frame, text="/")
@@ -110,7 +115,20 @@ def tac_advanced(root, common_el, common_mat, element, material, custom_mat,
     denominator_choices = get_unit_keys(mac_denominator, density_denominator,
                                         lac_denominator, mode)
     unit_dropdown(unit_frame, denominator_choices,
-                  mac_den, d_den, lac_den, mode, on_select_den)
+                  get_unit(mac_den, d_den, lac_den, mode), on_select_den)
+
+    # Frame for units
+    energy_unit_frame = Frame(root)
+    energy_unit_frame.pack(pady=5)
+
+    # Energy unit label
+    unit_label = Label(energy_unit_frame, text="Energy Unit:")
+    unit_label.pack(side='left', padx=5)
+
+    # Creates dropdown menu for denominator unit
+    energy_choices = list(energy_units.keys())
+    unit_dropdown(energy_unit_frame, energy_choices,
+                  energy_unit, on_select_energy)
 
     # Creates plot button
     plot_button = Button(root, text="Plot",
@@ -126,7 +144,8 @@ def tac_advanced(root, common_el, common_mat, element, material, custom_mat,
                                                    get_unit(num_units[0], num_units[1],
                                                             num_units[2], mode),
                                                    get_unit(den_units[0], den_units[1],
-                                                            den_units[2], mode)))
+                                                            den_units[2], mode),
+                                                   energy_unit))
     plot_button.pack(pady=2)
 
     # Frame for export options
@@ -158,6 +177,7 @@ def tac_advanced(root, common_el, common_mat, element, material, custom_mat,
                                                               num_units[2], mode),
                                                      get_unit(den_units[0], den_units[1],
                                                               den_units[2], mode),
+                                                     energy_unit,
                                                      export=True, choice=export_dropdown.get()))
     export_button.pack(side="left", padx=5)
 
@@ -184,12 +204,13 @@ def tac_advanced(root, common_el, common_mat, element, material, custom_mat,
                                                   selection, mode,
                                                   var_interaction.get(), num_units[0],
                                                   num_units[1], num_units[2], den_units[0],
-                                                  den_units[1], den_units[2]))
+                                                  den_units[1], den_units[2], energy_unit))
     exit_button.pack(pady=2)
 
     # Stores nodes into global list
     advanced_list = [interaction_dropdown, plot_button, exit_button,
-                     unit_frame, top_frame, bottom_frame, export_frame]
+                     unit_frame, energy_unit_frame, top_frame, bottom_frame,
+                     export_frame]
 
 def make_vertical_frame(root, vertical_frame, action, category,
                         non_common, common, non_common_m, common_m, custom):
@@ -283,7 +304,7 @@ def pass_saved(saved, choices):
 
 def tac_back(root, common_el, common_mat, element, material, custom_mat,
              selection, mode, interaction, mac_num, d_num, lac_num,
-             mac_den, d_den, lac_den):
+             mac_den, d_den, lac_den, energy_unit):
     from App.Attenuation.tac_main import total_attenuation_coefficient
 
     clear_advanced()
@@ -291,7 +312,8 @@ def tac_back(root, common_el, common_mat, element, material, custom_mat,
                                   interaction=interaction, common_el=common_el,
                                   common_mat=common_mat, element=element, material=material,
                                   custom_mat=custom_mat, mac_num=mac_num, d_num=d_num,
-                                  lac_num=lac_num, mac_den=mac_den, d_den=d_den, lac_den=lac_den)
+                                  lac_num=lac_num, mac_den=mac_den, d_den=d_den,
+                                  lac_den=lac_den, energy_unit=energy_unit)
 
 def clear_advanced():
     global advanced_list

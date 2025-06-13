@@ -15,7 +15,8 @@ def total_attenuation_coefficient(root, selection_start="Common Elements",
                                   element="Ac",
                                   material="A-150 Tissue-Equivalent Plastic (A150TEP)",
                                   custom_mat="", mac_num="cm\u00B2", d_num="g", lac_num="1",
-                                  mac_den="g", d_den="cm\u00B3", lac_den="cm"):
+                                  mac_den="g", d_den="cm\u00B3", lac_den="cm",
+                                  energy_unit="MeV"):
     global screen_list
 
     # Displays the requested coefficient
@@ -123,7 +124,7 @@ def total_attenuation_coefficient(root, selection_start="Common Elements",
     var_mode.set(mode_start)
     mode = mode_start
 
-    label = Label(root, text="Energy (MeV):")
+    label = Label(root, text="Energy (" + energy_unit + "):")
     entry = Entry(root, width=30)
     entry.config(bg='white', fg='grey')
 
@@ -176,7 +177,8 @@ def total_attenuation_coefficient(root, selection_start="Common Elements",
                                                      interaction, var.get(),
                                                      entry.get(), result_label,
                                   get_unit(mac_num, d_num, lac_num, var_mode.get()),
-                                  get_unit(mac_den, d_den, lac_den, var_mode.get())))
+                                  get_unit(mac_den, d_den, lac_den, var_mode.get()),
+                                                     energy_unit))
     calc.pack(pady=5)
 
     # Creates an advanced settings button
@@ -187,7 +189,7 @@ def total_attenuation_coefficient(root, selection_start="Common Elements",
                                                   var_mode.get(), interaction,
                                                   mac_num, d_num, lac_num,
                                                   mac_den, d_den, lac_den,
-                                                  result_label))
+                                                  result_label, energy_unit))
     advanced_button.pack(pady=2)
 
     # Creates exit button to return to home screen
@@ -203,7 +205,7 @@ def to_advanced(root, common_el, common_mat, element, material,
              custom_mat, selection, mode, interaction,
              mac_num, d_num, lac_num,
              mac_den, d_den, lac_den,
-             result_label):
+             result_label, energy_unit):
     from App.Attenuation.tac_advanced import tac_advanced
 
     # Hides T.A.C. screen
@@ -211,7 +213,7 @@ def to_advanced(root, common_el, common_mat, element, material,
     tac_advanced(root, common_el, common_mat, element, material,
                  custom_mat, selection, mode, interaction,
                  mac_num, d_num, lac_num,
-                 mac_den, d_den, lac_den)
+                 mac_den, d_den, lac_den, energy_unit)
 
 def clear_screen(result_label):
     global screen_list

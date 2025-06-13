@@ -62,26 +62,29 @@ def tac_advanced(root, common_el, common_mat, element, material, custom_mat,
                         category_dropdown.get(), non_common, common,
                         non_common_m, common_m, custom)
 
-    # Stores interaction and sets default
-    var_interaction = StringVar(root)
-    var_interaction.set(interaction_start)
-
     def on_select(event):
         event.widget.selection_clear()
         root.focus()
 
-    # Creates dropdown menu for mode
-    interaction_choices = ["Total Attenuation with Coherent Scattering",
-                           "Total Attenuation without Coherent Scattering",
-                           "Pair Production in Electron Field",
-                           "Pair Production in Nuclear Field",
-                           "Scattering - Incoherent",
-                           "Scattering - Coherent",
-                           "Photo-Electric Absorption"]
-    interaction_dropdown = Combobox(root, textvariable=var_interaction,
-                                    values=interaction_choices, width=32, state='readonly')
-    interaction_dropdown.pack(pady=10)
-    interaction_dropdown.bind("<<ComboboxSelected>>", on_select)
+    interaction_dropdown = Combobox()
+
+    # Stores interaction and sets default
+    var_interaction = StringVar(root)
+    var_interaction.set(interaction_start)
+
+    if mode != "Density":
+        # Creates dropdown menu for mode
+        interaction_choices = ["Total Attenuation with Coherent Scattering",
+                               "Total Attenuation without Coherent Scattering",
+                               "Pair Production in Electron Field",
+                               "Pair Production in Nuclear Field",
+                               "Scattering - Incoherent",
+                               "Scattering - Coherent",
+                               "Photo-Electric Absorption"]
+        interaction_dropdown = Combobox(root, textvariable=var_interaction,
+                                        values=interaction_choices, width=32, state='readonly')
+        interaction_dropdown.pack(pady=10)
+        interaction_dropdown.bind("<<ComboboxSelected>>", on_select)
 
     # Frame for units
     unit_frame = Frame(root)
@@ -119,67 +122,47 @@ def tac_advanced(root, common_el, common_mat, element, material, custom_mat,
 
     # Frame for units
     energy_unit_frame = Frame(root)
-    energy_unit_frame.pack(pady=5)
-
-    # Energy unit label
-    unit_label = Label(energy_unit_frame, text="Energy Unit:")
-    unit_label.pack(side='left', padx=5)
-
-    # Creates dropdown menu for denominator unit
-    energy_choices = list(energy_units.keys())
-    unit_dropdown(energy_unit_frame, energy_choices,
-                  energy_unit, on_select_energy)
-
-    # Creates plot button
-    plot_button = Button(root, text="Plot",
-                         command=lambda: plot_data(common_el if selection == "Common Elements"
-                                                   else common_mat if
-                                                   selection == "Common Materials"
-                                                   else element if selection == "All Elements"
-                                                   else material if selection == "All Materials"
-                                                   else custom_mat
-                                                   if selection == "Custom Materials"
-                                                   else "",
-                                                   selection, mode, var_interaction.get(),
-                                                   get_unit(num_units[0], num_units[1],
-                                                            num_units[2], mode),
-                                                   get_unit(den_units[0], den_units[1],
-                                                            den_units[2], mode),
-                                                   energy_unit))
-    plot_button.pack(pady=2)
+    energy_unit_frame.pack(pady=5 if mode != "Density" else 0)
 
     # Frame for export options
     export_frame = Frame(root)
-    export_frame.pack(pady=5)
+    export_frame.pack(pady=5 if mode != "Density" else 0)
 
-    export_label = Label(export_frame, text="Export Options:")
-    export_label.pack(side="left", padx=5)
+    if mode != "Density":
+        # Energy unit label
+        unit_label = Label(energy_unit_frame, text="Energy Unit:")
+        unit_label.pack(side='left', padx=5)
 
-    # Creates dropdown menu for export
-    export_choices = ["Plot", "Data"]
-    export_dropdown = Combobox(export_frame, values=export_choices, width=6, state='readonly')
-    export_dropdown.set("Plot")
-    export_dropdown.pack(side="left", padx=5)
-    export_dropdown.bind("<<ComboboxSelected>>", on_select)
+        # Creates dropdown menu for denominator unit
+        energy_choices = list(energy_units.keys())
+        unit_dropdown(energy_unit_frame, energy_choices,
+                      energy_unit, on_select_energy)
 
-    # Creates export button
-    export_button = Button(export_frame, text="Export",
-                           command=lambda: plot_data(common_el if selection == "Common Elements"
-                                                     else common_mat if
-                                                     selection == "Common Materials"
-                                                     else element if selection == "All Elements"
-                                                     else material if selection == "All Materials"
-                                                     else custom_mat
-                                                     if selection == "Custom Materials"
-                                                     else "",
-                                                     selection, mode, var_interaction.get(),
-                                                     get_unit(num_units[0], num_units[1],
-                                                              num_units[2], mode),
-                                                     get_unit(den_units[0], den_units[1],
-                                                              den_units[2], mode),
-                                                     energy_unit,
-                                                     export=True, choice=export_dropdown.get()))
-    export_button.pack(side="left", padx=5)
+        export_label = Label(export_frame, text="Export Options:")
+        export_label.pack(side="left", padx=5)
+
+        # Creates dropdown menu for export
+        export_choices = ["Plot", "Data"]
+        export_dropdown = Combobox(export_frame, values=export_choices, width=6, state='readonly')
+        export_dropdown.set("Plot")
+        export_dropdown.pack(side="left", padx=5)
+        export_dropdown.bind("<<ComboboxSelected>>", on_select)
+
+        # Creates export button
+        export_button = Button(export_frame, text="Export",
+                               command=lambda:
+                               plot_data(common_el if selection == "Common Elements" else
+                                         common_mat if selection == "Common Materials" else
+                                         element if selection == "All Elements" else
+                                         material if selection == "All Materials" else
+                                         custom_mat if selection == "Custom Materials"
+                                         else "", selection, mode, var_interaction.get(),
+                                         get_unit(num_units[0], num_units[1],
+                                                  num_units[2], mode),
+                                         get_unit(den_units[0], den_units[1],
+                                                  den_units[2], mode),
+                                         energy_unit, export_dropdown.get()))
+        export_button.pack(side="left", padx=5)
 
     # Frame for references & help
     bottom_frame = Frame(root)
@@ -208,8 +191,8 @@ def tac_advanced(root, common_el, common_mat, element, material, custom_mat,
     exit_button.pack(pady=2)
 
     # Stores nodes into global list
-    advanced_list = [interaction_dropdown, plot_button, exit_button,
-                     unit_frame, energy_unit_frame, top_frame, bottom_frame,
+    advanced_list = [interaction_dropdown, exit_button, unit_frame,
+                     energy_unit_frame, top_frame, bottom_frame,
                      export_frame]
 
 def make_vertical_frame(root, vertical_frame, action, category,

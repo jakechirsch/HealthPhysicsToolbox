@@ -4,7 +4,7 @@ import pandas as pd
 from Core.Attenuation.tac_calculations import *
 
 def plot_data(element, selection, mode, interaction, num, den,
-              energy_unit, export=False, choice=""):
+              energy_unit, choice):
     energy_col = "Photon Energy (" + energy_unit + ")"
     cols = [energy_col, interaction]
     df = pd.DataFrame(columns=cols)
@@ -56,20 +56,16 @@ def plot_data(element, selection, mode, interaction, num, den,
     plt.xticks(rotation=45)
     plt.tight_layout()
 
-    if export:
-        if choice == "Plot":
-            # Save the plot as a PNG file
-            plt.savefig(title + ".png")
-            open_file(title + ".png")
-        else:
-            # Save the data as a CSV file
-            unit = " (" + num + "_per_" + den + ")"
-            mode += unit
-            df.to_csv(element + " - " + mode + ".csv", index=False)
-            open_file(element + " - " + mode + ".csv")
+    if choice == "Plot":
+        # Save the plot as a PNG file
+        plt.savefig(title + ".png")
+        open_file(title + ".png")
     else:
-        # Show the plot
-        plt.show()
+        # Save the data as a CSV file
+        unit = " (" + num + "_per_" + den + ")"
+        mode += unit
+        df.to_csv(element + " - " + mode + ".csv", index=False)
+        open_file(element + " - " + mode + ".csv")
 
 def make_df_for_material(file_like, df, element, selection, interaction):
     # Reads in file

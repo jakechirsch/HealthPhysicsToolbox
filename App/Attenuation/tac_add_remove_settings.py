@@ -14,14 +14,14 @@ def add_custom(root, name_box, density_box, weights_box):
     weights = weights_box.get()
     csv_data = '"Weight","Element"\n' + weights
 
-    with shelve.open("Custom Materials") as prefs:
+    with shelve.open("Data/Modules/Mass Attenuation/User/Custom Materials") as prefs:
         choices = prefs.get("Custom Materials", [])
         if not name in choices:
             choices.append(name)
         prefs["Custom Materials"] = choices
 
     # Save to shelve
-    with shelve.open('_' + name) as db:
+    with shelve.open('Data/Modules/Mass Attenuation/User/_' + name) as db:
         db[name] = csv_data
         db[name + '_Density'] = density
 
@@ -31,7 +31,7 @@ def add_custom(root, name_box, density_box, weights_box):
     root.focus()
 
 def add_c(selection, choices, inverse, var, dropdown):
-    with shelve.open(selection) as prefs:
+    with shelve.open('Data/Modules/Mass Attenuation/User/' + selection) as prefs:
         # Adds element to common elements
         element = var.get()
         if element == "":
@@ -45,7 +45,7 @@ def add_c(selection, choices, inverse, var, dropdown):
         var.set(choices[0] if len(choices) > 0 else "")
 
 def remove_c(selection, choices, inverse, var, dropdown):
-    with shelve.open(selection) as prefs:
+    with shelve.open('Data/Modules/Mass Attenuation/User/' + selection) as prefs:
         # Removes element from common elements
         element = var.get()
         if element == "":

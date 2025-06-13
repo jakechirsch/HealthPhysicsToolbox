@@ -20,7 +20,7 @@ def get_choices(selection):
         return choices
 
     # Obtains list of elements from shelve
-    with shelve.open(selection) as prefs:
+    with shelve.open('Data/Modules/Mass Attenuation/User/' + selection) as prefs:
         default = []
         if selection != "Custom Materials":
             with open('Data/Modules/Mass Attenuation/' + selection + '.csv', 'r') as file:

@@ -15,7 +15,7 @@ def linear_interpolation(target, near_low, near_high, val_low, val_high):
 def find_density(selection, element):
     density = None
     if selection == "Custom Materials":
-        with shelve.open('_' + element) as db:
+        with shelve.open('Data/Modules/Mass Attenuation/User/_' + element) as db:
             density = float(db[element + '_Density'])
     else:
         name = 'Elements' if selection in element_choices else 'Materials'

@@ -19,7 +19,7 @@ def plot_data(element, selection, mode, interaction, num, den,
                   'r') as file:
             make_df_for_material(file, df, element, selection, interaction)
     else:
-        with shelve.open('_' + element) as db:
+        with shelve.open('Data/Modules/Mass Attenuation/User/_' + element) as db:
             stored_data = db[element]
             stored_data = stored_data.replace('\\n', '\n')
 

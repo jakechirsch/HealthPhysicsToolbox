@@ -72,7 +72,7 @@ def find_tac(selection, interaction, element, energy_target):
         with open('Data/General Data/Material Composition/' + element + '.csv', 'r') as file:
             tac = find_tac_for_material(file, interaction, energy_target)
     else:
-        with shelve.open('_' + element) as db:
+        with shelve.open('Data/Modules/Mass Attenuation/User/_' + element) as db:
             stored_data = db[element]
             stored_data = stored_data.replace('\\n', '\n')
 

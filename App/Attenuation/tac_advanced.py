@@ -2,6 +2,7 @@
 from App.Attenuation.tac_choices import *
 from App.Attenuation.tac_unit_settings import *
 from App.Attenuation.tac_add_remove_settings import *
+from App.Attenuation.tac_add_custom import *
 from Core.Attenuation.tac_plots import *
 from ttkwidgets.autocomplete import AutocompleteCombobox
 

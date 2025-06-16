@@ -79,6 +79,7 @@ def advanced_back(root, common_el, common_mat, element, material, custom_mat,
     from App.Attenuation.tac_advanced import tac_advanced
 
     clear_custom()
+    print("hi")
     tac_advanced(root, selection=selection, mode=mode,
                  interaction_start=interaction, common_el=common_el,
                  common_mat=common_mat, element=element, material=material,

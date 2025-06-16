@@ -36,11 +36,12 @@ def tac_advanced(root, common_el, common_mat, element, material, custom_mat,
         event.widget.selection_clear()
         root.focus()
         vertical_frame.destroy()
-        vertical_frame = Frame(top_frame)
-        vertical_frame.pack(side='left', padx=5)
-        make_vertical_frame(root, vertical_frame, action_dropdown.get(),
+        vertical_frame = make_vertical_frame(root, top_frame, action_dropdown.get(),
                             category_dropdown.get(), non_common, common,
-                            non_common_m, common_m, custom)
+                            non_common_m, common_m, custom, common_el, common_mat,
+                            element, material, custom_mat, selection, mode,
+                            interaction_start, mac_num, d_num, lac_num, mac_den,
+                            d_den, lac_den, energy_unit)
 
     # Creates dropdown menu for action
     action_choices = ["Add", "Remove"]
@@ -57,11 +58,12 @@ def tac_advanced(root, common_el, common_mat, element, material, custom_mat,
     category_dropdown.bind("<<ComboboxSelected>>", on_select_options)
 
     # Frame for specific add/remove settings
-    vertical_frame = Frame(top_frame)
-    vertical_frame.pack(side='left', padx=5)
-    make_vertical_frame(root, vertical_frame, action_dropdown.get(),
+    vertical_frame = make_vertical_frame(root, top_frame, action_dropdown.get(),
                         category_dropdown.get(), non_common, common,
-                        non_common_m, common_m, custom)
+                        non_common_m, common_m, custom, common_el, common_mat,
+                        element, material, custom_mat, selection, mode,
+                        interaction_start, mac_num, d_num, lac_num, mac_den,
+                        d_den, lac_den, energy_unit)
 
     def on_select(event):
         event.widget.selection_clear()
@@ -196,12 +198,20 @@ def tac_advanced(root, common_el, common_mat, element, material, custom_mat,
                      energy_unit_frame, top_frame, bottom_frame,
                      export_frame]
 
-def make_vertical_frame(root, vertical_frame, action, category,
-                        non_common, common, non_common_m, common_m, custom):
-    label = Label(vertical_frame,
-                  text=action + " " + \
-                       category + ":")
-    label.pack()
+def make_vertical_frame(root, top_frame, action, category,
+                        non_common, common, non_common_m, common_m, custom,
+                        common_el, common_mat, element, material, custom_mat,
+                        selection, mode, interaction, mac_num, d_num, lac_num, mac_den,
+                        d_den, lac_den, energy_unit
+                        ):
+    vertical_frame = Frame(top_frame)
+    vertical_frame.pack(side='left', padx=5)
+
+    if category != "Custom Materials" or action != "Add":
+        label = Label(vertical_frame,
+                      text=action + " " + \
+                      category + ":")
+        label.pack()
 
     # Stores element and sets default
     var = StringVar(root)
@@ -232,25 +242,16 @@ def make_vertical_frame(root, vertical_frame, action, category,
         width = 35
 
     if action == "Add" and category == "Custom Materials":
-        label = Label(vertical_frame, text="Material Name:")
-        entry = Entry(vertical_frame, width=20)
-        entry.config(bg='white', fg='grey')
-        label.pack()
-        entry.pack()
-        label2 = Label(vertical_frame, text="Density")
-        entry2 = Entry(vertical_frame, width=20)
-        entry2.config(bg='white', fg='grey')
-        label2.pack()
-        entry2.pack()
-        label3 = Label(vertical_frame, text='"Weight","Element"\\n')
-        entry3 = Entry(vertical_frame, width=20)
-        entry3.config(bg='white', fg='grey')
-        label3.pack()
-        entry3.pack()
-
         # Creates button
-        button = Button(vertical_frame, text=action,
-                        command=lambda: add_custom(root, entry, entry2, entry3))
+        button = Button(vertical_frame, text="Add Custom Materials",
+                        command=lambda: to_custom_menu(root, common_el=common_el,
+                                                       common_mat=common_mat, element=element,
+                                                       material=material, custom_mat=custom_mat,
+                                                       selection=selection, mode=mode,
+                                                       interaction=interaction, mac_num=mac_num,
+                                                       d_num=d_num, lac_num=lac_num,
+                                                       mac_den=mac_den, d_den=d_den,
+                                                       lac_den=lac_den, energy_unit=energy_unit))
         button.pack()
     else:
         def on_select(event):
@@ -283,6 +284,8 @@ def make_vertical_frame(root, vertical_frame, action, category,
                                                          choices, inverse, var, dropdown))
         button.pack()
 
+    return vertical_frame
+
 def pass_saved(saved, choices):
     return saved if saved in choices else choices[0] if len(choices) > 0 else ""
 
@@ -306,3 +309,11 @@ def clear_advanced():
     for node in advanced_list:
         node.destroy()
     advanced_list.clear()
+
+def to_custom_menu(root, common_el, common_mat, element, material, custom_mat,
+                   selection, mode, interaction, mac_num, d_num, lac_num, mac_den,
+                   d_den, lac_den, energy_unit):
+    clear_advanced()
+    custom_menu(root, common_el, common_mat, element, material, custom_mat,
+                selection, mode, interaction, mac_num, d_num, lac_num, mac_den,
+                d_den, lac_den, energy_unit)

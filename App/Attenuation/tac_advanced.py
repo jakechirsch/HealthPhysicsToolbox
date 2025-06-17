@@ -1,5 +1,4 @@
 ##### IMPORTS #####
-from App.Attenuation.tac_choices import *
 from App.Attenuation.tac_unit_settings import *
 from App.Attenuation.tac_add_remove_settings import *
 from App.Attenuation.tac_add_custom import *

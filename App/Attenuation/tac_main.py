@@ -51,7 +51,7 @@ def total_attenuation_coefficient(root, selection_start="Common Elements",
             material if selection_start == "All Materials" else
             custom_mat if selection_start == "Custom Materials" else "")
 
-    # Frame for element selection and advanced settings button
+    # Frame for type selection and element/material
     top_frame = Frame(root)
     top_frame.pack(pady=10)
 

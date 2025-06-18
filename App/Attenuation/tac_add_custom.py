@@ -1,7 +1,6 @@
 ##### IMPORTS #####
-import io
-from tkinter import *
 from App.Attenuation.tac_choices import *
+from Core.Attenuation.tac_calculations import *
 
 # For global access to nodes on custom screen
 custom_list = []
@@ -22,7 +21,7 @@ def custom_menu(root, common_el, common_mat, element, material, custom_mat,
     density_frame = Frame(root)
     density_frame.pack(pady=6)
 
-    label2 = Label(density_frame, text="Density (g/cm\u00B3):")
+    label2 = Label(density_frame, text=f"Density ({d_num}/{d_den}):")
     entry2 = Entry(density_frame, width=20, bg='white', fg='grey')
     label2.pack(side="left", padx=5)
     entry2.pack(side="left", padx=5)
@@ -54,7 +53,8 @@ def custom_menu(root, common_el, common_mat, element, material, custom_mat,
     # Creates button
     button = Button(root, text="Add Material",
                     command=lambda: add_custom(root, entry, entry2, entry3,
-                                               error_label, var_normalize.get()))
+                                               error_label, var_normalize.get(),
+                                               d_num, d_den))
     button.pack()
 
     # Creates exit button to return to T.A.C. screen
@@ -74,7 +74,8 @@ def custom_menu(root, common_el, common_mat, element, material, custom_mat,
     custom_list = [material_frame, density_frame, weights_frame, button,
                    normalize, exit_button, error_label]
 
-def add_custom(root, name_box, density_box, weights_box, error_label, normalize):
+def add_custom(root, name_box, density_box, weights_box, error_label, normalize,
+               d_num, d_den):
     name = name_box.get()
 
     # Error check for no material name
@@ -169,7 +170,7 @@ def add_custom(root, name_box, density_box, weights_box, error_label, normalize)
     # Save to shelve
     with shelve.open('Data/Modules/Mass Attenuation/User/_' + name) as db:
         db[name] = csv_data
-        db[name + '_Density'] = density
+        db[name + '_Density'] = str(float(density) * density_denominator[d_den] / density_numerator[d_num])
 
     name_box.delete(0, END)
     weights_box.delete("1.0", "end")
@@ -183,7 +184,7 @@ def example_label(frame, text):
 def clear_custom():
     global custom_list
 
-    # Clears advanced
+    # Clears custom screen
     for node in custom_list:
         node.destroy()
     custom_list.clear()

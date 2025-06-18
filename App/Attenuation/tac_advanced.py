@@ -1,7 +1,7 @@
 ##### IMPORTS #####
-from App.Attenuation.tac_unit_settings import *
 from App.Attenuation.tac_add_remove_settings import *
 from App.Attenuation.tac_add_custom import *
+from App.Attenuation.tac_export_settings import *
 from Core.Attenuation.tac_plots import *
 from ttkwidgets.autocomplete import AutocompleteCombobox
 
@@ -30,17 +30,21 @@ def tac_advanced(root, common_el, common_mat, element, material, custom_mat,
     top_frame = Frame(root)
     top_frame.pack(pady=5)
 
+    def make_v_frame():
+        v_frame = make_vertical_frame(root, top_frame, action_dropdown.get(),
+                            category_dropdown.get(), non_common, common,
+                            non_common_m, common_m, custom, common_el, common_mat,
+                            element, material, custom_mat, selection, mode,
+                            interaction_start, num_units[0], num_units[1], num_units[2],
+                            den_units[0], den_units[1], den_units[2], energy_unit)
+        return v_frame
+
     def on_select_options(event):
         nonlocal vertical_frame
         event.widget.selection_clear()
         root.focus()
         vertical_frame.destroy()
-        vertical_frame = make_vertical_frame(root, top_frame, action_dropdown.get(),
-                            category_dropdown.get(), non_common, common,
-                            non_common_m, common_m, custom, common_el, common_mat,
-                            element, material, custom_mat, selection, mode,
-                            interaction_start, mac_num, d_num, lac_num, mac_den,
-                            d_den, lac_den, energy_unit)
+        vertical_frame = make_v_frame()
 
     # Creates dropdown menu for action
     action_choices = ["Add", "Remove"]
@@ -56,13 +60,12 @@ def tac_advanced(root, common_el, common_mat, element, material, custom_mat,
     category_dropdown.pack(side='left', padx=5)
     category_dropdown.bind("<<ComboboxSelected>>", on_select_options)
 
+    # Stores updatable units
+    num_units = [mac_num, d_num, lac_num]
+    den_units = [mac_den, d_den, lac_den]
+
     # Frame for specific add/remove settings
-    vertical_frame = make_vertical_frame(root, top_frame, action_dropdown.get(),
-                        category_dropdown.get(), non_common, common,
-                        non_common_m, common_m, custom, common_el, common_mat,
-                        element, material, custom_mat, selection, mode,
-                        interaction_start, mac_num, d_num, lac_num, mac_den,
-                        d_den, lac_den, energy_unit)
+    vertical_frame = make_v_frame()
 
     def on_select(event):
         event.widget.selection_clear()
@@ -96,8 +99,6 @@ def tac_advanced(root, common_el, common_mat, element, material, custom_mat,
     unit_label = Label(unit_frame, text="Units:")
     unit_label.pack(side='left', padx=5)
 
-    num_units = [mac_num, d_num, lac_num]
-    den_units = [mac_den, d_den, lac_den]
     on_select_num = get_select_unit(root, num_units, mode)
     on_select_den = get_select_unit(root, den_units, mode)
     def on_select_energy(event):
@@ -126,9 +127,7 @@ def tac_advanced(root, common_el, common_mat, element, material, custom_mat,
     energy_unit_frame = Frame(root)
     energy_unit_frame.pack(pady=5 if mode != "Density" else 0)
 
-    # Frame for export options
-    export_frame = Frame(root)
-    export_frame.pack(pady=5 if mode != "Density" else 0)
+    export_button = Button()
 
     if mode != "Density":
         # Energy unit label
@@ -140,31 +139,15 @@ def tac_advanced(root, common_el, common_mat, element, material, custom_mat,
         unit_dropdown(energy_unit_frame, energy_choices,
                       energy_unit, on_select_energy)
 
-        export_label = Label(export_frame, text="Export Options:")
-        export_label.pack(side="left", padx=5)
-
-        # Creates dropdown menu for export
-        export_choices = ["Plot", "Data"]
-        export_dropdown = Combobox(export_frame, values=export_choices, width=6, state='readonly')
-        export_dropdown.set("Plot")
-        export_dropdown.pack(side="left", padx=5)
-        export_dropdown.bind("<<ComboboxSelected>>", on_select)
-
         # Creates export button
-        export_button = Button(export_frame, text="Export",
+        export_button = Button(root, text="Export Options",
                                command=lambda:
-                               plot_data(common_el if selection == "Common Elements" else
-                                         common_mat if selection == "Common Materials" else
-                                         element if selection == "All Elements" else
-                                         material if selection == "All Materials" else
-                                         custom_mat if selection == "Custom Materials"
-                                         else "", selection, mode, var_interaction.get(),
-                                         get_unit(num_units[0], num_units[1],
-                                                  num_units[2], mode),
-                                         get_unit(den_units[0], den_units[1],
-                                                  den_units[2], mode),
-                                         energy_unit, export_dropdown.get()))
-        export_button.pack(side="left", padx=5)
+                               to_export_menu(root, common_el, common_mat, element, material,
+                                              custom_mat, selection, mode, var_interaction.get(),
+                                              num_units[0], num_units[1], num_units[2],
+                                              den_units[0], den_units[1], den_units[2],
+                                              energy_unit))
+        export_button.pack(pady=10)
 
     # Frame for references & help
     bottom_frame = Frame(root)
@@ -195,7 +178,7 @@ def tac_advanced(root, common_el, common_mat, element, material, custom_mat,
     # Stores nodes into global list
     advanced_list = [interaction_dropdown, exit_button, unit_frame,
                      energy_unit_frame, top_frame, bottom_frame,
-                     export_frame]
+                     export_button]
 
 def make_vertical_frame(root, top_frame, action, category,
                         non_common, common, non_common_m, common_m, custom,
@@ -304,7 +287,7 @@ def tac_back(root, common_el, common_mat, element, material, custom_mat,
 def clear_advanced():
     global advanced_list
 
-    # Clears advanced
+    # Clears advanced screen
     for node in advanced_list:
         node.destroy()
     advanced_list.clear()
@@ -316,3 +299,11 @@ def to_custom_menu(root, common_el, common_mat, element, material, custom_mat,
     custom_menu(root, common_el, common_mat, element, material, custom_mat,
                 selection, mode, interaction, mac_num, d_num, lac_num, mac_den,
                 d_den, lac_den, energy_unit)
+
+def to_export_menu(root, common_el, common_mat, element, material, custom_mat,
+                   selection, mode, interaction_start, mac_num, d_num, lac_num,
+                   mac_den, d_den, lac_den, energy_unit):
+    clear_advanced()
+    export_menu(root, common_el, common_mat, element, material, custom_mat,
+                selection, mode, interaction_start, mac_num, d_num, lac_num,
+                mac_den, d_den, lac_den, energy_unit)

@@ -2,22 +2,33 @@
 import matplotlib.pyplot as plt
 import pandas as pd
 from Core.Attenuation.tac_calculations import *
+from tkinter.filedialog import asksaveasfilename
 
-def plot_data(element, selection, mode, interaction, num, den,
-              energy_unit, choice):
+def plot_data(element, selection, mode, interactions, num, den,
+              energy_unit, choice, save, error_label):
+    if element == "":
+        error_label.config(fg="red", text="Error: No element or material selected.")
+        return
+    if len(interactions) == 0:
+        error_label.config(fg="red", text="Error: No interactions selected.")
+        return
+    error_label.config(fg="red", text="")
     energy_col = "Photon Energy (" + energy_unit + ")"
-    cols = [energy_col, interaction]
+    cols = [energy_col]
+    for interaction in interactions:
+        cols.append(interaction)
     df = pd.DataFrame(columns=cols)
     if selection in element_choices:
         # Load the CSV file
         df2 = pd.read_csv('Data/Modules/Mass Attenuation/Elements/' + element + '.csv')
         df[energy_col] = df2["Photon Energy"]
         df[energy_col] /= energy_units[energy_unit]
-        df[interaction] = df2[interaction]
+        for interaction in interactions:
+            df[interaction] = df2[interaction]
     elif selection in material_choices:
         with open('Data/General Data/Material Composition/' + element + '.csv',
                   'r') as file:
-            make_df_for_material(file, df, element, selection, interaction)
+            make_df_for_material(file, df, element, selection, interactions)
     else:
         with shelve.open('Data/Modules/Mass Attenuation/User/_' + element) as db:
             stored_data = db[element]
@@ -26,29 +37,29 @@ def plot_data(element, selection, mode, interaction, num, den,
         # Create file-like object from the stored string
         csv_file_like = io.StringIO(stored_data)
 
-        make_df_for_material(csv_file_like, df, element, selection, interaction)
+        make_df_for_material(csv_file_like, df, element, selection, interactions)
 
-    if mode == "Linear Attenuation Coefficient":
-        df[interaction] *= find_density(selection, element)
-    elif mode == "Density":
-        df.loc[:, interaction] = find_density(selection, element)
+    for interaction in interactions:
+        if mode == "Mass Attenuation Coefficient":
+            df[interaction] *= mac_numerator[num]
+            df[interaction] /= mac_denominator[den]
+        else:
+            df[interaction] *= find_density(selection, element)
+            df[interaction] *= lac_numerator[num]
+            df[interaction] /= lac_denominator[den]
 
-    if mode == "Mass Attenuation Coefficient":
-        df[interaction] *= mac_numerator[num]
-        df[interaction] /= mac_denominator[den]
-    elif mode == "Density":
-        df[interaction] *= density_numerator[num]
-        df[interaction] /= density_denominator[den]
-    else:
-        df[interaction] *= lac_numerator[num]
-        df[interaction] /= lac_denominator[den]
+    # Clear from past plots
+    plt.clf()
 
     # Plot the data
-    plt.plot(df[energy_col], df[interaction], marker='o')
-    title = element + " - " + interaction
+    for interaction in interactions:
+        plt.plot(df[energy_col], df[interaction], marker='o', label=interaction)
+    unit = " (" + num + "/" + den + ")"
+    title = element + " - " + mode + unit
     plt.title(title, fontsize=8.5)
     plt.xscale('log')
     plt.yscale('log')
+    plt.legend()
     plt.xlabel(energy_col)
     y_label = mode + " (" + num + "/" + den + ")"
     plt.ylabel(y_label)
@@ -56,18 +67,40 @@ def plot_data(element, selection, mode, interaction, num, den,
     plt.xticks(rotation=45)
     plt.tight_layout()
 
-    if choice == "Plot":
-        # Save the plot as a PNG file
-        plt.savefig(title + ".png")
-        open_file(title + ".png")
+    if save == 1:
+        if choice == "Plot":
+            save_file(plt, choice, error_label, element)
+        else:
+            save_file(df, choice, error_label, element)
     else:
-        # Save the data as a CSV file
-        unit = " (" + num + "_per_" + den + ")"
-        mode += unit
-        df.to_csv(element + " - " + mode + ".csv", index=False)
-        open_file(element + " - " + mode + ".csv")
+        plt.show()
+        error_label.config(fg="black", text=choice + " exported!")
 
-def make_df_for_material(file_like, df, element, selection, interaction):
+def save_file(obj, choice, error_label, element):
+    file_format = ".csv"
+    if choice == "Plot":
+        file_format = ".png"
+
+    # Show the "Save As" dialog
+    file_path = asksaveasfilename(
+        defaultextension=file_format,
+        filetypes=[(file_format[1:].upper() + " files", "*" + file_format)],
+        title="Save " + file_format[1:].upper() + " As...",
+        initialfile=element.lower().replace(" ", "_") + "_attenuation_" + choice.lower()
+    )
+
+    # If the user selected a path, save the file
+    if file_path:
+        if choice == "Plot":
+            obj.savefig(file_path)
+        else:
+            obj.to_csv(file_path, index=False)
+        error_label.config(fg="black", text=choice + " exported!")
+        open_file(file_path)
+    else:
+        error_label.config(fg="red", text="Export canceled.")
+
+def make_df_for_material(file_like, df, element, selection, interactions):
     # Reads in file
     reader = csv.DictReader(file_like)
 
@@ -83,12 +116,26 @@ def make_df_for_material(file_like, df, element, selection, interaction):
                 # Gets energy values to use as dots
                 for row2 in reader2:
                     vals.append(float(row2["Photon Energy"]))
+        else:
+            with open('Data/Modules/Mass Attenuation/Elements/' + row['Element'] + '.csv',
+                      'r') as file:
+                # Reads in file
+                reader2 = csv.DictReader(file)
+
+                new_vals = []
+                # Gets energy values to use as dots
+                for row2 in reader2:
+                    new_vals.append(float(row2["Photon Energy"]))
+                max_val = max(new_vals)
+                min_val = min(new_vals)
+                for val in vals:
+                    if val > max_val or val < min_val:
+                        vals.remove(val)
 
         # Finds the T.A.C. at each energy value and adds to dataframe
         for index, val in enumerate(vals):
-            x = find_tac(selection, interaction, element, val)
-            index_sub = 0
-            if x not in errors:
-                df.loc[index - index_sub] = [val, x]
-            else:
-                index_sub += 1
+            row = [val]
+            for interaction in interactions:
+                x = find_tac(selection, interaction, element, val)
+                row.append(x)
+            df.loc[index] = row

@@ -218,7 +218,7 @@ def to_advanced(root, common_el, common_mat, element, material,
 def clear_screen(result_label):
     global screen_list
 
-    # Clears screen
+    # Clears main screen
     result_label.pack_forget()
     for node in screen_list:
         node.destroy()

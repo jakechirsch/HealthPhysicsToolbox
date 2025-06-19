@@ -20,7 +20,7 @@ def total_attenuation_coefficient(root, selection_start="Common Elements",
     global screen_list
 
     # Displays the requested coefficient
-    result_label = Text(root, height=1, borderwidth=0)
+    result_label = Text(root, height=1, borderwidth=0, bd=0, highlightthickness=0, relief='flat')
     result_label.config(bg='white', fg='grey')
 
     choices = get_choices(selection_start)
@@ -52,7 +52,7 @@ def total_attenuation_coefficient(root, selection_start="Common Elements",
             custom_mat if selection_start == "Custom Materials" else "")
 
     # Frame for type selection and element/material
-    top_frame = Frame(root)
+    top_frame = Frame(root, bg="#00274C")
     top_frame.pack(pady=10)
 
     def select_selection(event):
@@ -76,8 +76,9 @@ def total_attenuation_coefficient(root, selection_start="Common Elements",
     selections = ["Common Elements", "All Elements",
                   "Common Materials", "All Materials",
                   "Custom Materials"]
-    selection_dropdown = Combobox(top_frame, textvariable=var_selection,
-                                  values=selections, width=13, state='readonly')
+    selection_dropdown = ttk.Combobox(top_frame, textvariable=var_selection,
+                                      values=selections, width=13, justify="center",
+                                      state='readonly', style="Maize.TCombobox")
     selection_dropdown.pack(side="left", padx=5)
     selection_dropdown.bind("<<ComboboxSelected>>", select_selection)
 
@@ -113,7 +114,7 @@ def total_attenuation_coefficient(root, selection_start="Common Elements",
 
     # Creates dropdown menu for element selection
     dropdown = AutocompleteCombobox(top_frame, textvariable=var, completevalues=choices,
-                                    width=box_width)
+                                    width=box_width, justify="center", style="Maize.TCombobox")
     dropdown.pack(side="left", padx=5)
     dropdown.bind('<Return>', on_enter)
     dropdown.bind("<<ComboboxSelected>>", on_select)
@@ -124,9 +125,9 @@ def total_attenuation_coefficient(root, selection_start="Common Elements",
     var_mode.set(mode_start)
     mode = mode_start
 
-    label = Label(root, text="Energy (" + energy_unit + "):")
-    entry = Entry(root, width=30)
-    entry.config(bg='white', fg='grey')
+    label = ttk.Label(root, text="Energy (" + energy_unit + "):",
+                      style="Maize.TLabel")
+    entry = ttk.Entry(root, width=30, style="Maize.TEntry")
 
     def select_mode(event):
         nonlocal label, entry
@@ -161,8 +162,8 @@ def total_attenuation_coefficient(root, selection_start="Common Elements",
     mode_choices = ["Mass Attenuation Coefficient",
                     "Density",
                     "Linear Attenuation Coefficient"]
-    mode_dropdown = Combobox(root, textvariable=var_mode, values=mode_choices, width=21,
-                             state='readonly')
+    mode_dropdown = ttk.Combobox(root, textvariable=var_mode, values=mode_choices, width=21,
+                                 justify="center", state='readonly', style="Maize.TCombobox")
     mode_dropdown.pack(pady=5)
     mode_dropdown.bind("<<ComboboxSelected>>", select_mode)
 
@@ -172,30 +173,34 @@ def total_attenuation_coefficient(root, selection_start="Common Elements",
         entry.pack()
 
     # Creates calculate button
-    calc = Button(root, text="Calculate",
-                  command=lambda: handle_calculation(var_selection.get(), var_mode.get(),
-                                                     interaction, var.get(),
-                                                     entry.get(), result_label,
-                                  get_unit(mac_num, d_num, lac_num, var_mode.get()),
-                                  get_unit(mac_den, d_den, lac_den, var_mode.get()),
-                                                     energy_unit))
-    calc.pack(pady=5)
+    calc = ttk.Button(root, text="Calculate", style="Maize.TButton",
+                      padding=(0,0),
+                      command=lambda: start_calculation(root,
+                                                        var_selection.get(), var_mode.get(),
+                                                        interaction, var.get(),
+                                                        entry.get(), result_label,
+                                      get_unit(mac_num, d_num, lac_num, var_mode.get()),
+                                      get_unit(mac_den, d_den, lac_den, var_mode.get()),
+                                                        energy_unit))
+    calc.pack(pady=8)
 
     # Creates an advanced settings button
-    advanced_button = Button(root, text="Advanced Settings",
-                      command=lambda: to_advanced(root, common_el, common_mat, element,
-                                                  material, custom_mat,
-                                                  var_selection.get(),
-                                                  var_mode.get(), interaction,
-                                                  mac_num, d_num, lac_num,
-                                                  mac_den, d_den, lac_den,
-                                                  result_label, energy_unit))
-    advanced_button.pack(pady=2)
+    advanced_button = ttk.Button(root, text="Advanced Settings", style="Maize.TButton",
+                                 padding=(9,0),
+                                 command=lambda: to_advanced(root, common_el, common_mat,
+                                                             element, material, custom_mat,
+                                                             var_selection.get(),
+                                                             var_mode.get(), interaction,
+                                                             mac_num, d_num, lac_num,
+                                                             mac_den, d_den, lac_den,
+                                                             result_label, energy_unit))
+    advanced_button.pack(pady=8)
 
     # Creates exit button to return to home screen
-    exit_button = Button(root, text="Exit",
-                         command=lambda: exit_to_home(root, result_label))
-    exit_button.pack(pady=2)
+    exit_button = ttk.Button(root, text="Exit", style="Maize.TButton",
+                             padding=(-20,0),
+                             command=lambda: exit_to_home(root, result_label))
+    exit_button.pack(pady=8)
 
     # Stores nodes into global list
     screen_list = [top_frame, dropdown, selection_dropdown, mode_dropdown,
@@ -206,6 +211,7 @@ def to_advanced(root, common_el, common_mat, element, material,
              mac_num, d_num, lac_num,
              mac_den, d_den, lac_den,
              result_label, energy_unit):
+    root.focus()
     from App.Attenuation.tac_advanced import tac_advanced
 
     # Hides T.A.C. screen
@@ -225,6 +231,13 @@ def clear_screen(result_label):
     screen_list.clear()
 
 def exit_to_home(root, result_label):
+    root.focus()
     from App.app import return_home
     clear_screen(result_label)
     return_home(root)
+
+def start_calculation(root, selection, mode, interaction, element, energy_str, result_label,
+                       num, den, energy_unit):
+    root.focus()
+    handle_calculation(selection, mode, interaction, element, energy_str, result_label,
+                       num, den, energy_unit)

@@ -7,12 +7,12 @@ from tkinter.filedialog import asksaveasfilename
 def plot_data(element, selection, mode, interactions, num, den,
               energy_unit, choice, save, error_label):
     if element == "":
-        error_label.config(fg="red", text="Error: No element or material selected.")
+        error_label.config(style="Error.TLabel", text="Error: No element or material selected.")
         return
     if len(interactions) == 0:
-        error_label.config(fg="red", text="Error: No interactions selected.")
+        error_label.config(style="Error.TLabel", text="Error: No interactions selected.")
         return
-    error_label.config(fg="red", text="")
+    error_label.config(style="Error.TLabel", text="")
     energy_col = "Photon Energy (" + energy_unit + ")"
     cols = [energy_col]
     for interaction in interactions:
@@ -74,7 +74,7 @@ def plot_data(element, selection, mode, interactions, num, den,
             save_file(df, choice, error_label, element)
     else:
         plt.show()
-        error_label.config(fg="black", text=choice + " exported!")
+        error_label.config(style="Success.TLabel", text=choice + " exported!")
 
 def save_file(obj, choice, error_label, element):
     file_format = ".csv"
@@ -95,10 +95,10 @@ def save_file(obj, choice, error_label, element):
             obj.savefig(file_path)
         else:
             obj.to_csv(file_path, index=False)
-        error_label.config(fg="black", text=choice + " exported!")
+        error_label.config(style="Success.TLabel", text=choice + " exported!")
         open_file(file_path)
     else:
-        error_label.config(fg="red", text="Export canceled.")
+        error_label.config(style="Error.TLabel", text="Export canceled.")
 
 def make_df_for_material(file_like, df, element, selection, interactions):
     # Reads in file

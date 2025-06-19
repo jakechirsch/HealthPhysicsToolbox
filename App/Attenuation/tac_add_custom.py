@@ -1,6 +1,7 @@
 ##### IMPORTS #####
 from App.Attenuation.tac_choices import *
 from Core.Attenuation.tac_calculations import *
+from tkinter import ttk
 
 # For global access to nodes on custom screen
 custom_list = []
@@ -10,31 +11,27 @@ def custom_menu(root, common_el, common_mat, element, material, custom_mat,
                 d_den, lac_den, energy_unit):
     global custom_list
 
-    material_frame = Frame(root)
+    material_frame = Frame(root, bg="#00274C")
     material_frame.pack(pady=6)
 
-    label = Label(material_frame, text="Material Name:")
-    entry = Entry(material_frame, width=20, bg='white', fg='grey')
-    label.pack(side="left", padx=5)
-    entry.pack(side="left", padx=5)
+    entry = make_line(material_frame, "Material Name:")
 
-    density_frame = Frame(root)
+    density_frame = Frame(root, bg="#00274C")
     density_frame.pack(pady=6)
 
-    label2 = Label(density_frame, text=f"Density ({d_num}/{d_den}):")
-    entry2 = Entry(density_frame, width=20, bg='white', fg='grey')
-    label2.pack(side="left", padx=5)
-    entry2.pack(side="left", padx=5)
+    entry2 = make_line(density_frame, f"Density ({d_num}/{d_den}):")
 
-    weights_frame = Frame(root)
+    weights_frame = Frame(root, bg="#00274C")
     weights_frame.pack(pady=6)
 
-    ex_frame = Frame(weights_frame)
+    ex_frame = Frame(weights_frame, bg="#00274C")
     ex_frame.pack(side="left", padx=5)
 
-    label3 = Label(ex_frame, text="Element Weights:")
-    entry3 = Text(weights_frame, width=20, height=10, bg='white', fg='grey')
-    label3.pack()
+    label = ttk.Label(ex_frame, text="Element Weights:", style="Maize.TLabel")
+    entry3 = Text(weights_frame, width=20, height=10, bg='white', fg='grey',
+                  insertbackground="black", borderwidth=0, bd=0,
+                  highlightthickness=0, relief='flat')
+    label.pack()
     entry3.pack(side="left", padx=5)
 
     example_label(ex_frame, "")
@@ -47,32 +44,40 @@ def custom_menu(root, common_el, common_mat, element, material, custom_mat,
     # Variable to hold normalize option
     var_normalize = IntVar()
 
-    normalize = Checkbutton(root, text="Normalize", variable=var_normalize)
+    normalize = ttk.Checkbutton(root, text="Normalize", variable=var_normalize,
+                                style="Maize.TCheckbutton")
     normalize.pack(pady=2)
 
     # Creates button
-    button = Button(root, text="Add Material",
-                    command=lambda: add_custom(root, entry, entry2, entry3,
-                                               error_label, var_normalize.get(),
-                                               d_num, d_den))
-    button.pack()
+    button = ttk.Button(root, text="Add Material", style="Maize.TButton", padding=(-10,0),
+                        command=lambda: add_custom(root, entry, entry2, entry3,
+                                                   error_label, var_normalize.get(),
+                                                   d_num, d_den))
+    button.pack(pady=5)
 
     # Creates exit button to return to T.A.C. screen
-    exit_button = Button(root, text="Back",
-                         command=lambda: advanced_back(root, common_el, common_mat,
-                                                       element, material, custom_mat,
-                                                       selection, mode, interaction,
-                                                       mac_num, d_num, lac_num,
-                                                       mac_den, d_den, lac_den, energy_unit))
-    exit_button.pack(pady=2)
+    exit_button = ttk.Button(root, text="Back", style="Maize.TButton", padding=(-20,0),
+                             command=lambda: advanced_back(root, common_el, common_mat,
+                                                           element, material, custom_mat,
+                                                           selection, mode, interaction,
+                                                           mac_num, d_num, lac_num,
+                                                           mac_den, d_den, lac_den, energy_unit))
+    exit_button.pack(pady=5)
 
     # Creates error label for bad input
-    error_label = Label(root, text="", fg="red")
-    error_label.pack(pady=2)
+    error_label = ttk.Label(root, text="", style="Error.TLabel")
+    error_label.pack(pady=5)
 
     # Stores nodes into global list
     custom_list = [material_frame, density_frame, weights_frame, button,
                    normalize, exit_button, error_label]
+
+def make_line(frame, text):
+    label = ttk.Label(frame, text=text, style="Maize.TLabel")
+    entry = ttk.Entry(frame, width=20, style="Maize.TEntry")
+    label.pack(side="left", padx=5)
+    entry.pack(side="left", padx=5)
+    return entry
 
 def add_custom(root, name_box, density_box, weights_box, error_label, normalize,
                d_num, d_den):
@@ -80,7 +85,7 @@ def add_custom(root, name_box, density_box, weights_box, error_label, normalize,
 
     # Error check for no material name
     if name == "":
-        error_label.config(fg="red", text="Error: No material name provided.")
+        error_label.config(style="Error.TLabel", text="Error: No material name provided.")
         return
 
     density = density_box.get()
@@ -89,7 +94,7 @@ def add_custom(root, name_box, density_box, weights_box, error_label, normalize,
     try:
         _ = float(density)
     except ValueError:
-        error_label.config(fg="red", text="Error: Non-number density input.")
+        error_label.config(style="Error.TLabel", text="Error: Non-number density input.")
         return
 
     weights = weights_box.get("1.0", "end-1c")
@@ -101,7 +106,7 @@ def add_custom(root, name_box, density_box, weights_box, error_label, normalize,
 
     # Error check for no weights
     if cleaned_input == "":
-        error_label.config(fg="red", text="Error: No element weights provided.")
+        error_label.config(style="Error.TLabel", text="Error: No element weights provided.")
         return
 
     csv_data = '"Weight","Element"\n' + cleaned_input
@@ -116,7 +121,7 @@ def add_custom(root, name_box, density_box, weights_box, error_label, normalize,
     for row in reader:
         # Error check for bad rows
         if not (len(row) == 2):
-            error_label.config(fg="red",
+            error_label.config(style="Error.TLabel",
                                text="Error: Each line must have a weight, a comma, and an element.")
             return
 
@@ -125,23 +130,23 @@ def add_custom(root, name_box, density_box, weights_box, error_label, normalize,
             if row[0] != "Weight":
                 weights_sum += float(row[0])
         except ValueError:
-            error_label.config(fg="red", text="Error: Non-number weight input.")
+            error_label.config(style="Error.TLabel", text="Error: Non-number weight input.")
             return
 
         # Error check for an element weight outside (0, 1]
         if row[0] != "Weight" and (float(row[0]) > 1 or float(row[0]) <= 0):
-            error_label.config(fg="red", text="Error: Weights must be in range (0, 1].")
+            error_label.config(style="Error.TLabel", text="Error: Weights must be in range (0, 1].")
             return
 
         # Error check for an invalid element
         if row[1] != "Element" and not row[1] in elements:
-            error_label.config(fg="red", text="Error: Invalid element: " + row[1] + ".")
+            error_label.config(style="Error.TLabel", text="Error: Invalid element: " + row[1] + ".")
             return
 
     # Error check for weights that do not sum to 1
     if weights_sum != 1:
         if normalize == 0:
-            error_label.config(fg="red",
+            error_label.config(style="Error.TLabel",
                                text="Error: Element weights do not sum to 1; select normalize to fix.")
             return
         else:
@@ -159,7 +164,7 @@ def add_custom(root, name_box, density_box, weights_box, error_label, normalize,
                 csv_data2 += row[1].strip() + "\n"
             csv_data = csv_data2.rstrip("\n")
 
-    error_label.config(fg="black", text="Material added!")
+    error_label.config(style="Success.TLabel", text="Material added!")
 
     with shelve.open("Data/Modules/Mass Attenuation/User/Custom Materials") as prefs:
         choices = prefs.get("Custom Materials", [])
@@ -178,7 +183,7 @@ def add_custom(root, name_box, density_box, weights_box, error_label, normalize,
     root.focus()
 
 def example_label(frame, text):
-    label = Label(frame, text=text)
+    label = ttk.Label(frame, text=text, style="Maize.TLabel")
     label.pack()
 
 def clear_custom():

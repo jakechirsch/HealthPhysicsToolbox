@@ -1,5 +1,5 @@
 ##### IMPORTS #####
-from tkinter import *
+from tkinter import ttk
 from App.Attenuation.tac_main import total_attenuation_coefficient
 
 # For global access to nodes on home screen
@@ -14,11 +14,13 @@ def clear_home():
 
 def return_home(root):
     # Creates buttons for home screen
-    tac_button = Button(root, text="Total Attenuation Coefficient",
-                        command=lambda: tac(root))
+    tac_button = ttk.Button(root, text="Total Attenuation Coefficient",
+                            command=lambda: tac(root), style="Maize.TButton",
+                            padding=(0,0))
     tac_button.pack(pady=5)
     home_list.append(tac_button)
 
 def tac(root):
+    root.focus()
     clear_home()
     total_attenuation_coefficient(root)

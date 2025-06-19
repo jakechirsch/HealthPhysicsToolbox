@@ -20,17 +20,19 @@ def export_menu(root, common_el, common_mat, element, material, custom_mat,
         else:
             save.config(state="normal")
 
-    export_label = Label(root, text="Export Options:")
+    export_label = ttk.Label(root, text="Export Options:", style="Maize.TLabel")
     export_label.pack(pady=2)
 
     # Creates dropdown menu for export
     export_choices = ["Plot", "Data"]
-    export_dropdown = Combobox(root, values=export_choices, width=6, state='readonly')
+    export_dropdown = ttk.Combobox(root, values=export_choices, width=4,
+                                   justify="center", state='readonly',
+                                   style="Maize.TCombobox")
     export_dropdown.set("Plot")
     export_dropdown.pack(pady=2)
     export_dropdown.bind("<<ComboboxSelected>>", on_select_export)
 
-    interactions_frame = Frame(root)
+    interactions_frame = Frame(root, bg="#00274C")
     interactions_frame.pack(pady=2)
 
     # Variables for each interaction type
@@ -55,43 +57,46 @@ def export_menu(root, common_el, common_mat, element, material, custom_mat,
     var_save = IntVar()
     var_save.set(1)
 
-    save = Checkbutton(root, text="Save file", variable=var_save)
+    save = ttk.Checkbutton(root, text="Save file", variable=var_save,
+                           style="Maize.TCheckbutton")
     save.pack(pady=2)
 
     # Creates export button
-    export_button = Button(root, text="Export",
-                           command=lambda:
-                           plot_data(common_el if selection == "Common Elements" else
-                                     common_mat if selection == "Common Materials" else
-                                     element if selection == "All Elements" else
-                                     material if selection == "All Materials" else
-                                     custom_mat if selection == "Custom Materials"
-                                     else "", selection, mode,
-                                     get_interactions(var0, var1, var2, var3, var4, var5, var6),
-                                     get_unit(mac_num, d_num, lac_num, mode),
-                                     get_unit(mac_den, d_den, lac_den, mode),
-                                     energy_unit, export_dropdown.get(),
-                                     var_save.get(), error_label))
+    export_button = ttk.Button(root, text="Export", style="Maize.TButton",
+                               padding=(-20,0),
+                               command=lambda:
+                               plot_data(common_el if selection == "Common Elements" else
+                                         common_mat if selection == "Common Materials" else
+                                         element if selection == "All Elements" else
+                                         material if selection == "All Materials" else
+                                         custom_mat if selection == "Custom Materials"
+                                         else "", selection, mode,
+                                         get_interactions(var0, var1, var2, var3, var4, var5, var6),
+                                         get_unit(mac_num, d_num, lac_num, mode),
+                                         get_unit(mac_den, d_den, lac_den, mode),
+                                         energy_unit, export_dropdown.get(),
+                                         var_save.get(), error_label))
     export_button.pack(pady=5)
 
     # Creates error label for bad input
-    error_label = Label(root, text="", fg="red")
+    error_label = ttk.Label(root, text="", style="Error.TLabel")
     error_label.pack(pady=2)
 
     # Creates exit button to return to T.A.C. screen
-    exit_button = Button(root, text="Back",
-                         command=lambda: advanced_back(root, common_el, common_mat,
-                                                       element, material, custom_mat,
-                                                       selection, mode, interaction_start,
-                                                       mac_num, d_num, lac_num,
-                                                       mac_den, d_den, lac_den, energy_unit))
+    exit_button = ttk.Button(root, text="Back", style="Maize.TButton", padding=(-20,0),
+                             command=lambda: advanced_back(root, common_el, common_mat,
+                                                           element, material, custom_mat,
+                                                           selection, mode, interaction_start,
+                                                           mac_num, d_num, lac_num,
+                                                           mac_den, d_den, lac_den, energy_unit))
     exit_button.pack(pady=2)
 
     export_list = [export_label, export_dropdown, export_button, exit_button,
                    interactions_frame, error_label, save]
 
 def interaction_checkbox(frame, variable, interaction):
-    check = Checkbutton(frame, text=interaction, variable=variable)
+    check = ttk.Checkbutton(frame, text=interaction, variable=variable,
+                            style="Maize.TCheckbutton")
     check.pack()
 
 def get_interactions(var0, var1, var2, var3, var4, var5, var6):

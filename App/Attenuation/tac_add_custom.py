@@ -126,11 +126,19 @@ def add_custom(root, name_box, density_box, weights_box, error_label, normalize,
 
     density = density_box.get()
 
+    if density == "":
+        error_label.config(style="Error.TLabel", text="Error: No density provided.")
+        return
+
     # Error check for a non-number density input
     try:
         _ = float(density)
     except ValueError:
         error_label.config(style="Error.TLabel", text="Error: Non-number density input.")
+        return
+
+    if float(density) <= 0:
+        error_label.config(style="Error.TLabel", text="Error: Density must be positive.")
         return
 
     weights = weights_box.get("1.0", "end-1c")

@@ -20,20 +20,40 @@ def export_menu(root, common_el, common_mat, element, material, custom_mat,
         else:
             save.config(state="normal")
 
-    export_label = ttk.Label(root, text="Export Options:", style="Maize.TLabel")
-    export_label.pack(pady=2)
+    type_title = ttk.Label(root, text="Export Type", font=("Verdana", 16),
+                           style="Maize.TLabel")
+    type_title.pack(pady=5)
+
+    # Frame for export type
+    type_frame = Frame(root, bg="#00274C")
+    type_frame.pack(pady=5)
+
+    export_label = ttk.Label(type_frame, text="Select Export Type:", style="White.TLabel")
+    export_label.pack()
 
     # Creates dropdown menu for export
     export_choices = ["Plot", "Data"]
-    export_dropdown = ttk.Combobox(root, values=export_choices, width=4,
+    export_dropdown = ttk.Combobox(type_frame, values=export_choices, width=4,
                                    justify="center", state='readonly',
                                    style="Maize.TCombobox")
     export_dropdown.set("Plot")
-    export_dropdown.pack(pady=2)
+    export_dropdown.pack()
     export_dropdown.bind("<<ComboboxSelected>>", on_select_export)
 
+    # Spacer
+    empty_frame1 = make_spacer(root)
+
+    interactions_title = ttk.Label(root, text="Interactions", font=("Verdana", 16),
+                                   style="Maize.TLabel")
+    interactions_title.pack(pady=5)
+
+    # Frame for interactions
     interactions_frame = Frame(root, bg="#00274C")
-    interactions_frame.pack(pady=2)
+    interactions_frame.pack(pady=5)
+
+    interactions_label = ttk.Label(interactions_frame, text="Select Interactions:",
+                                   style="White.TLabel")
+    interactions_label.pack()
 
     # Variables for each interaction type
     var0 = IntVar()
@@ -53,13 +73,23 @@ def export_menu(root, common_el, common_mat, element, material, custom_mat,
     interaction_checkbox(interactions_frame, var5, "Scattering - Coherent")
     interaction_checkbox(interactions_frame, var6, "Photo-Electric Absorption")
 
+    # Spacer
+    empty_frame2 = make_spacer(root)
+
     # Checkbox for saving file
     var_save = IntVar()
     var_save.set(1)
 
-    save = ttk.Checkbutton(root, text="Save file", variable=var_save,
+    save_title = ttk.Label(root, text="Options", font=("Verdana", 16),
+                           style="Maize.TLabel")
+    save_title.pack(pady=5)
+
+    save = ttk.Checkbutton(root, text="Save File", variable=var_save,
                            style="Maize.TCheckbutton")
-    save.pack(pady=2)
+    save.pack(pady=5)
+
+    # Spacer
+    empty_frame3 = make_spacer(root)
 
     # Creates export button
     export_button = ttk.Button(root, text="Export", style="Maize.TButton",
@@ -80,7 +110,6 @@ def export_menu(root, common_el, common_mat, element, material, custom_mat,
 
     # Creates error label for bad input
     error_label = ttk.Label(root, text="", style="Error.TLabel")
-    error_label.pack(pady=2)
 
     # Creates exit button to return to T.A.C. screen
     exit_button = ttk.Button(root, text="Back", style="Maize.TButton", padding=(-20,0),
@@ -89,10 +118,13 @@ def export_menu(root, common_el, common_mat, element, material, custom_mat,
                                                            selection, mode, interaction_start,
                                                            mac_num, d_num, lac_num,
                                                            mac_den, d_den, lac_den, energy_unit))
-    exit_button.pack(pady=2)
+    exit_button.pack(pady=5)
+    error_label.pack(pady=5)
 
-    export_list = [export_label, export_dropdown, export_button, exit_button,
-                   interactions_frame, error_label, save]
+    export_list = [type_title, type_frame, empty_frame1,
+                   interactions_title, interactions_frame, empty_frame2,
+                   save_title, save, empty_frame3,
+                   export_button, exit_button, error_label]
 
 def interaction_checkbox(frame, variable, interaction):
     check = ttk.Checkbutton(frame, text=interaction, variable=variable,

@@ -11,23 +11,41 @@ def custom_menu(root, common_el, common_mat, element, material, custom_mat,
                 d_den, lac_den, energy_unit):
     global custom_list
 
+    material_title = ttk.Label(root, text="Material Name", font=("Verdana", 16),
+                           style="Maize.TLabel")
+    material_title.pack(pady=5)
+
     material_frame = Frame(root, bg="#00274C")
-    material_frame.pack(pady=6)
+    material_frame.pack(pady=5)
 
     entry = make_line(material_frame, "Material Name:")
 
+    # Spacer
+    empty_frame1 = make_spacer(root)
+
+    density_title = ttk.Label(root, text="Density", font=("Verdana", 16),
+                              style="Maize.TLabel")
+    density_title.pack(pady=5)
+
     density_frame = Frame(root, bg="#00274C")
-    density_frame.pack(pady=6)
+    density_frame.pack(pady=5)
 
     entry2 = make_line(density_frame, f"Density ({d_num}/{d_den}):")
 
+    # Spacer
+    empty_frame2 = make_spacer(root)
+
+    weights_title = ttk.Label(root, text="Element Weights", font=("Verdana", 16),
+                              style="Maize.TLabel")
+    weights_title.pack(pady=5)
+
     weights_frame = Frame(root, bg="#00274C")
-    weights_frame.pack(pady=6)
+    weights_frame.pack(pady=5)
 
     ex_frame = Frame(weights_frame, bg="#00274C")
     ex_frame.pack(side="left", padx=5)
 
-    label = ttk.Label(ex_frame, text="Element Weights:", style="Maize.TLabel")
+    label = ttk.Label(ex_frame, text="Element Weights:", style="White.TLabel")
     entry3 = Text(weights_frame, width=20, height=10, bg='white', fg='grey',
                   insertbackground="black", borderwidth=0, bd=0,
                   highlightthickness=0, relief='flat')
@@ -41,12 +59,22 @@ def custom_menu(root, common_el, common_mat, element, material, custom_mat,
     example_label(ex_frame, "0.13, O")
     example_label(ex_frame, "0.02, K")
 
+    # Spacer
+    empty_frame3 = make_spacer(root)
+
+    normalize_title = ttk.Label(root, text="Options", font=("Verdana", 16),
+                                style="Maize.TLabel")
+    normalize_title.pack(pady=5)
+
     # Variable to hold normalize option
     var_normalize = IntVar()
 
     normalize = ttk.Checkbutton(root, text="Normalize", variable=var_normalize,
                                 style="Maize.TCheckbutton")
-    normalize.pack(pady=2)
+    normalize.pack(pady=5)
+
+    # Spacer
+    empty_frame4 = make_spacer(root)
 
     # Creates button
     button = ttk.Button(root, text="Add Material", style="Maize.TButton", padding=(-10,0),
@@ -69,11 +97,14 @@ def custom_menu(root, common_el, common_mat, element, material, custom_mat,
     error_label.pack(pady=5)
 
     # Stores nodes into global list
-    custom_list = [material_frame, density_frame, weights_frame, button,
-                   normalize, exit_button, error_label]
+    custom_list = [material_title, material_frame, empty_frame1,
+                   density_title, density_frame, empty_frame2,
+                   weights_title, weights_frame, empty_frame3,
+                   normalize_title, normalize, empty_frame4,
+                   button, exit_button, error_label]
 
 def make_line(frame, text):
-    label = ttk.Label(frame, text=text, style="Maize.TLabel")
+    label = ttk.Label(frame, text=text, style="White.TLabel")
     entry = ttk.Entry(frame, width=20, style="Maize.TEntry")
     label.pack(side="left", padx=5)
     entry.pack(side="left", padx=5)
@@ -86,6 +117,11 @@ def add_custom(root, name_box, density_box, weights_box, error_label, normalize,
     # Error check for no material name
     if name == "":
         error_label.config(style="Error.TLabel", text="Error: No material name provided.")
+        return
+
+    # Error check for lengthy material name
+    if len(name) > 50:
+        error_label.config(style="Error.TLabel", text="Error: Maximum material name length exceeded.")
         return
 
     density = density_box.get()
@@ -183,7 +219,7 @@ def add_custom(root, name_box, density_box, weights_box, error_label, normalize,
     root.focus()
 
 def example_label(frame, text):
-    label = ttk.Label(frame, text=text, style="Maize.TLabel")
+    label = ttk.Label(frame, text=text, style="White.TLabel")
     label.pack()
 
 def clear_custom():

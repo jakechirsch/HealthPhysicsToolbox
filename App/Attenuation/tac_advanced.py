@@ -26,17 +26,27 @@ def tac_advanced(root, common_el, common_mat, element, material, custom_mat,
     # Gets custom materials
     custom = get_choices("Custom Materials")
 
+    a_r_title = ttk.Label(root, text="Add & Remove", font=("Verdana", 16),
+                          style="Maize.TLabel")
+    a_r_title.pack(pady=5)
+
     # Frame for add/remove settings
-    top_frame = Frame(root, bg="#00274C")
-    top_frame.pack(pady=5)
+    a_r_frame = Frame(root, bg="#00274C")
+    a_r_frame.pack(pady=5)
+
+    # Horizontal frame for add/remove settings
+    side_frame = Frame(a_r_frame, bg="#00274C")
+    side_frame.pack(pady=5)
+
+    a_r_button = [ttk.Button()]
 
     def make_v_frame():
-        v_frame = make_vertical_frame(root, top_frame, action_dropdown.get(),
+        v_frame = make_vertical_frame(root, a_r_frame, side_frame, action_dropdown.get(),
                             category_dropdown.get(), non_common, common,
                             non_common_m, common_m, custom, common_el, common_mat,
                             element, material, custom_mat, selection, mode,
                             interaction_start, num_units[0], num_units[1], num_units[2],
-                            den_units[0], den_units[1], den_units[2], energy_unit)
+                            den_units[0], den_units[1], den_units[2], energy_unit, a_r_button)
         return v_frame
 
     def on_select_options(event):
@@ -46,21 +56,49 @@ def tac_advanced(root, common_el, common_mat, element, material, custom_mat,
         vertical_frame.destroy()
         vertical_frame = make_v_frame()
 
+    # Frame for action selection
+    action_frame = Frame(side_frame, bg="#00274C")
+    action_frame.pack(side="left", padx=5)
+
+    action_label = ttk.Label(action_frame, text="Action:",
+                             style="White.TLabel")
+    action_label.pack()
+
     # Creates dropdown menu for action
     action_choices = ["Add", "Remove"]
-    action_dropdown = ttk.Combobox(top_frame, values=action_choices, width=6, justify="center",
+    action_dropdown = ttk.Combobox(action_frame, values=action_choices, width=6, justify="center",
                                    state='readonly', style="Maize.TCombobox")
     action_dropdown.set("Add")
-    action_dropdown.pack(side='left', padx=5)
+    action_dropdown.pack()
     action_dropdown.bind("<<ComboboxSelected>>", on_select_options)
+
+    # Frame for category selection
+    category_frame = Frame(side_frame, bg="#00274C")
+    category_frame.pack(side="left", padx=5)
+
+    category_label = ttk.Label(category_frame, text="Select Category:",
+                               style="White.TLabel")
+    category_label.pack()
 
     # Creates dropdown menu for category
     category_choices = ["Common Elements", "Common Materials", "Custom Materials"]
-    category_dropdown = ttk.Combobox(top_frame, values=category_choices, width=13,
+    category_dropdown = ttk.Combobox(category_frame, values=category_choices, width=13,
                                      justify="center", state='readonly', style="Maize.TCombobox")
     category_dropdown.set("Common Elements")
-    category_dropdown.pack(side='left', padx=5)
+    category_dropdown.pack()
     category_dropdown.bind("<<ComboboxSelected>>", on_select_options)
+
+    # Spacer
+    empty_frame1 = make_spacer(root)
+
+    interaction_title = ttk.Label(root, text="Interaction Type", font=("Verdana", 16),
+                                  style="Maize.TLabel")
+
+    # Frame for interaction type
+    interaction_frame = Frame(root, bg="#00274C")
+
+    # Spacer
+    empty_frame2 = Frame()
 
     # Stores updatable units
     num_units = [mac_num, d_num, lac_num]
@@ -73,13 +111,17 @@ def tac_advanced(root, common_el, common_mat, element, material, custom_mat,
         event.widget.selection_clear()
         root.focus()
 
-    interaction_dropdown = ttk.Combobox()
-
     # Stores interaction and sets default
     var_interaction = StringVar(root)
     var_interaction.set(interaction_start)
 
     if mode != "Density":
+        interaction_title.pack(pady=5)
+        interaction_frame.pack(pady=5)
+
+        interaction_label = ttk.Label(interaction_frame, text="Select Interaction:",
+                                      style="White.TLabel")
+        interaction_label.pack()
         # Creates dropdown menu for mode
         interaction_choices = ["Total Attenuation with Coherent Scattering",
                                "Total Attenuation without Coherent Scattering",
@@ -88,19 +130,25 @@ def tac_advanced(root, common_el, common_mat, element, material, custom_mat,
                                "Scattering - Incoherent",
                                "Scattering - Coherent",
                                "Photo-Electric Absorption"]
-        interaction_dropdown = ttk.Combobox(root, textvariable=var_interaction,
+        interaction_dropdown = ttk.Combobox(interaction_frame, textvariable=var_interaction,
                                             values=interaction_choices, width=32,
                                             justify="center", state='readonly',
                                             style="Maize.TCombobox")
-        interaction_dropdown.pack(pady=10)
+        interaction_dropdown.pack()
         interaction_dropdown.bind("<<ComboboxSelected>>", on_select)
+
+        empty_frame2 = make_spacer(root)
+
+    unit_title = ttk.Label(root, text=mode+" Units", font=("Verdana", 16),
+                           style="Maize.TLabel")
+    unit_title.pack(pady=5)
 
     # Frame for units
     unit_frame = Frame(root, bg="#00274C")
     unit_frame.pack(pady=5)
 
     # Units label
-    unit_label = ttk.Label(unit_frame, text="Units:", style="Maize.TLabel")
+    unit_label = ttk.Label(unit_frame, text="Units:", style="White.TLabel")
     unit_label.pack(side='left', padx=5)
 
     on_select_num = get_select_unit(root, num_units, mode)
@@ -118,7 +166,7 @@ def tac_advanced(root, common_el, common_mat, element, material, custom_mat,
                   get_unit(mac_num, d_num, lac_num, mode), on_select_num)
 
     # / label
-    slash_label = ttk.Label(unit_frame, text="/", style="Maize.TLabel")
+    slash_label = ttk.Label(unit_frame, text="/", style="White.TLabel")
     slash_label.pack(side='left')
 
     # Creates dropdown menu for denominator unit
@@ -127,16 +175,33 @@ def tac_advanced(root, common_el, common_mat, element, material, custom_mat,
     unit_dropdown(unit_frame, denominator_choices,
                   get_unit(mac_den, d_den, lac_den, mode), on_select_den)
 
-    # Frame for units
+    # Spacer
+    empty_frame3 = make_spacer(root)
+
+    energy_unit_title = ttk.Label(root, text="Energy Unit", font=("Verdana", 16),
+                                  style="Maize.TLabel")
+
+    # Frame for energy unit
     energy_unit_frame = Frame(root, bg="#00274C")
-    energy_unit_frame.pack(pady=5 if mode != "Density" else 0)
 
     export_button = Button()
 
+    # Spacer
+    empty_frame4 = Frame()
+
+    export_title = ttk.Label(root, text="Export Options", font=("Verdana", 16),
+                             style="Maize.TLabel")
+
+    # Spacer
+    empty_frame5 = Frame()
+
     if mode != "Density":
+        energy_unit_title.pack(pady=5)
+        energy_unit_frame.pack(pady=5)
+
         # Energy unit label
         energy_unit_label = ttk.Label(energy_unit_frame, text="Energy Unit:",
-                                      style="Maize.TLabel")
+                                      style="White.TLabel")
         energy_unit_label.pack(side='left', padx=5)
 
         # Creates dropdown menu for denominator unit
@@ -144,8 +209,12 @@ def tac_advanced(root, common_el, common_mat, element, material, custom_mat,
         unit_dropdown(energy_unit_frame, energy_choices,
                       energy_unit, on_select_energy)
 
+        empty_frame4 = make_spacer(root)
+
+        export_title.pack(pady=5)
+
         # Creates export button
-        export_button = ttk.Button(root, text="Export Options", style="Maize.TButton",
+        export_button = ttk.Button(root, text="Export Menu", style="Maize.TButton",
                                    padding=(0,0),
                                    command=lambda:
                                    to_export_menu(root, common_el, common_mat, element, material,
@@ -153,7 +222,9 @@ def tac_advanced(root, common_el, common_mat, element, material, custom_mat,
                                                   num_units[0], num_units[1], num_units[2],
                                                   den_units[0], den_units[1], den_units[2],
                                                   energy_unit))
-        export_button.pack(pady=10)
+        export_button.pack(pady=5)
+
+        empty_frame5 = make_spacer(root)
 
     # Frame for references & help
     bottom_frame = Frame(root, bg="#00274C")
@@ -185,23 +256,27 @@ def tac_advanced(root, common_el, common_mat, element, material, custom_mat,
     exit_button.pack(pady=5)
 
     # Stores nodes into global list
-    advanced_list = [interaction_dropdown, exit_button, unit_frame,
-                     energy_unit_frame, top_frame, bottom_frame,
-                     export_button]
+    advanced_list = [a_r_title, a_r_frame, a_r_button[0], empty_frame1,
+                     interaction_title, interaction_frame, empty_frame2,
+                     unit_title, unit_frame, empty_frame3,
+                     energy_unit_title, energy_unit_frame, empty_frame4,
+                     export_title, export_button, empty_frame5,
+                     bottom_frame, exit_button]
 
-def make_vertical_frame(root, top_frame, action, category,
+def make_vertical_frame(root, top_frame, side_frame, action, category,
                         non_common, common, non_common_m, common_m, custom,
                         common_el, common_mat, element, material, custom_mat,
                         selection, mode, interaction, mac_num, d_num, lac_num, mac_den,
-                        d_den, lac_den, energy_unit
+                        d_den, lac_den, energy_unit, button
                         ):
-    vertical_frame = Frame(top_frame, bg="#00274C")
+    button[0].destroy()
+    vertical_frame = Frame(side_frame, bg="#00274C")
     vertical_frame.pack(side='left', padx=5)
 
     if category != "Custom Materials" or action != "Add":
-        label = ttk.Label(vertical_frame, text=action + " " + category + ":",
-                          style="Maize.TLabel")
-        label.pack()
+        item_label = ttk.Label(vertical_frame, text="Select Item:",
+                          style="White.TLabel")
+        item_label.pack()
 
     # Stores element and sets default
     var = StringVar(root)
@@ -233,20 +308,20 @@ def make_vertical_frame(root, top_frame, action, category,
 
     if action == "Add" and category == "Custom Materials":
         # Creates button
-        button = ttk.Button(vertical_frame, text="Add Custom Materials", style="Maize.TButton",
-                            padding=(0,0),
-                            command=lambda: to_custom_menu(root, common_el=common_el,
-                                                           common_mat=common_mat,
-                                                           element=element,
-                                                           material=material,
-                                                           custom_mat=custom_mat,
-                                                           selection=selection, mode=mode,
-                                                           interaction=interaction,
-                                                           mac_num=mac_num, d_num=d_num,
-                                                           lac_num=lac_num, mac_den=mac_den,
-                                                           d_den=d_den, lac_den=lac_den,
-                                                           energy_unit=energy_unit))
-        button.pack()
+        button[0] = ttk.Button(top_frame, text="Add Custom Materials", style="Maize.TButton",
+                               padding=(0,0),
+                               command=lambda: to_custom_menu(root, common_el=common_el,
+                                                              common_mat=common_mat,
+                                                              element=element,
+                                                              material=material,
+                                                              custom_mat=custom_mat,
+                                                              selection=selection, mode=mode,
+                                                              interaction=interaction,
+                                                              mac_num=mac_num, d_num=d_num,
+                                                              lac_num=lac_num, mac_den=mac_den,
+                                                              d_den=d_den, lac_den=lac_den,
+                                                              energy_unit=energy_unit))
+        button[0].pack(pady=5)
     else:
         def on_select(event):
             event.widget.selection_clear()
@@ -263,23 +338,25 @@ def make_vertical_frame(root, top_frame, action, category,
         dropdown = AutocompleteCombobox(vertical_frame, textvariable=var,
                                         completevalues=choices, width=width,
                                         justify="center", style="Maize.TCombobox")
-        dropdown.pack(pady=2)
+        dropdown.pack()
         dropdown.bind('<Return>', on_enter)
         dropdown.bind("<<ComboboxSelected>>", on_select)
         dropdown.bind("<FocusOut>", on_enter)
 
         # Creates button
         if action == "Remove" and category == "Custom Materials":
-            button = ttk.Button(vertical_frame, text=action, style="Maize.TButton",
-                                padding=(-20,0),
-                                command=lambda: carry_action(action, category,
-                                                             choices, [var.get()], var, dropdown))
+            button[0] = ttk.Button(top_frame, text=action, style="Maize.TButton",
+                                   padding=(-20,0),
+                                   command=lambda: carry_action(action, category,
+                                                                choices, [var.get()], var,
+                                                                dropdown))
         else:
-            button = ttk.Button(vertical_frame, text=action, style="Maize.TButton",
-                                padding=(-20,0),
-                                command=lambda: carry_action(action, category,
-                                                             choices, inverse, var, dropdown))
-        button.pack(pady=2)
+            button[0] = ttk.Button(top_frame, text=action, style="Maize.TButton",
+                                   padding=(-20,0),
+                                   command=lambda: carry_action(action, category,
+                                                                choices, inverse, var,
+                                                                dropdown))
+        button[0].pack(pady=5)
 
     return vertical_frame
 

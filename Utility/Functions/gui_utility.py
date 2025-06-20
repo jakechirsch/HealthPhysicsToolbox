@@ -29,3 +29,8 @@ def open_file(path):
         subprocess.run(['open', path])
     else:  # Assume Linux or Unix
         subprocess.run(['xdg-open', path])
+
+def make_spacer(root):
+    spacer = Frame(root, bg="#00274C")
+    spacer.pack(pady=10)
+    return spacer

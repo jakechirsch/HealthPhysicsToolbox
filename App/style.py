@@ -16,7 +16,7 @@ def configure_style():
                     foreground="#FFCB05")
     style.map("Maize.TCheckbutton",
               background=[('active', "#00274C")])
-    style.configure("Maize.TLabel",
+    style.configure("White.TLabel",
                     background="#00274C",
                     foreground="white")
     style.configure("Maize.TEntry",
@@ -29,3 +29,6 @@ def configure_style():
     style.configure("Success.TLabel",
                     background="#00274C",
                     foreground="black")
+    style.configure("Maize.TLabel",
+                    background="#00274C",
+                    foreground="#FFCB05")

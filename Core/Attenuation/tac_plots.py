@@ -71,6 +71,8 @@ def plot_data(element, selection, mode, interactions, num, den,
         if choice == "Plot":
             save_file(plt, choice, error_label, element)
         else:
+            for interaction in interactions:
+                df.rename(columns={interaction: interaction+unit}, inplace=True)
             save_file(df, choice, error_label, element)
     else:
         plt.show()

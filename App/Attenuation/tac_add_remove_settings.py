@@ -1,5 +1,6 @@
 ##### IMPORTS #####
 import shelve
+from Utility.Functions.gui_utility import get_width
 
 def carry_action(action, category, choices, inverse, var, dropdown):
     if action == "Add":
@@ -18,7 +19,7 @@ def add_c(selection, choices, inverse, var, dropdown):
 
         # Removes element from non-common elements
         choices.remove(element)
-        dropdown.config(completevalues=choices)
+        dropdown.config(completevalues=choices, width=get_width(choices))
         var.set(choices[0] if len(choices) > 0 else "")
 
 def remove_c(selection, choices, inverse, var, dropdown):
@@ -29,7 +30,7 @@ def remove_c(selection, choices, inverse, var, dropdown):
             return
         choices.remove(element)
         prefs[selection] = choices
-        dropdown.config(completevalues=choices)
+        dropdown.config(completevalues=choices, width=get_width(choices))
         var.set(choices[0] if len(choices) > 0 else "")
 
         # Adds element to non-common elements

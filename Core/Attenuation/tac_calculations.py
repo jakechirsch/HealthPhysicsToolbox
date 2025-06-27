@@ -16,13 +16,10 @@ lac_denominator = {"mm" : 10, "cm" : 1, "m" : 0.01}
 energy_units = {"eV" : 0.001 ** 2, "keV" : 0.001,
                 "MeV" : 1, "GeV" : 1000}
 
-def handle_calculation(selection, mode, interaction, element, energy_str, result_label,
+def handle_calculation(selection, mode, interactions, element, energy_str, result_label,
                        num, den, energy_unit):
     if element == "":
         return
-
-    # Removes result label from past calculations
-    result_label.pack_forget()
 
     # Energy input in float format
     energy_target = 0.0
@@ -33,21 +30,29 @@ def handle_calculation(selection, mode, interaction, element, energy_str, result
             energy_target = float(energy_str)
         except ValueError:
             edit_result(non_number, result_label)
-            result_label.pack(pady=5)
             return
 
     energy_target *= energy_units[energy_unit]
+    result = 0
 
     if mode == "Mass Attenuation Coefficient":
-        result = find_tac(selection, interaction, element, energy_target)
+        for interaction in interactions:
+            tac = find_tac(selection, interaction, element, energy_target)
+            if tac in errors:
+                result = tac
+                break
+            else:
+                result += tac
     elif mode == "Density":
         result = find_density(selection, element)
     else:
-        tac = find_tac(selection, interaction, element, energy_target)
-        if tac in errors:
-            result = tac
-        else:
-            result = tac * find_density(selection, element)
+        for interaction in interactions:
+            tac = find_tac(selection, interaction, element, energy_target)
+            if tac in errors:
+                result = tac
+                break
+            else:
+                result += (tac * find_density(selection, element))
 
     # Displays result label
     if not result in errors:
@@ -63,7 +68,6 @@ def handle_calculation(selection, mode, interaction, element, energy_str, result
         edit_result(f"{result:.4g}", result_label, num=num, den=den)
     else:
         edit_result(result, result_label)
-    result_label.pack(pady=5)
 
 def find_tac(selection, interaction, element, energy_target):
     if selection in element_choices:

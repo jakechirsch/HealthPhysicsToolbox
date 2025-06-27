@@ -4,8 +4,9 @@ import pandas as pd
 from Core.Attenuation.tac_calculations import *
 from tkinter.filedialog import asksaveasfilename
 
-def plot_data(element, selection, mode, interactions, num, den,
+def plot_data(root, element, selection, mode, interactions, num, den,
               energy_unit, choice, save, error_label):
+    root.focus()
     if element == "":
         error_label.config(style="Error.TLabel", text="Error: No element or material selected.")
         return

@@ -2,55 +2,47 @@
 from App.Attenuation.tac_choices import *
 from Core.Attenuation.tac_calculations import *
 from tkinter import ttk
+from App.style import SectionFrame
 
 # For global access to nodes on custom screen
 custom_list = []
 
 def custom_menu(root, common_el, common_mat, element, material, custom_mat,
-                selection, mode, interaction, mac_num, d_num, lac_num, mac_den,
+                selection, mode, interactions, mac_num, d_num, lac_num, mac_den,
                 d_den, lac_den, energy_unit):
     global custom_list
 
-    material_title = ttk.Label(root, text="Material Name", font=("Verdana", 16),
-                           style="Maize.TLabel")
-    material_title.pack(pady=5)
+    material_frame = SectionFrame(root, title="Material Name")
+    material_frame.pack(padx=10, pady=10)
+    inner_material_frame = material_frame.get_inner_frame()
 
-    material_frame = Frame(root, bg="#00274C")
-    material_frame.pack(pady=5)
-
-    entry = make_line(material_frame, "Material Name:")
+    entry = make_line(inner_material_frame, "Material Name:", 27)
 
     # Spacer
     empty_frame1 = make_spacer(root)
 
-    density_title = ttk.Label(root, text="Density", font=("Verdana", 16),
-                              style="Maize.TLabel")
-    density_title.pack(pady=5)
+    density_frame = SectionFrame(root, title="Density")
+    density_frame.pack(padx=10, pady=10)
+    inner_density_frame = density_frame.get_inner_frame()
 
-    density_frame = Frame(root, bg="#00274C")
-    density_frame.pack(pady=5)
-
-    entry2 = make_line(density_frame, f"Density ({d_num}/{d_den}):")
+    entry2 = make_line(inner_density_frame, f"Density ({d_num}/{d_den}):", 24)
 
     # Spacer
     empty_frame2 = make_spacer(root)
 
-    weights_title = ttk.Label(root, text="Element Weights", font=("Verdana", 16),
-                              style="Maize.TLabel")
-    weights_title.pack(pady=5)
+    weights_frame = SectionFrame(root, title="Element Weights")
+    weights_frame.pack(padx=10, pady=10)
+    inner_weights_frame = weights_frame.get_inner_frame()
 
-    weights_frame = Frame(root, bg="#00274C")
-    weights_frame.pack(pady=5)
+    ex_frame = Frame(inner_weights_frame, bg="#D3D3D3")
+    ex_frame.pack(side="left", padx=33)
 
-    ex_frame = Frame(weights_frame, bg="#00274C")
-    ex_frame.pack(side="left", padx=5)
-
-    label = ttk.Label(ex_frame, text="Element Weights:", style="White.TLabel")
-    entry3 = Text(weights_frame, width=20, height=10, bg='white', fg='grey',
+    label = ttk.Label(ex_frame, text="Element Weights:", style="Black.TLabel")
+    entry3 = Text(inner_weights_frame, width=20, height=10, bg='white', fg='grey',
                   insertbackground="black", borderwidth=0, bd=0,
                   highlightthickness=0, relief='flat')
     label.pack()
-    entry3.pack(side="left", padx=5)
+    entry3.pack(side="left", padx=33)
 
     example_label(ex_frame, "")
     example_label(ex_frame, "Example:")
@@ -62,56 +54,56 @@ def custom_menu(root, common_el, common_mat, element, material, custom_mat,
     # Spacer
     empty_frame3 = make_spacer(root)
 
-    normalize_title = ttk.Label(root, text="Options", font=("Verdana", 16),
-                                style="Maize.TLabel")
-    normalize_title.pack(pady=5)
+    options_frame = SectionFrame(root, title="Options")
+    options_frame.pack(padx=10, pady=10)
+    inner_options_frame = options_frame.get_inner_frame()
 
     # Variable to hold normalize option
     var_normalize = IntVar()
 
-    normalize = ttk.Checkbutton(root, text="Normalize", variable=var_normalize,
+    normalize = ttk.Checkbutton(inner_options_frame, text="Normalize", variable=var_normalize,
                                 style="Maize.TCheckbutton")
     normalize.pack(pady=5)
 
-    # Spacer
-    empty_frame4 = make_spacer(root)
-
     # Creates button
-    button = ttk.Button(root, text="Add Material", style="Maize.TButton", padding=(-10,0),
+    button = ttk.Button(inner_options_frame, text="Add Material", style="Maize.TButton",
+                        padding=(0,0),
                         command=lambda: add_custom(root, entry, entry2, entry3,
                                                    error_label, var_normalize.get(),
                                                    d_num, d_den))
-    button.pack(pady=5)
-
-    # Creates exit button to return to T.A.C. screen
-    exit_button = ttk.Button(root, text="Back", style="Maize.TButton", padding=(-20,0),
-                             command=lambda: advanced_back(root, common_el, common_mat,
-                                                           element, material, custom_mat,
-                                                           selection, mode, interaction,
-                                                           mac_num, d_num, lac_num,
-                                                           mac_den, d_den, lac_den, energy_unit))
-    exit_button.pack(pady=5)
+    button.config(width=get_width(["Add Material"]))
+    button.pack(padx=145, pady=5)
 
     # Creates error label for bad input
-    error_label = ttk.Label(root, text="", style="Error.TLabel")
+    error_label = ttk.Label(inner_options_frame, text="", style="Error.TLabel")
     error_label.pack(pady=5)
 
-    # Stores nodes into global list
-    custom_list = [material_title, material_frame, empty_frame1,
-                   density_title, density_frame, empty_frame2,
-                   weights_title, weights_frame, empty_frame3,
-                   normalize_title, normalize, empty_frame4,
-                   button, exit_button, error_label]
+    # Creates exit button to return to T.A.C. screen
+    exit_button = ttk.Button(root, text="Back", style="Maize.TButton", padding=(0,0),
+                             command=lambda: advanced_back(root, common_el, common_mat,
+                                                           element, material, custom_mat,
+                                                           selection, mode, interactions,
+                                                           mac_num, d_num, lac_num,
+                                                           mac_den, d_den, lac_den, energy_unit))
+    exit_button.config(width=get_width(["Back"]))
+    exit_button.pack(pady=5)
 
-def make_line(frame, text):
-    label = ttk.Label(frame, text=text, style="White.TLabel")
+    # Stores nodes into global list
+    custom_list = [material_frame, empty_frame1,
+                   density_frame, empty_frame2,
+                   weights_frame, empty_frame3,
+                   options_frame, exit_button]
+
+def make_line(frame, text, pad):
+    label = ttk.Label(frame, text=text, style="Black.TLabel")
     entry = ttk.Entry(frame, width=20, style="Maize.TEntry")
-    label.pack(side="left", padx=5)
-    entry.pack(side="left", padx=5)
+    label.pack(side="left", padx=(24, pad))
+    entry.pack(side="left", padx=(pad+1, 24), pady=20)
     return entry
 
 def add_custom(root, name_box, density_box, weights_box, error_label, normalize,
                d_num, d_den):
+    root.focus()
     name = name_box.get()
 
     # Error check for no material name
@@ -224,10 +216,9 @@ def add_custom(root, name_box, density_box, weights_box, error_label, normalize,
     name_box.delete(0, END)
     weights_box.delete("1.0", "end")
     density_box.delete(0, END)
-    root.focus()
 
 def example_label(frame, text):
-    label = ttk.Label(frame, text=text, style="White.TLabel")
+    label = ttk.Label(frame, text=text, style="Black.TLabel")
     label.pack()
 
 def clear_custom():
@@ -239,13 +230,13 @@ def clear_custom():
     custom_list.clear()
 
 def advanced_back(root, common_el, common_mat, element, material, custom_mat,
-                  selection, mode, interaction, mac_num, d_num, lac_num,
+                  selection, mode, interactions, mac_num, d_num, lac_num,
                   mac_den, d_den, lac_den, energy_unit):
     from App.Attenuation.tac_advanced import tac_advanced
 
     clear_custom()
     tac_advanced(root, selection=selection, mode=mode,
-                 interaction_start=interaction, common_el=common_el,
+                 interactions_start=interactions, common_el=common_el,
                  common_mat=common_mat, element=element, material=material,
                  custom_mat=custom_mat, mac_num=mac_num, d_num=d_num,
                  lac_num=lac_num, mac_den=mac_den, d_den=d_den,

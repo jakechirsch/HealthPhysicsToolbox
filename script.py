@@ -3,6 +3,12 @@ import tkinter as tk
 from tkinter import ttk
 from App.app import return_home
 from App.style import configure_style
+from Utility.Functions.gui_utility import set_mpl_cache_dir
+
+# Configure matplotlib
+import matplotlib
+matplotlib.use('TkAgg')
+set_mpl_cache_dir()
 
 ##### WINDOW SETUP #####
 root = tk.Tk()

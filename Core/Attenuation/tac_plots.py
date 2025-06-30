@@ -1,8 +1,4 @@
 ##### IMPORTS #####
-from Utility.Functions.gui_utility import set_mpl_cache_dir
-import matplotlib
-matplotlib.use('TkAgg')
-set_mpl_cache_dir()
 import matplotlib.pyplot as plt
 import pandas as pd
 from Core.Attenuation.tac_calculations import *

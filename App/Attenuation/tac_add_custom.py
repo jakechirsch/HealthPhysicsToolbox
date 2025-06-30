@@ -54,6 +54,9 @@ def custom_menu(root, common_el, common_mat, element, material, custom_mat,
     # Spacer
     empty_frame3 = make_spacer(root)
 
+    def norm():
+        root.focus()
+
     options_frame = SectionFrame(root, title="Options")
     options_frame.pack(padx=10, pady=10)
     inner_options_frame = options_frame.get_inner_frame()
@@ -62,7 +65,7 @@ def custom_menu(root, common_el, common_mat, element, material, custom_mat,
     var_normalize = IntVar()
 
     normalize = ttk.Checkbutton(inner_options_frame, text="Normalize", variable=var_normalize,
-                                style="Maize.TCheckbutton")
+                                style="Maize.TCheckbutton", command=norm)
     normalize.pack(pady=5)
 
     # Creates button
@@ -202,14 +205,16 @@ def add_custom(root, name_box, density_box, weights_box, error_label, normalize,
 
     error_label.config(style="Success.TLabel", text="Material added!")
 
-    with shelve.open("Data/Modules/Mass Attenuation/User/Custom Materials") as prefs:
+    db_path = get_user_data_path('Mass Attenuation/Custom Materials')
+    with shelve.open(db_path) as prefs:
         choices = prefs.get("Custom Materials", [])
         if not name in choices:
             choices.append(name)
         prefs["Custom Materials"] = choices
 
     # Save to shelve
-    with shelve.open('Data/Modules/Mass Attenuation/User/_' + name) as db:
+    db_path2 = get_user_data_path('Mass Attenuation/_' + name)
+    with shelve.open(db_path2) as db:
         db[name] = csv_data
         db[name + '_Density'] = str(float(density) * density_denominator[d_den] / density_numerator[d_num])
 

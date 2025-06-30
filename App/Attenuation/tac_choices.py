@@ -1,6 +1,7 @@
 ##### IMPORTS #####
 import csv
 import shelve
+from Utility.Functions.gui_utility import resource_path, get_user_data_path
 
 # Choices using an element or a material
 element_choices = ["Common Elements", "All Elements"]
@@ -12,7 +13,8 @@ def get_choices(selection):
     if selection == "All Elements" or selection == "All Materials":
         # Obtains list of elements from csv file
         name = "Elements" if selection == "All Elements" else "Materials"
-        with open('Data/General Data/Density/' + name + '.csv', 'r') as file:
+        db_path = resource_path('Data/General Data/Density/' + name + '.csv')
+        with open(db_path, 'r') as file:
             reader = csv.reader(file)
             for row in reader:
                 if row and row[0] != 'Name':
@@ -20,10 +22,12 @@ def get_choices(selection):
         return choices
 
     # Obtains list of elements from shelve
-    with shelve.open('Data/Modules/Mass Attenuation/User/' + selection) as prefs:
+    db_path = get_user_data_path('Mass Attenuation/' + selection)
+    with shelve.open(db_path) as prefs:
         default = []
         if selection != "Custom Materials":
-            with open('Data/Modules/Mass Attenuation/' + selection + '.csv', 'r') as file:
+            db_path2 = resource_path('Data/Modules/Mass Attenuation/' + selection + '.csv')
+            with open(db_path2, 'r') as file:
                 reader = csv.reader(file)
                 for row in reader:
                     if row and row[0] != 'Name':

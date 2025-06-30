@@ -1,6 +1,6 @@
 ##### IMPORTS #####
 import shelve
-from Utility.Functions.gui_utility import get_width
+from Utility.Functions.gui_utility import get_width, get_user_data_path
 
 def carry_action(action, category, choices, inverse, var, dropdown):
     if action == "Add":
@@ -9,7 +9,8 @@ def carry_action(action, category, choices, inverse, var, dropdown):
         remove_c(category, choices, inverse, var, dropdown)
 
 def add_c(selection, choices, inverse, var, dropdown):
-    with shelve.open('Data/Modules/Mass Attenuation/User/' + selection) as prefs:
+    db_path = get_user_data_path('Mass Attenuation/' + selection)
+    with shelve.open(db_path) as prefs:
         # Adds element to common elements
         element = var.get()
         if element == "":
@@ -23,7 +24,8 @@ def add_c(selection, choices, inverse, var, dropdown):
         var.set(choices[0] if len(choices) > 0 else "")
 
 def remove_c(selection, choices, inverse, var, dropdown):
-    with shelve.open('Data/Modules/Mass Attenuation/User/' + selection) as prefs:
+    db_path = get_user_data_path('Mass Attenuation/' + selection)
+    with shelve.open(db_path) as prefs:
         # Removes element from common elements
         element = var.get()
         if element == "":

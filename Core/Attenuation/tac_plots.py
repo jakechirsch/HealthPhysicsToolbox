@@ -1,4 +1,8 @@
 ##### IMPORTS #####
+from Utility.Functions.gui_utility import set_mpl_cache_dir
+import matplotlib
+matplotlib.use('TkAgg')
+set_mpl_cache_dir()
 import matplotlib.pyplot as plt
 import pandas as pd
 from Core.Attenuation.tac_calculations import *
@@ -21,17 +25,19 @@ def plot_data(root, element, selection, mode, interactions, num, den,
     df = pd.DataFrame(columns=cols)
     if selection in element_choices:
         # Load the CSV file
-        df2 = pd.read_csv('Data/Modules/Mass Attenuation/Elements/' + element + '.csv')
+        db_path = resource_path('Data/Modules/Mass Attenuation/Elements/' + element + '.csv')
+        df2 = pd.read_csv(db_path)
         df[energy_col] = df2["Photon Energy"]
         df[energy_col] /= energy_units[energy_unit]
         for interaction in interactions:
             df[interaction] = df2[interaction]
     elif selection in material_choices:
-        with open('Data/General Data/Material Composition/' + element + '.csv',
-                  'r') as file:
+        db_path = resource_path('Data/General Data/Material Composition/' + element + '.csv')
+        with open(db_path, 'r') as file:
             make_df_for_material(file, df, element, selection, interactions)
     else:
-        with shelve.open('Data/Modules/Mass Attenuation/User/_' + element) as db:
+        db_path = get_user_data_path('Mass Attenuation/_' + element)
+        with shelve.open(db_path) as db:
             stored_data = db[element]
             stored_data = stored_data.replace('\\n', '\n')
 
@@ -45,7 +51,7 @@ def plot_data(root, element, selection, mode, interactions, num, den,
             df[interaction] *= mac_numerator[num]
             df[interaction] /= mac_denominator[den]
         else:
-            df[interaction] *= find_density(selection, element)
+            df[interaction] *= find_density(selection, element, "Mass Attenuation")
             df[interaction] *= lac_numerator[num]
             df[interaction] /= lac_denominator[den]
 
@@ -110,9 +116,9 @@ def make_df_for_material(file_like, df, element, selection, interactions):
     # Create the dataframe
     vals = []
     for row in reader:
+        db_path = resource_path('Data/Modules/Mass Attenuation/Elements/' + row['Element'] + '.csv')
         if len(vals) == 0:
-            with open('Data/Modules/Mass Attenuation/Elements/' + row['Element'] + '.csv',
-                      'r') as file:
+            with open(db_path, 'r') as file:
                 # Reads in file
                 reader2 = csv.DictReader(file)
 
@@ -120,8 +126,7 @@ def make_df_for_material(file_like, df, element, selection, interactions):
                 for row2 in reader2:
                     vals.append(float(row2["Photon Energy"]))
         else:
-            with open('Data/Modules/Mass Attenuation/Elements/' + row['Element'] + '.csv',
-                      'r') as file:
+            with open(db_path, 'r') as file:
                 # Reads in file
                 reader2 = csv.DictReader(file)
 

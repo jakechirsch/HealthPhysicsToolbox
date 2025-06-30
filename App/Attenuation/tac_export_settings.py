@@ -48,6 +48,9 @@ def export_menu(root, common_el, common_mat, element, material, custom_mat,
     # Spacer
     empty_frame1 = make_spacer(root)
 
+    def save():
+        root.focus()
+
     # Checkbox for saving file
     var_save = IntVar()
     var_save.set(1)
@@ -58,7 +61,7 @@ def export_menu(root, common_el, common_mat, element, material, custom_mat,
     inner_options_frame = options_frame.get_inner_frame()
 
     save = ttk.Checkbutton(inner_options_frame, text="Save File", variable=var_save,
-                           style="Maize.TCheckbutton")
+                           style="Maize.TCheckbutton", command=save)
     save.pack(padx=133, pady=5)
 
     export_type_frame = Frame(inner_options_frame, bg="#D3D3D3")

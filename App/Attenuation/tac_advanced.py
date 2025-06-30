@@ -438,11 +438,13 @@ def to_export_menu(root, common_el, common_mat, element, material, custom_mat,
 
 def open_ref(root):
     root.focus()
-    open_file('Utility/Modules/Mass Attenuation/References.txt')
+    db_path = resource_path('Utility/Modules/Mass Attenuation/References.txt')
+    open_file(db_path)
 
 def open_help(root):
     root.focus()
-    open_file('Utility/Modules/Mass Attenuation/Help.txt')
+    db_path = resource_path('Utility/Modules/Mass Attenuation/Help.txt')
+    open_file(db_path)
 
 def do_action(root, action, category, choices, inverse, var, dropdown):
     root.focus()

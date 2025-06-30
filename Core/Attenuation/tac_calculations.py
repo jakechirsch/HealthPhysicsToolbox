@@ -44,7 +44,7 @@ def handle_calculation(selection, mode, interactions, element, energy_str, resul
             else:
                 result += tac
     elif mode == "Density":
-        result = find_density(selection, element)
+        result = find_density(selection, element, "Mass Attenuation")
     else:
         for interaction in interactions:
             tac = find_tac(selection, interaction, element, energy_target)
@@ -52,7 +52,7 @@ def handle_calculation(selection, mode, interactions, element, energy_str, resul
                 result = tac
                 break
             else:
-                result += (tac * find_density(selection, element))
+                result += (tac * find_density(selection, element, "Mass Attenuation"))
 
     # Displays result label
     if not result in errors:
@@ -73,10 +73,12 @@ def find_tac(selection, interaction, element, energy_target):
     if selection in element_choices:
         tac = find_tac_for_element(element, interaction, energy_target)
     elif selection in material_choices:
-        with open('Data/General Data/Material Composition/' + element + '.csv', 'r') as file:
+        db_path = resource_path('Data/General Data/Material Composition/' + element + '.csv')
+        with open(db_path, 'r') as file:
             tac = find_tac_for_material(file, interaction, energy_target)
     else:
-        with shelve.open('Data/Modules/Mass Attenuation/User/_' + element) as db:
+        db_path = get_user_data_path('Mass Attenuation/_' + element)
+        with shelve.open(db_path) as db:
             stored_data = db[element]
             stored_data = stored_data.replace('\\n', '\n')
 
@@ -113,7 +115,8 @@ def find_tac_for_element(element, interaction, energy_target):
     high_coefficient = float('inf')
 
     # Opens file
-    with open('Data/Modules/Mass Attenuation/Elements/' + element + '.csv', 'r') as file:
+    db_path = resource_path('Data/Modules/Mass Attenuation/Elements/' + element + '.csv')
+    with open(db_path, 'r') as file:
         # Reads in file in dictionary format
         reader = csv.DictReader(file)
 

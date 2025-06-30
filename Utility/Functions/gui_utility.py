@@ -5,6 +5,8 @@ import os
 import subprocess
 import platform
 import tkinter.font as tk_font
+import sys
+from pathlib import Path
 
 ### ERROR MESSAGES ###
 non_number = "Error: Non-number energy input."
@@ -31,6 +33,39 @@ def open_file(path):
         subprocess.run(['open', path])
     else:  # Assume Linux or Unix
         subprocess.run(['xdg-open', path])
+
+def resource_path(relative_path):
+    # Returns absolute path to bundled resource
+    base_path = getattr(sys, '_MEIPASS', os.path.abspath("."))
+    return os.path.join(base_path, relative_path)
+
+def set_mpl_cache_dir():
+    if getattr(sys, 'frozen', False):
+        # Use a bundled folder inside the executable's directory
+        base_dir = Path(sys.executable).parent
+        cache_dir = base_dir / "matplotlib_cache"
+    else:
+        # When running as script, use normal cache dir
+        cache_dir = Path.home() / ".matplotlib"
+
+    # Make sure the directory exists
+    cache_dir.mkdir(parents=True, exist_ok=True)
+
+    # Tell matplotlib to use this directory for its config (including font cache)
+    os.environ["MPLCONFIGDIR"] = str(cache_dir)
+
+def get_user_data_path(relative_path):
+    # Return a path in a writable location
+    if getattr(sys, 'frozen', False):
+        # If bundled with PyInstaller, get folder of the executable
+        base_dir = Path(sys.executable).parent
+    else:
+        # If running as script
+        base_dir = Path(sys.argv[0]).resolve().parent
+
+    full_path = base_dir / "UserData" / relative_path
+    full_path.parent.mkdir(parents=True, exist_ok=True)  # Ensure subdirectories exist
+    return str(full_path)
 
 def make_spacer(root):
     spacer = Frame(root, bg="#D3D3D3")

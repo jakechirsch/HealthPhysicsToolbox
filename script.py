@@ -14,21 +14,21 @@ set_mpl_cache_dir()
 root = tk.Tk()
 root.title("Health Physics Toolbox")
 root.geometry("625x725")
-root.configure(bg="#D3D3D3")
+root.configure(bg="#F2F2F2")
 
 # Configures style of app
 configure_style()
 
 # Wraps whole app in a container for vertical alignment
-container = tk.Frame(root, bg="#D3D3D3")
+container = tk.Frame(root, bg="#F2F2F2")
 container.pack(fill="both", expand=True)
 
 # Creates canvas
-left_frame = tk.Canvas(container, bg="#D3D3D3", highlightthickness=0, bd=0)
+left_frame = tk.Canvas(container, bg="#F2F2F2", highlightthickness=0, bd=0)
 left_frame.pack(side="left", fill="both", expand=True)
-right_frame = tk.Frame(container, bg="#D3D3D3", highlightthickness=0, bd=0)
+right_frame = tk.Frame(container, bg="#F2F2F2", highlightthickness=0, bd=0)
 right_frame.pack(side="right", fill="y")
-canvas = tk.Canvas(left_frame, bg="#D3D3D3", highlightthickness=0, bd=0)
+canvas = tk.Canvas(left_frame, bg="#F2F2F2", highlightthickness=0, bd=0)
 canvas.pack(side="top", fill="both", expand=True)
 
 # Creates scrollbars
@@ -41,7 +41,7 @@ scrollbar_x_visible = True
 canvas.configure(xscrollcommand=scrollbar_x.set, yscrollcommand=scrollbar_y.set)
 
 # Creates a frame inside the canvas
-scrollable_frame = tk.Frame(canvas, bg="#D3D3D3")
+scrollable_frame = tk.Frame(canvas, bg="#F2F2F2")
 canvas_window = canvas.create_window((0, 0), window=scrollable_frame, anchor="nw")
 
 # --- Logic to show/hide scrollbar ---

@@ -87,13 +87,13 @@ def total_attenuation_coefficient(root, selection_start="Common Elements",
             exit_button.pack_forget()
             energy_frame.pack(padx=10, pady=10)
             energy_label.pack(pady=(5,0))
-            energy_entry.pack(padx=79, pady=(0,5))
+            energy_entry.pack(pady=(0,5))
             empty_frame3 = make_spacer(root)
             screen_list.append(empty_frame3)
             result_frame.pack(padx=10, pady=10)
             calc_button.pack(pady=5)
             result.pack(pady=(5,0))
-            result_label.pack(padx=81, pady=(0,5))
+            result_label.pack(pady=(0,5))
             advanced_button.pack(pady=5)
             exit_button.pack(pady=5)
             screen_list.append(energy_frame)
@@ -107,7 +107,7 @@ def total_attenuation_coefficient(root, selection_start="Common Elements",
     mode_dropdown = ttk.Combobox(inner_mode_frame, textvariable=var_mode, values=mode_choices,
                                  justify="center", state='readonly', style="Maize.TCombobox")
     mode_dropdown.config(width=get_width(mode_choices))
-    mode_dropdown.pack(padx=86, pady=20)
+    mode_dropdown.pack(pady=20)
     mode_dropdown.bind("<<ComboboxSelected>>", select_mode)
 
     # Spacer
@@ -147,8 +147,8 @@ def total_attenuation_coefficient(root, selection_start="Common Elements",
         root.focus()
 
     # Frame for category selection
-    category_frame = Frame(inner_main_frame, bg="#D3D3D3")
-    category_frame.pack(padx=122, pady=(15,5))
+    category_frame = Frame(inner_main_frame, bg="#F2F2F2")
+    category_frame.pack(pady=(15,5))
 
     category_label = ttk.Label(category_frame, text="Select Category:",
                                style="Black.TLabel")
@@ -196,7 +196,7 @@ def total_attenuation_coefficient(root, selection_start="Common Elements",
         root.focus()
 
     # Frame for item selection
-    item_frame = Frame(inner_main_frame, bg="#D3D3D3")
+    item_frame = Frame(inner_main_frame, bg="#F2F2F2")
     item_frame.pack(pady=(5,20))
 
     item_label = ttk.Label(item_frame, text="Select Item:",
@@ -222,7 +222,7 @@ def total_attenuation_coefficient(root, selection_start="Common Elements",
     if var_mode.get() != "Density":
         energy_frame.pack(padx=10, pady=10)
         energy_label.pack(pady=(5,0))
-        energy_entry.pack(padx=79, pady=(0,5))
+        energy_entry.pack(pady=(0,5))
         empty_frame3 = make_spacer(root)
 
     result_frame.pack(padx=10, pady=10)
@@ -241,7 +241,7 @@ def total_attenuation_coefficient(root, selection_start="Common Elements",
     calc_button.pack(pady=5)
 
     result.pack(pady=(5,0))
-    result_label.pack(padx=81, pady=(0,5))
+    result_label.pack(pady=(0,5))
 
     # Creates an advanced settings button
     advanced_button = ttk.Button(root, text="Advanced Settings", style="Maize.TButton",

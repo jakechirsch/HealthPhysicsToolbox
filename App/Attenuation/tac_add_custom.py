@@ -34,7 +34,7 @@ def custom_menu(root, common_el, common_mat, element, material, custom_mat,
     weights_frame.pack(padx=10, pady=10)
     inner_weights_frame = weights_frame.get_inner_frame()
 
-    ex_frame = Frame(inner_weights_frame, bg="#D3D3D3")
+    ex_frame = Frame(inner_weights_frame, bg="#F2F2F2")
     ex_frame.pack(side="left", padx=33)
 
     label = ttk.Label(ex_frame, text="Element Weights:", style="Black.TLabel")
@@ -75,7 +75,7 @@ def custom_menu(root, common_el, common_mat, element, material, custom_mat,
                                                    error_label, var_normalize.get(),
                                                    d_num, d_den))
     button.config(width=get_width(["Add Material"]))
-    button.pack(padx=145, pady=5)
+    button.pack(pady=5)
 
     # Creates error label for bad input
     error_label = ttk.Label(inner_options_frame, text="", style="Error.TLabel")

@@ -1,6 +1,6 @@
 ##### IMPORTS #####
 import tkinter as tk
-from tkinter import ttk
+from tkinter import ttk, Frame
 
 def configure_style():
     # Configure the style
@@ -13,32 +13,31 @@ def configure_style():
                     background="#FFCB05",
                     foreground="black")
     style.map('Maize.TCombobox',
-              background=[('readonly', "#FFCB05"), ('!readonly', "#FFCB05")]
-              )
+              background=[('readonly', "#FFCB05"), ('!readonly', "#FFCB05")])
     style.configure("Maize.TCheckbutton",
-                    background="#D3D3D3",
+                    background="#F2F2F2",
                     foreground="#00274C")
     style.map("Maize.TCheckbutton",
-              background=[('active', "#D3D3D3")])
+              background=[('active', "#F2F2F2")])
     style.configure("White.TLabel",
                     background="#00274C",
                     foreground="white",
                     font=("Verdana", 16))
     style.configure("Black.TLabel",
-                    background="#D3D3D3",
+                    background="#F2F2F2",
                     foreground="black")
     style.configure("Home.TLabel",
-                    background="#D3D3D3",
+                    background="#F2F2F2",
                     foreground="#00274C")
     style.configure("Maize.TEntry",
                     fieldbackground="black",
                     foreground="white",
                     bordercolor="#00274C")
     style.configure("Error.TLabel",
-                    background="#D3D3D3",
+                    background="#F2F2F2",
                     foreground="red")
     style.configure("Success.TLabel",
-                    background="#D3D3D3",
+                    background="#F2F2F2",
                     foreground="black")
     style.configure("Maize.TLabel",
                     background="#00274C",
@@ -47,7 +46,7 @@ def configure_style():
 class SectionFrame(tk.Frame):
     def __init__(self, parent, title="", *args, **kwargs):
         # Transparent-style frame (inherits parent's bg)
-        bg_color = "#D3D3D3"
+        bg_color = "#F2F2F2"
         super().__init__(parent, bg=bg_color, *args, **kwargs)
 
         # Border frame to simulate an outline
@@ -57,6 +56,10 @@ class SectionFrame(tk.Frame):
         # Inner frame (blends with background)
         self.inner_frame = tk.Frame(self.border_frame, bg=bg_color)
         self.inner_frame.pack(padx=4, pady=(22, 4))
+
+        # Frame for width
+        width_frame = Frame(self.inner_frame, bg="#F2F2F2")
+        width_frame.pack(padx=200)
 
         # Title bar
         self.title_bar = tk.Frame(self.border_frame, bg="#00274C", height=22)

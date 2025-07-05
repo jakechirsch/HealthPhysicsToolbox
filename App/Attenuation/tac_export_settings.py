@@ -15,7 +15,7 @@ def export_menu(root, common_el, common_mat, element, material, custom_mat,
     interactions_frame = SectionFrame(root, title="Interaction Types")
     interactions_frame.pack(padx=10, pady=10)
     inner_interactions_frame = interactions_frame.get_inner_frame()
-    inner_interactions_frame.config(padx=20, pady=10)
+    inner_interactions_frame.config(pady=10)
 
     def on_select():
         root.focus()
@@ -62,9 +62,9 @@ def export_menu(root, common_el, common_mat, element, material, custom_mat,
 
     save = ttk.Checkbutton(inner_options_frame, text="Save File", variable=var_save,
                            style="Maize.TCheckbutton", command=save)
-    save.pack(padx=133, pady=5)
+    save.pack(pady=5)
 
-    export_type_frame = Frame(inner_options_frame, bg="#D3D3D3")
+    export_type_frame = Frame(inner_options_frame, bg="#F2F2F2")
     export_type_frame.pack(pady=5)
 
     def on_select_export(event):

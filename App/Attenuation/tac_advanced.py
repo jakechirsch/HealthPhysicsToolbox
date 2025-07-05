@@ -33,8 +33,8 @@ def tac_advanced(root, common_el, common_mat, element, material, custom_mat,
     inner_a_r_frame = a_r_frame.get_inner_frame()
 
     # Horizontal frame for add/remove settings
-    side_frame = Frame(inner_a_r_frame, bg="#D3D3D3")
-    side_frame.pack(padx=58, pady=5)
+    side_frame = Frame(inner_a_r_frame, bg="#F2F2F2")
+    side_frame.pack(pady=5)
 
     a_r_button = [ttk.Button()]
 
@@ -79,7 +79,7 @@ def tac_advanced(root, common_el, common_mat, element, material, custom_mat,
         vertical_frame = make_v_frame()
 
     # Frame for action selection
-    action_frame = Frame(side_frame, bg="#D3D3D3")
+    action_frame = Frame(side_frame, bg="#F2F2F2")
     action_frame.pack(side="left", padx=5)
 
     action_label = ttk.Label(action_frame, text="Action:",
@@ -96,7 +96,7 @@ def tac_advanced(root, common_el, common_mat, element, material, custom_mat,
     action_dropdown.bind("<<ComboboxSelected>>", on_select_options)
 
     # Frame for category selection
-    category_frame = Frame(side_frame, bg="#D3D3D3")
+    category_frame = Frame(side_frame, bg="#F2F2F2")
     category_frame.pack(side="left", padx=5)
 
     category_label = ttk.Label(category_frame, text="Select Category:",
@@ -118,7 +118,7 @@ def tac_advanced(root, common_el, common_mat, element, material, custom_mat,
     # Frame for interaction type
     interactions_frame = SectionFrame(root, title="Interaction Types")
     inner_interactions_frame = interactions_frame.get_inner_frame()
-    inner_interactions_frame.config(padx=32, pady=10)
+    inner_interactions_frame.config(pady=10)
 
     # Spacer
     empty_frame2 = Frame()
@@ -200,8 +200,8 @@ def tac_advanced(root, common_el, common_mat, element, material, custom_mat,
     inner_unit_frame = unit_frame.get_inner_frame()
 
     # Horizontal frame for unit settings
-    unit_side_frame = Frame(inner_unit_frame, bg="#D3D3D3")
-    unit_side_frame.pack(padx=83, pady=20)
+    unit_side_frame = Frame(inner_unit_frame, bg="#F2F2F2")
+    unit_side_frame.pack(pady=20)
 
     # Units label
     unit_label = ttk.Label(unit_side_frame, text="Units:", style="Black.TLabel")
@@ -235,12 +235,12 @@ def tac_advanced(root, common_el, common_mat, element, material, custom_mat,
     empty_frame3 = make_spacer(root)
 
     # Frame for export menu, references, & help
-    bottom_frame = Frame(root, bg="#D3D3D3")
+    bottom_frame = Frame(root, bg="#F2F2F2")
     bottom_frame.pack(pady=5)
 
     if mode != "Density":
         # Horizontal frame for energy unit settings
-        energy_unit_side_frame = Frame(inner_unit_frame, bg="#D3D3D3")
+        energy_unit_side_frame = Frame(inner_unit_frame, bg="#F2F2F2")
         energy_unit_side_frame.pack(pady=(0, 20))
 
         # Energy unit label
@@ -312,7 +312,7 @@ def make_vertical_frame(root, top_frame, action, category,
                         d_den, lac_den, energy_unit, button
                         ):
     button[0].destroy()
-    vertical_frame = Frame(top_frame, bg="#D3D3D3")
+    vertical_frame = Frame(top_frame, bg="#F2F2F2")
     vertical_frame.pack()
 
     if category != "Custom Materials" or action != "Add":

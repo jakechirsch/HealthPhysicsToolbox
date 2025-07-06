@@ -28,7 +28,7 @@ def tac_advanced(root, common_el, common_mat, element, material, custom_mat,
     custom = get_choices("Custom Materials")
 
     # Frame for add/remove settings
-    a_r_frame = SectionFrame(root, title="Add & Remove")
+    a_r_frame = SectionFrame(root, title="Customize Categories")
     a_r_frame.pack(padx=10, pady=10)
     inner_a_r_frame = a_r_frame.get_inner_frame()
 
@@ -99,7 +99,7 @@ def tac_advanced(root, common_el, common_mat, element, material, custom_mat,
     category_frame = Frame(side_frame, bg="#F2F2F2")
     category_frame.pack(side="left", padx=5)
 
-    category_label = ttk.Label(category_frame, text="Select Category:",
+    category_label = ttk.Label(category_frame, text="Category:",
                                style="Black.TLabel")
     category_label.pack()
 
@@ -116,7 +116,7 @@ def tac_advanced(root, common_el, common_mat, element, material, custom_mat,
     empty_frame1 = make_spacer(root)
 
     # Frame for interaction type
-    interactions_frame = SectionFrame(root, title="Interaction Types")
+    interactions_frame = SectionFrame(root, title="Select Interaction Types")
     inner_interactions_frame = interactions_frame.get_inner_frame()
     inner_interactions_frame.config(pady=10)
 
@@ -195,7 +195,7 @@ def tac_advanced(root, common_el, common_mat, element, material, custom_mat,
         empty_frame2 = make_spacer(root)
 
     # Frame for units
-    unit_frame = SectionFrame(root, title=mode+" Units")
+    unit_frame = SectionFrame(root, title="Select Units")
     unit_frame.pack(padx=10, pady=10)
     inner_unit_frame = unit_frame.get_inner_frame()
 
@@ -204,7 +204,7 @@ def tac_advanced(root, common_el, common_mat, element, material, custom_mat,
     unit_side_frame.pack(pady=20)
 
     # Units label
-    unit_label = ttk.Label(unit_side_frame, text="Units:", style="Black.TLabel")
+    unit_label = ttk.Label(unit_side_frame, text=mode+" Units:", style="Black.TLabel")
     unit_label.pack(side='left', padx=5)
 
     on_select_num = get_select_unit(root, num_units, mode)
@@ -316,7 +316,7 @@ def make_vertical_frame(root, top_frame, action, category,
     vertical_frame.pack()
 
     if category != "Custom Materials" or action != "Add":
-        item_label = ttk.Label(vertical_frame, text="Select Item:",
+        item_label = ttk.Label(vertical_frame, text="Item:",
                           style="Black.TLabel")
         item_label.pack()
 

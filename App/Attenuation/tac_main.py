@@ -24,7 +24,7 @@ def total_attenuation_coefficient(root, selection_start="Common Elements",
         interactions = ["Total Attenuation with Coherent Scattering"]
 
     # Frame for result
-    result_frame = SectionFrame(root, title="Result")
+    result_frame = SectionFrame(root, title=mode_start)
     inner_result_frame = result_frame.get_inner_frame()
 
     # Displays the requested coefficient
@@ -53,12 +53,12 @@ def total_attenuation_coefficient(root, selection_start="Common Elements",
     mode = mode_start
 
     # Frame for mode input
-    mode_frame = SectionFrame(root, title="Calculation Mode")
+    mode_frame = SectionFrame(root, title="Select Calculation Mode")
     mode_frame.pack(padx=10, pady=10)
     inner_mode_frame = mode_frame.get_inner_frame()
 
     # Frame for energy input
-    energy_frame = SectionFrame(root, title="Photon Energy", width=1000)
+    energy_frame = SectionFrame(root, title="Input Energy")
     inner_energy_frame= energy_frame.get_inner_frame()
 
     energy_label = ttk.Label(inner_energy_frame, text="Photon Energy (" + energy_unit + "):",
@@ -69,6 +69,7 @@ def total_attenuation_coefficient(root, selection_start="Common Elements",
         nonlocal energy_label, energy_entry, energy_frame
         nonlocal mode, result_label, empty_frame3, result
         event.widget.selection_clear()
+
         if event.widget.get() == "Density" \
                 and mode != "Density":
             energy_frame.pack_forget()
@@ -86,18 +87,20 @@ def total_attenuation_coefficient(root, selection_start="Common Elements",
             advanced_button.pack_forget()
             exit_button.pack_forget()
             energy_frame.pack(padx=10, pady=10)
-            energy_label.pack(pady=(5,0))
-            energy_entry.pack(pady=(0,5))
+            energy_label.pack(pady=(10,1))
+            energy_entry.pack(pady=(1,10))
             empty_frame3 = make_spacer(root)
             screen_list.append(empty_frame3)
             result_frame.pack(padx=10, pady=10)
-            calc_button.pack(pady=5)
-            result.pack(pady=(5,0))
-            result_label.pack(pady=(0,5))
+            calc_button.pack(pady=(15,5))
+            result.pack(pady=(5,1))
+            result_label.pack(pady=(1,10))
             advanced_button.pack(pady=5)
             exit_button.pack(pady=5)
             screen_list.append(energy_frame)
+
         mode = var_mode.get()
+        result_frame.change_title(mode)
         root.focus()
 
     # Creates dropdown menu for mode
@@ -127,7 +130,7 @@ def total_attenuation_coefficient(root, selection_start="Common Elements",
             custom_mat if selection_start == "Custom Materials" else "")
 
     # Frame for type selection and element/material
-    main_frame = SectionFrame(root, title="Select Element or Material", width=1000)
+    main_frame = SectionFrame(root, title="Select Interacting Medium")
     main_frame.pack(padx=10, pady=10)
     inner_main_frame = main_frame.get_inner_frame()
 
@@ -150,7 +153,7 @@ def total_attenuation_coefficient(root, selection_start="Common Elements",
     category_frame = Frame(inner_main_frame, bg="#F2F2F2")
     category_frame.pack(pady=(15,5))
 
-    category_label = ttk.Label(category_frame, text="Select Category:",
+    category_label = ttk.Label(category_frame, text="Category:",
                                style="Black.TLabel")
     category_label.pack()
 
@@ -199,7 +202,7 @@ def total_attenuation_coefficient(root, selection_start="Common Elements",
     item_frame = Frame(inner_main_frame, bg="#F2F2F2")
     item_frame.pack(pady=(5,20))
 
-    item_label = ttk.Label(item_frame, text="Select Item:",
+    item_label = ttk.Label(item_frame, text="Item:",
                            style="Black.TLabel")
     item_label.pack()
 
@@ -221,15 +224,15 @@ def total_attenuation_coefficient(root, selection_start="Common Elements",
     # Energy input is not necessary if mode is density
     if var_mode.get() != "Density":
         energy_frame.pack(padx=10, pady=10)
-        energy_label.pack(pady=(5,0))
-        energy_entry.pack(pady=(0,5))
+        energy_label.pack(pady=(10,1))
+        energy_entry.pack(pady=(1,10))
         empty_frame3 = make_spacer(root)
 
     result_frame.pack(padx=10, pady=10)
 
     # Creates calculate button
-    calc_button = ttk.Button(inner_result_frame, text="Calculate", style="Maize.TButton",
-                             padding=(0,0),
+    calc_button = ttk.Button(inner_result_frame, text="Calculate",
+                             style="Maize.TButton", padding=(0,0),
                              command=lambda: start_calculation(root,
                                                         var_selection.get(), var_mode.get(),
                                                         interactions, var.get(),
@@ -238,28 +241,28 @@ def total_attenuation_coefficient(root, selection_start="Common Elements",
                                       get_unit(mac_den, d_den, lac_den, var_mode.get()),
                                                         energy_unit))
     calc_button.config(width=get_width(["Calculate"]))
-    calc_button.pack(pady=5)
+    calc_button.pack(pady=(15,5))
 
-    result.pack(pady=(5,0))
-    result_label.pack(pady=(0,5))
+    result.pack(pady=(5,1))
+    result_label.pack(pady=(1,10))
 
     # Creates an advanced settings button
-    advanced_button = ttk.Button(root, text="Advanced Settings", style="Maize.TButton",
-                                 padding=(0,0),
+    advanced_button = ttk.Button(root, text="Advanced Settings",
+                                 style="Maize.TButton", padding=(0,0),
                                  command=lambda: to_advanced(root, common_el, common_mat,
                                                              element, material, custom_mat,
                                                              var_selection.get(),
                                                              var_mode.get(), interactions,
                                                              mac_num, d_num, lac_num,
                                                              mac_den, d_den, lac_den,
-                                                             result_label, energy_unit))
+                                                             energy_unit))
     advanced_button.config(width=get_width(["Advanced Settings"]))
     advanced_button.pack(pady=5)
 
     # Creates exit button to return to home screen
     exit_button = ttk.Button(root, text="Exit", style="Maize.TButton",
                              padding=(0,0),
-                             command=lambda: exit_to_home(root, result_label))
+                             command=lambda: exit_to_home(root))
     exit_button.config(width=get_width(["Exit"]))
     exit_button.pack(pady=5)
 
@@ -273,30 +276,29 @@ def to_advanced(root, common_el, common_mat, element, material,
              custom_mat, selection, mode, interactions,
              mac_num, d_num, lac_num,
              mac_den, d_den, lac_den,
-             result_label, energy_unit):
+             energy_unit):
     root.focus()
     from App.Attenuation.tac_advanced import tac_advanced
 
     # Hides T.A.C. screen
-    clear_screen(result_label)
+    clear_screen()
     tac_advanced(root, common_el, common_mat, element, material,
                  custom_mat, selection, mode, interactions,
                  mac_num, d_num, lac_num,
                  mac_den, d_den, lac_den, energy_unit)
 
-def clear_screen(result_label):
+def clear_screen():
     global screen_list
 
     # Clears main screen
-    result_label.pack_forget()
     for node in screen_list:
         node.destroy()
     screen_list.clear()
 
-def exit_to_home(root, result_label):
+def exit_to_home(root):
     root.focus()
     from App.app import return_home
-    clear_screen(result_label)
+    clear_screen()
     return_home(root)
 
 def start_calculation(root, selection, mode, interactions, element, energy_str, result_label,

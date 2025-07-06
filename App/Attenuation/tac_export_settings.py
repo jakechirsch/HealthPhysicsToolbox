@@ -12,7 +12,7 @@ def export_menu(root, common_el, common_mat, element, material, custom_mat,
     global export_list
 
     # Frame for interactions
-    interactions_frame = SectionFrame(root, title="Interaction Types")
+    interactions_frame = SectionFrame(root, title="Select Interaction Types")
     interactions_frame.pack(padx=10, pady=10)
     inner_interactions_frame = interactions_frame.get_inner_frame()
     inner_interactions_frame.config(pady=10)
@@ -56,13 +56,13 @@ def export_menu(root, common_el, common_mat, element, material, custom_mat,
     var_save.set(1)
 
     # Frame for options
-    options_frame = SectionFrame(root, title="Options")
+    options_frame = SectionFrame(root, title="Export Options")
     options_frame.pack(padx=10, pady=10)
     inner_options_frame = options_frame.get_inner_frame()
 
     save = ttk.Checkbutton(inner_options_frame, text="Save File", variable=var_save,
                            style="Maize.TCheckbutton", command=save)
-    save.pack(pady=5)
+    save.pack(pady=(10,5))
 
     export_type_frame = Frame(inner_options_frame, bg="#F2F2F2")
     export_type_frame.pack(pady=5)
@@ -77,7 +77,7 @@ def export_menu(root, common_el, common_mat, element, material, custom_mat,
         else:
             save.config(state="normal")
 
-    export_label = ttk.Label(export_type_frame, text="Select Export Type:", style="Black.TLabel")
+    export_label = ttk.Label(export_type_frame, text="Export Type:", style="Black.TLabel")
     export_label.pack()
 
     # Creates dropdown menu for export
@@ -107,11 +107,11 @@ def export_menu(root, common_el, common_mat, element, material, custom_mat,
                                          energy_unit, export_dropdown.get(),
                                          var_save.get(), error_label))
     export_button.config(width=get_width(["Export"]))
-    export_button.pack(pady=5)
+    export_button.pack(pady=(10,5))
 
     # Creates error label for bad input
     error_label = ttk.Label(inner_options_frame, text="", style="Error.TLabel")
-    error_label.pack(pady=5)
+    error_label.pack(pady=(5,10))
 
     # Creates exit button to return to T.A.C. screen
     exit_button = ttk.Button(root, text="Back", style="Maize.TButton", padding=(0,0),

@@ -69,7 +69,7 @@ def get_user_data_path(relative_path):
 
 def make_spacer(root):
     spacer = Frame(root, bg="#D3D3D3")
-    spacer.pack(pady=8)
+    spacer.pack(pady=7)
     return spacer
 
 def interaction_checkbox(frame, variable, interaction, command):

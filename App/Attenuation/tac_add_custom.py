@@ -12,7 +12,7 @@ def custom_menu(root, common_el, common_mat, element, material, custom_mat,
                 d_den, lac_den, energy_unit):
     global custom_list
 
-    material_frame = SectionFrame(root, title="Material Name")
+    material_frame = SectionFrame(root, title="Enter Material Name")
     material_frame.pack(padx=10, pady=10)
     inner_material_frame = material_frame.get_inner_frame()
 
@@ -21,7 +21,7 @@ def custom_menu(root, common_el, common_mat, element, material, custom_mat,
     # Spacer
     empty_frame1 = make_spacer(root)
 
-    density_frame = SectionFrame(root, title="Density")
+    density_frame = SectionFrame(root, title="Enter Density")
     density_frame.pack(padx=10, pady=10)
     inner_density_frame = density_frame.get_inner_frame()
 
@@ -30,7 +30,7 @@ def custom_menu(root, common_el, common_mat, element, material, custom_mat,
     # Spacer
     empty_frame2 = make_spacer(root)
 
-    weights_frame = SectionFrame(root, title="Element Weights")
+    weights_frame = SectionFrame(root, title="Enter Element Weights")
     weights_frame.pack(padx=10, pady=10)
     inner_weights_frame = weights_frame.get_inner_frame()
 
@@ -57,7 +57,7 @@ def custom_menu(root, common_el, common_mat, element, material, custom_mat,
     def norm():
         root.focus()
 
-    options_frame = SectionFrame(root, title="Options")
+    options_frame = SectionFrame(root, title="Custom Materials Options")
     options_frame.pack(padx=10, pady=10)
     inner_options_frame = options_frame.get_inner_frame()
 
@@ -66,7 +66,7 @@ def custom_menu(root, common_el, common_mat, element, material, custom_mat,
 
     normalize = ttk.Checkbutton(inner_options_frame, text="Normalize", variable=var_normalize,
                                 style="Maize.TCheckbutton", command=norm)
-    normalize.pack(pady=5)
+    normalize.pack(pady=(10,5))
 
     # Creates button
     button = ttk.Button(inner_options_frame, text="Add Material", style="Maize.TButton",
@@ -79,7 +79,7 @@ def custom_menu(root, common_el, common_mat, element, material, custom_mat,
 
     # Creates error label for bad input
     error_label = ttk.Label(inner_options_frame, text="", style="Error.TLabel")
-    error_label.pack(pady=5)
+    error_label.pack(pady=(5,10))
 
     # Creates exit button to return to T.A.C. screen
     exit_button = ttk.Button(root, text="Back", style="Maize.TButton", padding=(0,0),

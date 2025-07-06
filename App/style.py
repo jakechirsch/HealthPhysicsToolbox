@@ -57,7 +57,7 @@ class SectionFrame(tk.Frame):
         self.inner_frame = tk.Frame(self.border_frame, bg=bg_color)
         self.inner_frame.pack(padx=4, pady=(22, 4))
 
-        # Frame for width
+        # Empty frame to set a consistent width for each section
         width_frame = Frame(self.inner_frame, bg="#F2F2F2")
         width_frame.pack(padx=200)
 
@@ -73,3 +73,11 @@ class SectionFrame(tk.Frame):
 
     def get_inner_frame(self):
         return self.inner_frame
+
+    def change_title(self, title):
+        self.title_label.destroy()
+        self.title_label = ttk.Label(
+            self.title_bar, text=title, style="White.TLabel"
+        )
+        self.title_label.pack()
+        self.title_label.place(relx=0.5, rely=0.5, anchor="center")

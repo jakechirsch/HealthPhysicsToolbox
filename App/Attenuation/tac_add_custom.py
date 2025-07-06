@@ -38,11 +38,11 @@ def custom_menu(root, common_el, common_mat, element, material, custom_mat,
     ex_frame.pack(side="left", padx=33)
 
     label = ttk.Label(ex_frame, text="Element Weights:", style="Black.TLabel")
-    entry3 = Text(inner_weights_frame, width=20, height=10, bg='white', fg='grey',
-                  insertbackground="black", borderwidth=0, bd=0,
-                  highlightthickness=0, relief='flat')
+    entry3 = Text(inner_weights_frame, width=20, height=10, bg='white', fg='black',
+                  insertbackground="black", borderwidth=3, bd=3,
+                  highlightthickness=0, relief='solid')
     label.pack()
-    entry3.pack(side="left", padx=33)
+    entry3.pack(side="left", padx=33, pady=10)
 
     example_label(ex_frame, "")
     example_label(ex_frame, "Example:")
@@ -99,7 +99,9 @@ def custom_menu(root, common_el, common_mat, element, material, custom_mat,
 
 def make_line(frame, text, pad):
     label = ttk.Label(frame, text=text, style="Black.TLabel")
-    entry = ttk.Entry(frame, width=20, style="Maize.TEntry")
+    entry = Entry(frame, width=20, insertbackground="black",
+                  background="white", foreground="black",
+                  borderwidth=3, bd=3, highlightthickness=0, relief='solid')
     label.pack(side="left", padx=(24, pad))
     entry.pack(side="left", padx=(pad+1, 24), pady=20)
     return entry

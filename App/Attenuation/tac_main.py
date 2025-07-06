@@ -30,9 +30,9 @@ def total_attenuation_coefficient(root, selection_start="Common Elements",
     # Displays the requested coefficient
     result = ttk.Label(inner_result_frame, text="Result:",
                        style="Black.TLabel")
-    result_label = Text(inner_result_frame, height=1, borderwidth=0, bd=0,
-                        highlightthickness=0, relief='flat')
-    result_label.config(bg='black', fg='white', state="disabled", width=32)
+    result_label = Text(inner_result_frame, height=1, borderwidth=3, bd=3,
+                        highlightthickness=0, relief='solid')
+    result_label.config(bg='white', fg='black', state="disabled", width=32)
 
     choices = get_choices(selection_start)
 
@@ -63,7 +63,9 @@ def total_attenuation_coefficient(root, selection_start="Common Elements",
 
     energy_label = ttk.Label(inner_energy_frame, text="Photon Energy (" + energy_unit + "):",
                              style="Black.TLabel")
-    energy_entry = ttk.Entry(inner_energy_frame, width=25, style="Maize.TEntry")
+    energy_entry = Entry(inner_energy_frame, width=25, insertbackground="black",
+                         background="white", foreground="black", borderwidth=3, bd=3,
+                         highlightthickness=0, relief='solid')
 
     def select_mode(event):
         nonlocal energy_label, energy_entry, energy_frame

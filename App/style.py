@@ -12,7 +12,7 @@ def configure_style():
     style.configure("Maize.TCombobox",
                     background="#FFCB05",
                     foreground="black")
-    style.map('Maize.TCombobox',
+    style.map("Maize.TCombobox",
               background=[('readonly', "#FFCB05"), ('!readonly', "#FFCB05")])
     style.configure("Maize.TCheckbutton",
                     background="#F2F2F2",
@@ -29,10 +29,6 @@ def configure_style():
     style.configure("Home.TLabel",
                     background="#F2F2F2",
                     foreground="#00274C")
-    style.configure("Maize.TEntry",
-                    fieldbackground="black",
-                    foreground="white",
-                    bordercolor="#00274C")
     style.configure("Error.TLabel",
                     background="#F2F2F2",
                     foreground="red")

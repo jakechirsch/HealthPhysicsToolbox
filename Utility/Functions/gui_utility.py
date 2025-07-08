@@ -9,10 +9,11 @@ import sys
 from pathlib import Path
 
 ### ERROR MESSAGES ###
+no_selection = "Error: No selected item."
 non_number = "Error: Non-number energy input."
 too_low = "Error: Energy too low."
 too_high = "Error: Energy too high."
-errors = [non_number, too_low, too_high]
+errors = [no_selection, non_number, too_low, too_high]
 
 def edit_result(result, result_label, num="", den=""):
     # Clears result label and inserts new result
@@ -90,3 +91,18 @@ def get_width(choices):
     char_width = int(max_width_px / avg_char_width) + 2 # +2 for padding/margin
 
     return char_width
+
+def make_title_frame(root, title):
+    from App.style import Tooltip
+
+    title_frame = Frame(root, bg="#F2F2F2")
+    title_frame.pack()
+
+    title = ttk.Label(title_frame, text=title, style="Blue.TLabel")
+    title.pack(side="left", padx=2, pady=(20, 10))
+
+    info_icon = ttk.Label(title_frame, text="\u24D8", style="Blue.TLabel", cursor="hand2")
+    info_icon.pack(side="left", padx=2, pady=(20, 10))
+    Tooltip(info_icon, "Info")
+
+    return title_frame

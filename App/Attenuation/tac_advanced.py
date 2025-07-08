@@ -14,6 +14,8 @@ def tac_advanced(root, common_el, common_mat, element, material, custom_mat,
                  mac_den, d_den, lac_den, energy_unit):
     global advanced_list
 
+    title_frame = make_title_frame(root, "Photon Attenuation")
+
     # Gets common and non-common elements
     elements = get_choices("All Elements")
     common = get_choices("Common Elements")
@@ -29,7 +31,7 @@ def tac_advanced(root, common_el, common_mat, element, material, custom_mat,
 
     # Frame for add/remove settings
     a_r_frame = SectionFrame(root, title="Customize Categories")
-    a_r_frame.pack(padx=10, pady=10)
+    a_r_frame.pack()
     inner_a_r_frame = a_r_frame.get_inner_frame()
 
     # Horizontal frame for add/remove settings
@@ -172,7 +174,7 @@ def tac_advanced(root, common_el, common_mat, element, material, custom_mat,
             set_default()
 
     if mode != "Density":
-        interactions_frame.pack(padx=10, pady=10)
+        interactions_frame.pack()
 
         # Checkboxes for each interaction type
         interaction_checkbox(inner_interactions_frame, var0,
@@ -196,7 +198,7 @@ def tac_advanced(root, common_el, common_mat, element, material, custom_mat,
 
     # Frame for units
     unit_frame = SectionFrame(root, title="Select Units")
-    unit_frame.pack(padx=10, pady=10)
+    unit_frame.pack()
     inner_unit_frame = unit_frame.get_inner_frame()
 
     # Horizontal frame for unit settings
@@ -300,7 +302,8 @@ def tac_advanced(root, common_el, common_mat, element, material, custom_mat,
     exit_button.pack(pady=5)
 
     # Stores nodes into global list
-    advanced_list = [a_r_frame, a_r_button[0], empty_frame1,
+    advanced_list = [title_frame,
+                     a_r_frame, a_r_button[0], empty_frame1,
                      interactions_frame, empty_frame2,
                      unit_frame, empty_frame3,
                      bottom_frame, exit_button]
@@ -309,8 +312,7 @@ def make_vertical_frame(root, top_frame, action, category,
                         non_common, common, non_common_m, common_m, custom,
                         common_el, common_mat, element, material, custom_mat,
                         selection, mode, interactions, mac_num, d_num, lac_num, mac_den,
-                        d_den, lac_den, energy_unit, button
-                        ):
+                        d_den, lac_den, energy_unit, button):
     button[0].destroy()
     vertical_frame = Frame(top_frame, bg="#F2F2F2")
     vertical_frame.pack()

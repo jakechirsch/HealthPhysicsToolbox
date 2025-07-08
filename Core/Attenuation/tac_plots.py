@@ -4,27 +4,63 @@ import pandas as pd
 from Core.Attenuation.tac_calculations import *
 from tkinter.filedialog import asksaveasfilename
 
-def plot_data(root, element, selection, mode, interactions, num, den,
-              energy_unit, choice, save, error_label):
+#####################################################################################
+# EXPORT SECTION
+#####################################################################################
+
+"""
+This function is called when the export button is hit.
+The function handles the following errors:
+   No selected item
+   No interactions selected
+If neither error is applicable, a dataframe is set up
+with a column for energy as well as a column for each of
+the selected interactions.
+If we are working with an element, we copy these columns
+from the raw data, converting the energy column to the
+desired energy unit. Otherwise, we pass on the work of
+filling out the dataframe to the make_df_for_material function.
+Once the dataframe is filled out, we convert the interaction
+columns to the desired unit. If L.A.C. is the selected
+calculation mode, we also need to multiply the interaction
+columns by the item's density.
+Then, if the select export type is plot, we call
+configure_plot.
+Finally, if the file is meant to be saved, we pass on the
+work to the save_file function. Otherwise, we show the plot.
+"""
+def export_data(root, element, selection, mode, interactions, num, den,
+                energy_unit, choice, save, error_label):
     root.focus()
+
+    # Error-check for no selected item
     if element == "":
-        error_label.config(style="Error.TLabel", text="Error: No element or material selected.")
+        error_label.config(style="Error.TLabel", text=no_selection)
         return
+
+    # Error-check for no interactions selected
     if len(interactions) == 0:
         error_label.config(style="Error.TLabel", text="Error: No interactions selected.")
         return
+
     error_label.config(style="Error.TLabel", text="")
+
+    # Sets up columns for dataframe
     energy_col = "Photon Energy (" + energy_unit + ")"
     cols = [energy_col]
     for interaction in interactions:
         cols.append(interaction)
+
     df = pd.DataFrame(columns=cols)
     if selection in element_choices:
         # Load the CSV file
         db_path = resource_path('Data/Modules/Mass Attenuation/Elements/' + element + '.csv')
         df2 = pd.read_csv(db_path)
+
+        # Converts energy column to desired energy unit
         df[energy_col] = df2["Photon Energy"]
         df[energy_col] /= energy_units[energy_unit]
+
         for interaction in interactions:
             df[interaction] = df2[interaction]
     elif selection in material_choices:
@@ -42,45 +78,73 @@ def plot_data(root, element, selection, mode, interactions, num, den,
 
         make_df_for_material(csv_file_like, df, element, selection, interactions)
 
-    for interaction in interactions:
-        if mode == "Mass Attenuation Coefficient":
+    # Convert to desired unit
+    if mode == "Mass Attenuation Coefficient":
+        for interaction in interactions:
             df[interaction] *= mac_numerator[num]
             df[interaction] /= mac_denominator[den]
-        else:
-            df[interaction] *= find_density(selection, element, "Mass Attenuation")
+    else:
+        density = find_density(selection, element, "Mass Attenuation")
+        for interaction in interactions:
+            df[interaction] *= density
             df[interaction] *= lac_numerator[num]
             df[interaction] /= lac_denominator[den]
 
+    unit = " (" + num + "/" + den + ")"
+
+    if choice == "Plot":
+        configure_plot(interactions, df, energy_col, unit, element, mode)
+        if save == 1:
+            save_file(plt, choice, error_label, element)
+        else:
+            plt.show()
+            error_label.config(style="Success.TLabel", text=choice + " exported!")
+    else:
+        for interaction in interactions:
+            df.rename(columns={interaction: interaction+unit}, inplace=True)
+        save_file(df, choice, error_label, element)
+
+#####################################################################################
+# PLOT SECTION
+#####################################################################################
+
+"""
+This function configures the plot that is being exported
+using the dataframe and other information.
+First, the plot is cleared from any previous exports.
+Then, we plot each interaction column against the data column.
+The title, legend, and axis titles are all configured
+and the axis scales are set to logarithmic.
+"""
+def configure_plot(interactions, df, energy_col, unit, element, mode):
     # Clear from past plots
     plt.clf()
 
     # Plot the data
     for interaction in interactions:
         plt.plot(df[energy_col], df[interaction], marker='o', label=interaction)
-    unit = " (" + num + "/" + den + ")"
-    title = element + " - " + mode + unit
-    plt.title(title, fontsize=8.5)
+    plt.title(element + " - " + mode + unit, fontsize=8.5)
     plt.xscale('log')
     plt.yscale('log')
     plt.legend()
     plt.xlabel(energy_col)
-    y_label = mode + " (" + num + "/" + den + ")"
-    plt.ylabel(y_label)
+    plt.ylabel(mode + unit)
     plt.grid(True)
     plt.xticks(rotation=45)
     plt.tight_layout()
 
-    if save == 1:
-        if choice == "Plot":
-            save_file(plt, choice, error_label, element)
-        else:
-            for interaction in interactions:
-                df.rename(columns={interaction: interaction+unit}, inplace=True)
-            save_file(df, choice, error_label, element)
-    else:
-        plt.show()
-        error_label.config(style="Success.TLabel", text=choice + " exported!")
+#####################################################################################
+# SAVING SECTION
+#####################################################################################
 
+"""
+This function is called when the exported file is
+going to be saved. It prompts the user to select
+a file name and location, and handles the error of
+the user canceling the export. If the export is not
+canceled, the file is saved with the selected name
+and location and then opened.
+"""
 def save_file(obj, choice, error_label, element):
     file_format = ".csv"
     if choice == "Plot":
@@ -105,6 +169,22 @@ def save_file(obj, choice, error_label, element):
     else:
         error_label.config(style="Error.TLabel", text="Export canceled.")
 
+#####################################################################################
+# DATA SECTION
+#####################################################################################
+
+"""
+This function fills out the dataframe when we are
+exporting data for a material. First, we retrieve
+the energy values for the dataframe by taking the values
+from the raw data of the first element and then removing
+any values that are out of range for any of the remaining
+elements. Then, for each energy value, we get the M.A.C. values
+for the rest of the row by calling the find_mac function
+with each interaction. If L.A.C. is the selected calculation mode,
+the export_data function will handle the conversion by multiplying
+these rows by the density.
+"""
 def make_df_for_material(file_like, df, element, selection, interactions):
     # Reads in file
     reader = csv.DictReader(file_like)
@@ -140,6 +220,6 @@ def make_df_for_material(file_like, df, element, selection, interactions):
         for index, val in enumerate(vals):
             row = [val]
             for interaction in interactions:
-                x = find_tac(selection, interaction, element, val)
+                x = find_mac(selection, interaction, element, val)
                 row.append(x)
             df.loc[index] = row

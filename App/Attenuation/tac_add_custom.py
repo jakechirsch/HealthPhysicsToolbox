@@ -12,8 +12,10 @@ def custom_menu(root, common_el, common_mat, element, material, custom_mat,
                 d_den, lac_den, energy_unit):
     global custom_list
 
+    title_frame = make_title_frame(root, "Photon Attenuation")
+
     material_frame = SectionFrame(root, title="Enter Material Name")
-    material_frame.pack(padx=10, pady=10)
+    material_frame.pack()
     inner_material_frame = material_frame.get_inner_frame()
 
     entry = make_line(inner_material_frame, "Material Name:", 27)
@@ -22,7 +24,7 @@ def custom_menu(root, common_el, common_mat, element, material, custom_mat,
     empty_frame1 = make_spacer(root)
 
     density_frame = SectionFrame(root, title="Enter Density")
-    density_frame.pack(padx=10, pady=10)
+    density_frame.pack()
     inner_density_frame = density_frame.get_inner_frame()
 
     entry2 = make_line(inner_density_frame, f"Density ({d_num}/{d_den}):", 24)
@@ -31,7 +33,7 @@ def custom_menu(root, common_el, common_mat, element, material, custom_mat,
     empty_frame2 = make_spacer(root)
 
     weights_frame = SectionFrame(root, title="Enter Element Weights")
-    weights_frame.pack(padx=10, pady=10)
+    weights_frame.pack()
     inner_weights_frame = weights_frame.get_inner_frame()
 
     ex_frame = Frame(inner_weights_frame, bg="#F2F2F2")
@@ -58,7 +60,7 @@ def custom_menu(root, common_el, common_mat, element, material, custom_mat,
         root.focus()
 
     options_frame = SectionFrame(root, title="Custom Materials Options")
-    options_frame.pack(padx=10, pady=10)
+    options_frame.pack()
     inner_options_frame = options_frame.get_inner_frame()
 
     # Variable to hold normalize option
@@ -92,7 +94,8 @@ def custom_menu(root, common_el, common_mat, element, material, custom_mat,
     exit_button.pack(pady=5)
 
     # Stores nodes into global list
-    custom_list = [material_frame, empty_frame1,
+    custom_list = [title_frame,
+                   material_frame, empty_frame1,
                    density_frame, empty_frame2,
                    weights_frame, empty_frame3,
                    options_frame, exit_button]

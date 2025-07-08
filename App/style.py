@@ -1,6 +1,9 @@
 ##### IMPORTS #####
 import tkinter as tk
+import tkinter.font as tk_font
 from tkinter import ttk, Frame
+from Utility.Functions.gui_utility import get_max_string_pixel_width
+from App.Attenuation.tac_choices import get_choices
 
 def configure_style():
     # Configure the style
@@ -28,16 +31,18 @@ def configure_style():
                     foreground="black")
     style.configure("Home.TLabel",
                     background="#F2F2F2",
-                    foreground="#00274C")
+                    foreground="#00274C",
+                    font=("Verdana", 16))
     style.configure("Error.TLabel",
                     background="#F2F2F2",
                     foreground="red")
     style.configure("Success.TLabel",
                     background="#F2F2F2",
                     foreground="black")
-    style.configure("Maize.TLabel",
-                    background="#00274C",
-                    foreground="#FFCB05")
+    style.configure("Blue.TLabel",
+                    background="#F2F2F2",
+                    foreground="#00274C",
+                    font=("Verdana", 20, "bold"))
 
 class SectionFrame(tk.Frame):
     def __init__(self, parent, title="", *args, **kwargs):
@@ -51,14 +56,21 @@ class SectionFrame(tk.Frame):
 
         # Inner frame (blends with background)
         self.inner_frame = tk.Frame(self.border_frame, bg=bg_color)
-        self.inner_frame.pack(padx=4, pady=(22, 4))
+        self.inner_frame.pack(padx=4, pady=(24, 4))
 
         # Empty frame to set a consistent width for each section
         width_frame = Frame(self.inner_frame, bg="#F2F2F2")
-        width_frame.pack(padx=200)
+        custom = get_choices("Custom Materials")
+        mats = get_choices("All Materials")
+        custom_width = get_max_string_pixel_width(custom,
+                       tk_font.nametofont("TkDefaultFont")) // 2 + 20
+        mats_width = get_max_string_pixel_width(mats,
+                     tk_font.nametofont("TkDefaultFont")) // 2 + 20
+        padding = max(200, custom_width, mats_width)
+        width_frame.pack(padx=padding)
 
         # Title bar
-        self.title_bar = tk.Frame(self.border_frame, bg="#00274C", height=22)
+        self.title_bar = tk.Frame(self.border_frame, bg="#00274C", height=24)
         self.title_bar.place(x=0, y=0, relwidth=1)
 
         self.title_label = ttk.Label(
@@ -77,3 +89,31 @@ class SectionFrame(tk.Frame):
         )
         self.title_label.pack()
         self.title_label.place(relx=0.5, rely=0.5, anchor="center")
+
+class Tooltip:
+    def __init__(self, widget, text):
+        self.widget = widget
+        self.text = text
+        self.tooltip_window = None
+        widget.bind("<Enter>", self.show_tooltip)
+        widget.bind("<Leave>", self.hide_tooltip)
+
+    def show_tooltip(self, _):
+        if self.tooltip_window or not self.text:
+            return
+        x = self.widget.winfo_rootx() + 20
+        y = self.widget.winfo_rooty() + 20
+        self.tooltip_window = tw = tk.Toplevel(self.widget)
+        tw.wm_overrideredirect(True)
+        tw.wm_geometry(f"+{x}+{y}")
+        label = ttk.Label(
+            tw, text=self.text, justify='left', style="Blue.TLabel",
+            relief='solid', borderwidth=1,
+            font=("Verdana", 12, "normal")
+        )
+        label.pack(ipadx=1)
+
+    def hide_tooltip(self, _):
+        if self.tooltip_window:
+            self.tooltip_window.destroy()
+            self.tooltip_window = None

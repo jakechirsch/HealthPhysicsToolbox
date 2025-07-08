@@ -11,9 +11,11 @@ def export_menu(root, common_el, common_mat, element, material, custom_mat,
                 mac_den, d_den, lac_den, energy_unit):
     global export_list
 
+    title_frame = make_title_frame(root, "Photon Attenuation")
+
     # Frame for interactions
     interactions_frame = SectionFrame(root, title="Select Interaction Types")
-    interactions_frame.pack(padx=10, pady=10)
+    interactions_frame.pack()
     inner_interactions_frame = interactions_frame.get_inner_frame()
     inner_interactions_frame.config(pady=10)
 
@@ -57,7 +59,7 @@ def export_menu(root, common_el, common_mat, element, material, custom_mat,
 
     # Frame for options
     options_frame = SectionFrame(root, title="Export Options")
-    options_frame.pack(padx=10, pady=10)
+    options_frame.pack()
     inner_options_frame = options_frame.get_inner_frame()
 
     save = ttk.Checkbutton(inner_options_frame, text="Save File", variable=var_save,
@@ -94,18 +96,18 @@ def export_menu(root, common_el, common_mat, element, material, custom_mat,
     export_button = ttk.Button(inner_options_frame, text="Export", style="Maize.TButton",
                                padding=(0,0),
                                command=lambda:
-                               plot_data(root,
-                                         common_el if selection == "Common Elements" else
-                                         common_mat if selection == "Common Materials" else
-                                         element if selection == "All Elements" else
-                                         material if selection == "All Materials" else
-                                         custom_mat if selection == "Custom Materials"
-                                         else "", selection, mode,
-                                         get_interactions(var0, var1, var2, var3, var4, var5, var6),
-                                         get_unit(mac_num, d_num, lac_num, mode),
-                                         get_unit(mac_den, d_den, lac_den, mode),
-                                         energy_unit, export_dropdown.get(),
-                                         var_save.get(), error_label))
+                               export_data(root,
+                                           common_el if selection == "Common Elements" else
+                                           common_mat if selection == "Common Materials" else
+                                           element if selection == "All Elements" else
+                                           material if selection == "All Materials" else
+                                           custom_mat if selection == "Custom Materials"
+                                           else "", selection, mode,
+                               get_interactions(var0, var1, var2, var3, var4, var5, var6),
+                               get_unit(mac_num, d_num, lac_num, mode),
+                               get_unit(mac_den, d_den, lac_den, mode),
+                                           energy_unit, export_dropdown.get(),
+                                           var_save.get(), error_label))
     export_button.config(width=get_width(["Export"]))
     export_button.pack(pady=(10,5))
 
@@ -119,11 +121,13 @@ def export_menu(root, common_el, common_mat, element, material, custom_mat,
                                                            element, material, custom_mat,
                                                            selection, mode, interactions,
                                                            mac_num, d_num, lac_num,
-                                                           mac_den, d_den, lac_den, energy_unit))
+                                                           mac_den, d_den, lac_den,
+                                                           energy_unit))
     exit_button.config(width=get_width(["Back"]))
     exit_button.pack(pady=5)
 
-    export_list = [interactions_frame, empty_frame1,
+    export_list = [title_frame,
+                   interactions_frame, empty_frame1,
                    options_frame, exit_button]
 
 def get_interactions(var0, var1, var2, var3, var4, var5, var6):

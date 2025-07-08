@@ -4,7 +4,7 @@ from ttkwidgets.autocomplete import AutocompleteCombobox
 from App.Attenuation.tac_choices import *
 from App.Attenuation.tac_unit_settings import *
 from Core.Attenuation.tac_calculations import handle_calculation
-from Utility.Functions.gui_utility import make_spacer, get_width
+from Utility.Functions.gui_utility import make_spacer, get_width, make_title_frame
 from App.style import SectionFrame
 
 # For global access to nodes on T.A.C. screen
@@ -22,6 +22,8 @@ def total_attenuation_coefficient(root, selection_start="Common Elements",
 
     if interactions is None or not interactions:
         interactions = ["Total Attenuation with Coherent Scattering"]
+
+    title_frame = make_title_frame(root, "Photon Attenuation")
 
     # Frame for result
     result_frame = SectionFrame(root, title=mode_start)
@@ -54,7 +56,7 @@ def total_attenuation_coefficient(root, selection_start="Common Elements",
 
     # Frame for mode input
     mode_frame = SectionFrame(root, title="Select Calculation Mode")
-    mode_frame.pack(padx=10, pady=10)
+    mode_frame.pack()
     inner_mode_frame = mode_frame.get_inner_frame()
 
     # Frame for energy input
@@ -88,12 +90,12 @@ def total_attenuation_coefficient(root, selection_start="Common Elements",
             result_label.pack_forget()
             advanced_button.pack_forget()
             exit_button.pack_forget()
-            energy_frame.pack(padx=10, pady=10)
+            energy_frame.pack()
             energy_label.pack(pady=(10,1))
             energy_entry.pack(pady=(1,10))
             empty_frame3 = make_spacer(root)
             screen_list.append(empty_frame3)
-            result_frame.pack(padx=10, pady=10)
+            result_frame.pack()
             calc_button.pack(pady=(15,5))
             result.pack(pady=(5,1))
             result_label.pack(pady=(1,10))
@@ -133,7 +135,7 @@ def total_attenuation_coefficient(root, selection_start="Common Elements",
 
     # Frame for type selection and element/material
     main_frame = SectionFrame(root, title="Select Interacting Medium")
-    main_frame.pack(padx=10, pady=10)
+    main_frame.pack()
     inner_main_frame = main_frame.get_inner_frame()
 
     def select_selection(event):
@@ -225,12 +227,12 @@ def total_attenuation_coefficient(root, selection_start="Common Elements",
 
     # Energy input is not necessary if mode is density
     if var_mode.get() != "Density":
-        energy_frame.pack(padx=10, pady=10)
+        energy_frame.pack()
         energy_label.pack(pady=(10,1))
         energy_entry.pack(pady=(1,10))
         empty_frame3 = make_spacer(root)
 
-    result_frame.pack(padx=10, pady=10)
+    result_frame.pack()
 
     # Creates calculate button
     calc_button = ttk.Button(inner_result_frame, text="Calculate",
@@ -269,7 +271,8 @@ def total_attenuation_coefficient(root, selection_start="Common Elements",
     exit_button.pack(pady=5)
 
     # Stores nodes into global list
-    screen_list = [mode_frame, empty_frame1,
+    screen_list = [title_frame,
+                   mode_frame, empty_frame1,
                    main_frame, empty_frame2,
                    energy_frame, empty_frame3,
                    result_frame, advanced_button, exit_button]

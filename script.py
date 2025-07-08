@@ -13,7 +13,7 @@ set_mpl_cache_dir()
 ##### WINDOW SETUP #####
 root = tk.Tk()
 root.title("Health Physics Toolbox")
-root.geometry("625x740")
+root.geometry("625x750")
 root.configure(bg="#F2F2F2")
 
 # Configures style of app
@@ -22,6 +22,10 @@ configure_style()
 # Wraps whole app in a container for vertical alignment
 container = tk.Frame(root, bg="#F2F2F2")
 container.pack(fill="both", expand=True)
+
+#####################################################################################
+# SCROLLING SECTION
+#####################################################################################
 
 # Creates canvas
 left_frame = tk.Canvas(container, bg="#F2F2F2", highlightthickness=0, bd=0)
@@ -44,7 +48,7 @@ canvas.configure(xscrollcommand=scrollbar_x.set, yscrollcommand=scrollbar_y.set)
 scrollable_frame = tk.Frame(canvas, bg="#F2F2F2")
 canvas_window = canvas.create_window((0, 0), window=scrollable_frame, anchor="nw")
 
-# --- Logic to show/hide scrollbar ---
+# Logic to show/hide scrollbar
 def update_scroll_visibility(event):
     global scrollbar_y_visible, scrollbar_x_visible
     canvas.configure(scrollregion=canvas.bbox("all"))
@@ -104,6 +108,8 @@ root.bind_all("<KeyPress-Up>", on_up)
 root.bind_all("<KeyPress-Down>", on_down)
 root.bind_all("<KeyPress-Left>", on_left)
 root.bind_all("<KeyPress-Right>", on_right)
+
+#####################################################################################
 
 # Creates home screen upon launch
 return_home(scrollable_frame)

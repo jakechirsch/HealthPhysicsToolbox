@@ -16,8 +16,7 @@ def clear_home():
 def return_home(root):
     global home_list
 
-    title = ttk.Label(root, text="Health Physics Toolbox", font=("Verdana", 16),
-                      style="Home.TLabel")
+    title = ttk.Label(root, text="Health Physics Toolbox", style="Home.TLabel")
     title.pack(pady=5)
 
     # Creates buttons for home screen

@@ -16,7 +16,11 @@ def configure_style():
                     background="#FFCB05",
                     foreground="black")
     style.map("Maize.TCombobox",
+              fieldbackground=[('readonly', "white"), ('!readonly', "white")])
+    style.map("Maize.TCombobox",
               background=[('readonly', "#FFCB05"), ('!readonly', "#FFCB05")])
+    style.map("Maize.TCombobox",
+              foreground=[('readonly', "black"), ('!readonly', "black")])
     style.configure("Maize.TCheckbutton",
                     background="#F2F2F2",
                     foreground="#00274C")
@@ -64,15 +68,16 @@ class SectionFrame(tk.Frame):
         self.inner_frame.pack(padx=4, pady=(title_height, 4))
 
         # Empty frame to set a consistent width for each section
-        width_frame = Frame(self.inner_frame, bg="#F2F2F2")
         custom = get_choices("Custom Materials")
         mats = get_choices("All Materials")
-        custom_width = get_max_string_pixel_width(custom,
-                       tk_font.nametofont("TkDefaultFont")) // 2 + 20
-        mats_width = get_max_string_pixel_width(mats,
-                     tk_font.nametofont("TkDefaultFont")) // 2 + 20
-        padding = max(200, custom_width, mats_width)
-        width_frame.pack(padx=padding)
+        custom_width = (get_max_string_pixel_width(custom,
+                        tk_font.nametofont("TkDefaultFont")) // 2 + 20) * 2
+        mats_width = (get_max_string_pixel_width(mats,
+                      tk_font.nametofont("TkDefaultFont")) // 2 + 20) * 2
+        width = max(400, custom_width, mats_width)
+        width_frame = Frame(self.inner_frame, bg="#F2F2F2", width=width)
+        width_frame.pack()
+        width_frame.pack_propagate(False)
 
         # Title bar
         self.title_bar = tk.Frame(self.border_frame, bg="#00274C", height=title_height)

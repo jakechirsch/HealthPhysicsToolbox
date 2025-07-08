@@ -2,9 +2,17 @@
 import tkinter as tk
 from tkinter import ttk
 
+# Global variables indicating the visibility of the scrollbars
 scrollbar_y_visible = True
 scrollbar_x_visible = True
 
+"""
+This function calls the single-purpose functions
+to complete all of the scrolling configurations.
+It is called by script.py.
+The scrollable frame is returned to be filled with
+the contents of the app.
+"""
 def configure_scrolling(root):
     container = make_container(root)
     left_frame = make_left_frame(container)

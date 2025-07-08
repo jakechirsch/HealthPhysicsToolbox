@@ -1,7 +1,7 @@
 ##### IMPORTS #####
 from App.Attenuation.tac_choices import *
 from Core.Attenuation.tac_calculations import *
-from tkinter import ttk
+from tkinter import ttk, font
 from App.style import SectionFrame
 
 # For global access to nodes on custom screen
@@ -14,11 +14,13 @@ def custom_menu(root, common_el, common_mat, element, material, custom_mat,
 
     title_frame = make_title_frame(root, "Photon Attenuation")
 
+    monospace_font = font.Font(family="Menlo", size=12)
+
     material_frame = SectionFrame(root, title="Enter Material Name")
     material_frame.pack()
     inner_material_frame = material_frame.get_inner_frame()
 
-    entry = make_line(inner_material_frame, "Material Name:", 27)
+    entry = make_line(inner_material_frame, "Material Name:", 12)
 
     # Spacer
     empty_frame1 = make_spacer(root)
@@ -27,7 +29,7 @@ def custom_menu(root, common_el, common_mat, element, material, custom_mat,
     density_frame.pack()
     inner_density_frame = density_frame.get_inner_frame()
 
-    entry2 = make_line(inner_density_frame, f"Density ({d_num}/{d_den}):", 24)
+    entry2 = make_line(inner_density_frame, f"Density ({d_num}/{d_den}):", 9)
 
     # Spacer
     empty_frame2 = make_spacer(root)
@@ -42,7 +44,7 @@ def custom_menu(root, common_el, common_mat, element, material, custom_mat,
     label = ttk.Label(ex_frame, text="Element Weights:", style="Black.TLabel")
     entry3 = Text(inner_weights_frame, width=20, height=10, bg='white', fg='black',
                   insertbackground="black", borderwidth=3, bd=3,
-                  highlightthickness=0, relief='solid')
+                  highlightthickness=0, relief='solid', font=monospace_font)
     label.pack()
     entry3.pack(side="left", padx=33, pady=10)
 
@@ -101,12 +103,14 @@ def custom_menu(root, common_el, common_mat, element, material, custom_mat,
                    options_frame, exit_button]
 
 def make_line(frame, text, pad):
+    monospace_font = font.Font(family="Menlo", size=12)
     label = ttk.Label(frame, text=text, style="Black.TLabel")
-    entry = Entry(frame, width=20, insertbackground="black",
+    entry = Entry(frame, width=32, insertbackground="black",
                   background="white", foreground="black",
-                  borderwidth=3, bd=3, highlightthickness=0, relief='solid')
-    label.pack(side="left", padx=(24, pad))
-    entry.pack(side="left", padx=(pad+1, 24), pady=20)
+                  borderwidth=3, bd=3, highlightthickness=0, relief='solid',
+                  font=monospace_font)
+    label.pack(side="left", padx=(20, pad))
+    entry.pack(side="left", padx=(pad, 2), pady=20)
     return entry
 
 def add_custom(root, name_box, density_box, weights_box, error_label, normalize,

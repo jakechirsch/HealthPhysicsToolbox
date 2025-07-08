@@ -1,5 +1,6 @@
 ##### IMPORTS #####
 from tkinter import *
+from tkinter import font
 from ttkwidgets.autocomplete import AutocompleteCombobox
 from App.Attenuation.tac_choices import *
 from App.Attenuation.tac_unit_settings import *
@@ -25,6 +26,8 @@ def total_attenuation_coefficient(root, selection_start="Common Elements",
 
     title_frame = make_title_frame(root, "Photon Attenuation")
 
+    monospace_font = font.Font(family="Menlo", size=12)
+
     # Frame for result
     result_frame = SectionFrame(root, title=mode_start)
     inner_result_frame = result_frame.get_inner_frame()
@@ -34,7 +37,8 @@ def total_attenuation_coefficient(root, selection_start="Common Elements",
                        style="Black.TLabel")
     result_label = Text(inner_result_frame, height=1, borderwidth=3, bd=3,
                         highlightthickness=0, relief='solid')
-    result_label.config(bg='white', fg='black', state="disabled", width=32)
+    result_label.config(bg='white', fg='black', state="disabled", width=32,
+                        font=monospace_font)
 
     choices = get_choices(selection_start)
 
@@ -65,9 +69,9 @@ def total_attenuation_coefficient(root, selection_start="Common Elements",
 
     energy_label = ttk.Label(inner_energy_frame, text="Photon Energy (" + energy_unit + "):",
                              style="Black.TLabel")
-    energy_entry = Entry(inner_energy_frame, width=25, insertbackground="black",
+    energy_entry = Entry(inner_energy_frame, width=32, insertbackground="black",
                          background="white", foreground="black", borderwidth=3, bd=3,
-                         highlightthickness=0, relief='solid')
+                         highlightthickness=0, relief='solid', font=monospace_font)
 
     def select_mode(event):
         nonlocal energy_label, energy_entry, energy_frame
@@ -105,6 +109,12 @@ def total_attenuation_coefficient(root, selection_start="Common Elements",
 
         mode = var_mode.get()
         result_frame.change_title(mode)
+
+        # Clear result label
+        result_label.config(state="normal")
+        result_label.delete("1.0", END)
+        result_label.config(state="disabled")
+
         root.focus()
 
     # Creates dropdown menu for mode
@@ -302,7 +312,7 @@ def clear_screen():
 
 def exit_to_home(root):
     root.focus()
-    from App.app import return_home
+    from App.home import return_home
     clear_screen()
     return_home(root)
 

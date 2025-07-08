@@ -54,9 +54,14 @@ class SectionFrame(tk.Frame):
         self.border_frame = tk.Frame(self, bg="#00274C")
         self.border_frame.pack(padx=1, pady=10)
 
+        # Sets the height of the title bar
+        font = tk_font.Font(family="Verdana", size=16)
+        font_height = font.metrics("linespace")
+        title_height = max(24, font_height + 5)
+
         # Inner frame (blends with background)
         self.inner_frame = tk.Frame(self.border_frame, bg=bg_color)
-        self.inner_frame.pack(padx=4, pady=(24, 4))
+        self.inner_frame.pack(padx=4, pady=(title_height, 4))
 
         # Empty frame to set a consistent width for each section
         width_frame = Frame(self.inner_frame, bg="#F2F2F2")
@@ -70,7 +75,7 @@ class SectionFrame(tk.Frame):
         width_frame.pack(padx=padding)
 
         # Title bar
-        self.title_bar = tk.Frame(self.border_frame, bg="#00274C", height=24)
+        self.title_bar = tk.Frame(self.border_frame, bg="#00274C", height=title_height)
         self.title_bar.place(x=0, y=0, relwidth=1)
 
         self.title_label = ttk.Label(

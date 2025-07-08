@@ -95,14 +95,14 @@ def total_attenuation_coefficient(root, selection_start="Common Elements",
             advanced_button.pack_forget()
             exit_button.pack_forget()
             energy_frame.pack()
-            energy_label.pack(pady=(10,1))
-            energy_entry.pack(pady=(1,10))
+            energy_label.pack(pady=(15,1))
+            energy_entry.pack(pady=(1,20))
             empty_frame3 = make_spacer(root)
             screen_list.append(empty_frame3)
             result_frame.pack()
-            calc_button.pack(pady=(15,5))
+            calc_button.pack(pady=(20,5))
             result.pack(pady=(5,1))
-            result_label.pack(pady=(1,10))
+            result_label.pack(pady=(1,20))
             advanced_button.pack(pady=5)
             exit_button.pack(pady=5)
             screen_list.append(energy_frame)
@@ -238,8 +238,8 @@ def total_attenuation_coefficient(root, selection_start="Common Elements",
     # Energy input is not necessary if mode is density
     if var_mode.get() != "Density":
         energy_frame.pack()
-        energy_label.pack(pady=(10,1))
-        energy_entry.pack(pady=(1,10))
+        energy_label.pack(pady=(15,1))
+        energy_entry.pack(pady=(1,20))
         empty_frame3 = make_spacer(root)
 
     result_frame.pack()
@@ -255,10 +255,10 @@ def total_attenuation_coefficient(root, selection_start="Common Elements",
                                       get_unit(mac_den, d_den, lac_den, var_mode.get()),
                                                         energy_unit))
     calc_button.config(width=get_width(["Calculate"]))
-    calc_button.pack(pady=(15,5))
+    calc_button.pack(pady=(20,5))
 
     result.pack(pady=(5,1))
-    result_label.pack(pady=(1,10))
+    result_label.pack(pady=(1,20))
 
     # Creates an advanced settings button
     advanced_button = ttk.Button(root, text="Advanced Settings",

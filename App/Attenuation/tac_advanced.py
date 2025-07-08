@@ -36,7 +36,7 @@ def tac_advanced(root, common_el, common_mat, element, material, custom_mat,
 
     # Horizontal frame for add/remove settings
     side_frame = Frame(inner_a_r_frame, bg="#F2F2F2")
-    side_frame.pack(pady=5)
+    side_frame.pack(pady=(15,5))
 
     a_r_button = [ttk.Button()]
 
@@ -315,7 +315,7 @@ def make_vertical_frame(root, top_frame, action, category,
                         d_den, lac_den, energy_unit, button):
     button[0].destroy()
     vertical_frame = Frame(top_frame, bg="#F2F2F2")
-    vertical_frame.pack()
+    vertical_frame.pack(pady=(5,20))
 
     if category != "Custom Materials" or action != "Add":
         item_label = ttk.Label(vertical_frame, text="Item:",
@@ -348,8 +348,8 @@ def make_vertical_frame(root, top_frame, action, category,
 
     if action == "Add" and category == "Custom Materials":
         # Creates button
-        button[0] = ttk.Button(top_frame, text="Add Custom Materials", style="Maize.TButton",
-                               padding=(0,0),
+        button[0] = ttk.Button(vertical_frame, text="Add Custom Materials",
+                               style="Maize.TButton", padding=(0,0),
                                command=lambda: to_custom_menu(root, common_el=common_el,
                                                               common_mat=common_mat,
                                                               element=element,
@@ -362,7 +362,7 @@ def make_vertical_frame(root, top_frame, action, category,
                                                               d_den=d_den, lac_den=lac_den,
                                                               energy_unit=energy_unit))
         button[0].config(width=get_width(["Add Custom Materials"]))
-        button[0].pack(pady=5)
+        button[0].pack(pady=(10,0))
     else:
         def on_select(event):
             event.widget.selection_clear()
@@ -388,13 +388,13 @@ def make_vertical_frame(root, top_frame, action, category,
         # Creates button
         if action == "Remove" and category == "Custom Materials":
             inverse = [var.get()]
-        button[0] = ttk.Button(top_frame, text=action, style="Maize.TButton",
-                               padding=(0,0),
+        button[0] = ttk.Button(vertical_frame, text=action,
+                               style="Maize.TButton", padding=(0,0),
                                command=lambda: do_action(root, action, category,
                                                          choices, inverse, var,
                                                          dropdown))
         button[0].config(width=get_width([action]))
-        button[0].pack(pady=5)
+        button[0].pack(pady=(10,0))
 
     return vertical_frame
 

@@ -46,7 +46,7 @@ def custom_menu(root, common_el, common_mat, element, material, custom_mat,
                   insertbackground="black", borderwidth=3, bd=3,
                   highlightthickness=0, relief='solid', font=monospace_font)
     label.pack()
-    entry3.pack(side="left", padx=33, pady=10)
+    entry3.pack(side="left", padx=33, pady=20)
 
     example_label(ex_frame, "")
     example_label(ex_frame, "Example:")

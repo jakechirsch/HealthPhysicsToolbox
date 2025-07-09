@@ -3,8 +3,16 @@ import tkinter as tk
 import tkinter.font as tk_font
 from tkinter import ttk, Frame
 from Utility.Functions.gui_utility import get_max_string_pixel_width
-from App.Attenuation.tac_choices import get_choices
+from App.Attenuation.Photons.photons_choices import get_choices
 
+#####################################################################################
+# COLORS SECTION
+#####################################################################################
+
+"""
+This function configures all of the colors and fonts
+for the app's widgets.
+"""
 def configure_style():
     # Configure the style
     style = ttk.Style()
@@ -48,6 +56,14 @@ def configure_style():
                     foreground="#00274C",
                     font=("Verdana", 20, "bold"))
 
+#####################################################################################
+# SECTION BORDERS SECTION
+#####################################################################################
+
+"""
+This class represents a full section with a border, title bar, title,
+and inside frame for the section's contents.
+"""
 class SectionFrame(tk.Frame):
     def __init__(self, parent, title="", *args, **kwargs):
         # Transparent-style frame (inherits parent's bg)
@@ -75,7 +91,11 @@ class SectionFrame(tk.Frame):
         mats_width = (get_max_string_pixel_width(mats,
                       tk_font.nametofont("TkDefaultFont")) // 2 + 20) * 2
         width = max(400, custom_width, mats_width)
-        width_frame = Frame(self.inner_frame, bg="#F2F2F2", width=width)
+
+        dpi = parent.winfo_fpixels('1i') / 72
+        adjusted_width = int(width * dpi)
+
+        width_frame = Frame(self.inner_frame, bg="#F2F2F2", width=adjusted_width)
         width_frame.pack()
         width_frame.pack_propagate(False)
 
@@ -100,6 +120,14 @@ class SectionFrame(tk.Frame):
         self.title_label.pack()
         self.title_label.place(relx=0.5, rely=0.5, anchor="center")
 
+#####################################################################################
+# TOOLTIP SECTION
+#####################################################################################
+
+"""
+This class represents a tooltip for more information on
+a particular module.
+"""
 class Tooltip:
     def __init__(self, widget, text):
         self.widget = widget

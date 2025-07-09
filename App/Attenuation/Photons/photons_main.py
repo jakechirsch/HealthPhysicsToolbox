@@ -2,23 +2,23 @@
 from tkinter import *
 from tkinter import font
 from ttkwidgets.autocomplete import AutocompleteCombobox
-from App.Attenuation.tac_choices import *
-from App.Attenuation.tac_unit_settings import *
-from Core.Attenuation.tac_calculations import handle_calculation
+from App.Attenuation.Photons.photons_choices import *
+from App.Attenuation.Photons.photons_unit_settings import *
+from Core.Attenuation.Photons.photons_calculations import handle_calculation
 from Utility.Functions.gui_utility import make_spacer, get_width, make_title_frame
 from App.style import SectionFrame
 
 # For global access to nodes on T.A.C. screen
 screen_list = []
 
-def total_attenuation_coefficient(root, selection_start="Common Elements",
-                                  mode_start="Mass Attenuation Coefficient",
-                                  interactions=None, common_el="Ag",
-                                  common_mat="Air (dry, near sea level)", element="Ac",
-                                  material="A-150 Tissue-Equivalent Plastic (A150TEP)",
-                                  custom_mat="", mac_num="cm\u00B2", d_num="g", lac_num="1",
-                                  mac_den="g", d_den="cm\u00B3", lac_den="cm",
-                                  energy_unit="MeV"):
+def photons_main(root, selection_start="Common Elements",
+                 mode_start="Mass Attenuation Coefficient",
+                 interactions=None, common_el="Ag",
+                 common_mat="Air (dry, near sea level)", element="Ac",
+                 material="A-150 Tissue-Equivalent Plastic (A150TEP)",
+                 custom_mat="", mac_num="cm\u00B2", d_num="g", lac_num="1",
+                 mac_den="g", d_den="cm\u00B3", lac_den="cm",
+                 energy_unit="MeV"):
     global screen_list
 
     if interactions is None or not interactions:
@@ -293,15 +293,19 @@ def to_advanced(root, common_el, common_mat, element, material,
              mac_den, d_den, lac_den,
              energy_unit):
     root.focus()
-    from App.Attenuation.tac_advanced import tac_advanced
+    from App.Attenuation.Photons.photons_advanced import photons_advanced
 
     # Hides T.A.C. screen
     clear_screen()
-    tac_advanced(root, common_el, common_mat, element, material,
-                 custom_mat, selection, mode, interactions,
-                 mac_num, d_num, lac_num,
-                 mac_den, d_den, lac_den, energy_unit)
+    photons_advanced(root, common_el, common_mat, element, material,
+                     custom_mat, selection, mode, interactions,
+                     mac_num, d_num, lac_num,
+                     mac_den, d_den, lac_den, energy_unit)
 
+"""
+This function clears the photon attenuation main screen
+in preparation for opening a different screen.
+"""
 def clear_screen():
     global screen_list
 

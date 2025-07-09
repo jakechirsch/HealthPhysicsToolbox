@@ -1,17 +1,17 @@
 ##### IMPORTS #####
-from App.Attenuation.tac_add_remove_settings import *
-from App.Attenuation.tac_add_custom import *
-from App.Attenuation.tac_export_settings import *
-from Core.Attenuation.tac_plots import *
+from App.Attenuation.Photons.photons_add_remove_settings import *
+from App.Attenuation.Photons.photons_add_custom import *
+from App.Attenuation.Photons.photons_export_settings import *
+from Core.Attenuation.Photons.photons_plots import *
 from ttkwidgets.autocomplete import AutocompleteCombobox
 from App.style import SectionFrame
 
 # For global access to nodes on advanced screen
 advanced_list = []
 
-def tac_advanced(root, common_el, common_mat, element, material, custom_mat,
-                 selection, mode, interactions_start, mac_num, d_num, lac_num,
-                 mac_den, d_den, lac_den, energy_unit):
+def photons_advanced(root, common_el, common_mat, element, material, custom_mat,
+                     selection, mode, interactions_start, mac_num, d_num, lac_num,
+                     mac_den, d_den, lac_den, energy_unit):
     global advanced_list
 
     title_frame = make_title_frame(root, "Photon Attenuation")
@@ -287,17 +287,17 @@ def tac_advanced(root, common_el, common_mat, element, material, custom_mat,
     # Creates exit button to return to T.A.C. screen
     exit_button = ttk.Button(root, text="Back", style="Maize.TButton",
                              padding=(0,0),
-                             command=lambda: tac_back(root, pass_saved(common_el, common),
-                                                      pass_saved(common_mat, common_m),
-                                                      element, material,
-                                                      pass_saved(custom_mat, custom),
-                                                      selection, mode,
-                                                      [interaction_choices[x]
+                             command=lambda: to_main(root, pass_saved(common_el, common),
+                                                     pass_saved(common_mat, common_m),
+                                                     element, material,
+                                                     pass_saved(custom_mat, custom),
+                                                     selection, mode,
+                                                     [interaction_choices[x]
                                                        for x in range(len(interaction_choices))
                                                        if interaction_vars[x].get() == 1],
-                                                      num_units[0], num_units[1], num_units[2],
-                                                      den_units[0], den_units[1], den_units[2],
-                                                      energy_unit))
+                                                     num_units[0], num_units[1], num_units[2],
+                                                     den_units[0], den_units[1], den_units[2],
+                                                     energy_unit))
     exit_button.config(width=get_width(["Back"]))
     exit_button.pack(pady=5)
 
@@ -401,19 +401,23 @@ def make_vertical_frame(root, top_frame, action, category,
 def pass_saved(saved, choices):
     return saved if saved in choices else choices[0] if len(choices) > 0 else ""
 
-def tac_back(root, common_el, common_mat, element, material, custom_mat,
-             selection, mode, interactions, mac_num, d_num, lac_num,
-             mac_den, d_den, lac_den, energy_unit):
-    from App.Attenuation.tac_main import total_attenuation_coefficient
+def to_main(root, common_el, common_mat, element, material, custom_mat,
+            selection, mode, interactions, mac_num, d_num, lac_num,
+            mac_den, d_den, lac_den, energy_unit):
+    from App.Attenuation.Photons.photons_main import photons_main
 
     clear_advanced()
-    total_attenuation_coefficient(root, selection_start=selection, mode_start=mode,
-                                  interactions=interactions, common_el=common_el,
-                                  common_mat=common_mat, element=element, material=material,
-                                  custom_mat=custom_mat, mac_num=mac_num, d_num=d_num,
-                                  lac_num=lac_num, mac_den=mac_den, d_den=d_den,
-                                  lac_den=lac_den, energy_unit=energy_unit)
+    photons_main(root, selection_start=selection, mode_start=mode,
+                 interactions=interactions, common_el=common_el,
+                 common_mat=common_mat, element=element, material=material,
+                 custom_mat=custom_mat, mac_num=mac_num, d_num=d_num,
+                 lac_num=lac_num, mac_den=mac_den, d_den=d_den,
+                 lac_den=lac_den, energy_unit=energy_unit)
 
+"""
+This function clears the photon attenuation advanced screen
+in preparation for opening a different screen.
+"""
 def clear_advanced():
     global advanced_list
 
@@ -426,17 +430,17 @@ def to_custom_menu(root, common_el, common_mat, element, material, custom_mat,
                    selection, mode, interactions, mac_num, d_num, lac_num, mac_den,
                    d_den, lac_den, energy_unit):
     clear_advanced()
-    custom_menu(root, common_el, common_mat, element, material, custom_mat,
-                selection, mode, interactions, mac_num, d_num, lac_num, mac_den,
-                d_den, lac_den, energy_unit)
+    photons_add_custom(root, common_el, common_mat, element, material, custom_mat,
+                       selection, mode, interactions, mac_num, d_num, lac_num, mac_den,
+                       d_den, lac_den, energy_unit)
 
 def to_export_menu(root, common_el, common_mat, element, material, custom_mat,
                    selection, mode, interactions, mac_num, d_num, lac_num,
                    mac_den, d_den, lac_den, energy_unit):
     clear_advanced()
-    export_menu(root, common_el, common_mat, element, material, custom_mat,
-                selection, mode, interactions, mac_num, d_num, lac_num,
-                mac_den, d_den, lac_den, energy_unit)
+    photons_export(root, common_el, common_mat, element, material, custom_mat,
+                   selection, mode, interactions, mac_num, d_num, lac_num,
+                   mac_den, d_den, lac_den, energy_unit)
 
 def open_ref(root):
     root.focus()

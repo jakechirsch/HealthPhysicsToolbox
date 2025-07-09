@@ -1,7 +1,7 @@
 ##### IMPORTS #####
 import matplotlib.pyplot as plt
 import pandas as pd
-from Core.Attenuation.tac_calculations import *
+from Core.Attenuation.Photons.photons_calculations import *
 from tkinter.filedialog import asksaveasfilename
 
 #####################################################################################

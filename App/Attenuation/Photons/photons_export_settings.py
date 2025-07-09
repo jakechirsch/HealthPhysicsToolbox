@@ -1,14 +1,14 @@
 ##### IMPORTS #####
-from Core.Attenuation.tac_plots import *
-from App.Attenuation.tac_unit_settings import *
+from Core.Attenuation.Photons.photons_plots import *
+from App.Attenuation.Photons.photons_unit_settings import *
 from App.style import SectionFrame
 
 # For global access to nodes on export screen
 export_list = []
 
-def export_menu(root, common_el, common_mat, element, material, custom_mat,
-                selection, mode, interactions, mac_num, d_num, lac_num,
-                mac_den, d_den, lac_den, energy_unit):
+def photons_export(root, common_el, common_mat, element, material, custom_mat,
+                   selection, mode, interactions, mac_num, d_num, lac_num,
+                   mac_den, d_den, lac_den, energy_unit):
     global export_list
 
     title_frame = make_title_frame(root, "Photon Attenuation")
@@ -148,6 +148,10 @@ def get_interactions(var0, var1, var2, var3, var4, var5, var6):
         interactions.append("Photo-Electric Absorption")
     return interactions
 
+"""
+This function clears the photon attenuation export screen
+in preparation for opening a different screen.
+"""
 def clear_export():
     global export_list
 
@@ -159,12 +163,12 @@ def clear_export():
 def advanced_back(root, common_el, common_mat, element, material, custom_mat,
                   selection, mode, interactions, mac_num, d_num, lac_num,
                   mac_den, d_den, lac_den, energy_unit):
-    from App.Attenuation.tac_advanced import tac_advanced
+    from App.Attenuation.Photons.photons_advanced import photons_advanced
 
     clear_export()
-    tac_advanced(root, selection=selection, mode=mode,
-                 interactions_start=interactions, common_el=common_el,
-                 common_mat=common_mat, element=element, material=material,
-                 custom_mat=custom_mat, mac_num=mac_num, d_num=d_num,
-                 lac_num=lac_num, mac_den=mac_den, d_den=d_den,
-                 lac_den=lac_den, energy_unit=energy_unit)
+    photons_advanced(root, selection=selection, mode=mode,
+                     interactions_start=interactions, common_el=common_el,
+                     common_mat=common_mat, element=element, material=material,
+                     custom_mat=custom_mat, mac_num=mac_num, d_num=d_num,
+                     lac_num=lac_num, mac_den=mac_den, d_den=d_den,
+                     lac_den=lac_den, energy_unit=energy_unit)

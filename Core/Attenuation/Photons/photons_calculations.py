@@ -64,20 +64,20 @@ def handle_calculation(selection, mode, interactions, element, energy_str, resul
 
     if mode == "Mass Attenuation Coefficient":
         for interaction in interactions:
-            tac = find_mac(selection, interaction, element, energy_target)
-            if tac in errors:
-                result = tac
+            mac = find_mac(selection, interaction, element, energy_target)
+            if mac in errors:
+                result = mac
                 break
-            result += tac
+            result += mac
     elif mode == "Density":
         result = find_density(selection, element, "Mass Attenuation")
     else:
         for interaction in interactions:
-            tac = find_mac(selection, interaction, element, energy_target)
-            if tac in errors:
-                result = tac
+            mac = find_mac(selection, interaction, element, energy_target)
+            if mac in errors:
+                result = mac
                 break
-            result += (tac * find_density(selection, element, "Mass Attenuation"))
+            result += (mac * find_density(selection, element, "Mass Attenuation"))
 
     # Displays result label
     if not result in errors:
@@ -104,11 +104,11 @@ find_mac_for_element or find_mac_for_material, and then returns the result.
 """
 def find_mac(selection, interaction, element, energy_target):
     if selection in element_choices:
-        tac = find_mac_for_element(element, interaction, energy_target)
+        mac = find_mac_for_element(element, interaction, energy_target)
     elif selection in material_choices:
         db_path = resource_path('Data/General Data/Material Composition/' + element + '.csv')
         with open(db_path, 'r') as file:
-            tac = find_mac_for_material(file, interaction, energy_target)
+            mac = find_mac_for_material(file, interaction, energy_target)
     else:
         db_path = get_user_data_path('Mass Attenuation/_' + element)
         with shelve.open(db_path) as db:
@@ -118,9 +118,9 @@ def find_mac(selection, interaction, element, energy_target):
         # Create file-like object from the stored string
         csv_file_like = io.StringIO(stored_data)
 
-        tac = find_mac_for_material(csv_file_like, interaction, energy_target)
+        mac = find_mac_for_material(csv_file_like, interaction, energy_target)
 
-    return tac
+    return mac
 
 """
 This function handles finding the mass attenuation coefficient
@@ -129,20 +129,20 @@ material making up the element. It uses find_mac_for_element
 to find the coefficient for each element.
 """
 def find_mac_for_material(file_like, interaction, energy_target):
-    tac = 0
+    mac = 0
     # Parse file
     reader = csv.DictReader(file_like)
 
     # Sums each component's weighted T.A.C.
     for row in reader:
-        tac_of_element = find_mac_for_element(row['Element'], interaction, energy_target)
-        if tac_of_element in errors:
-            tac = tac_of_element
+        mac_of_element = find_mac_for_element(row['Element'], interaction, energy_target)
+        if mac_of_element in errors:
+            mac = mac_of_element
             break
-        tac_component = float(row['Weight']) * float(tac_of_element)
-        tac += tac_component
+        mac_component = float(row['Weight']) * float(mac_of_element)
+        mac += mac_component
 
-    return tac
+    return mac
 
 """
 This function handles finding the mass attenuation coefficient

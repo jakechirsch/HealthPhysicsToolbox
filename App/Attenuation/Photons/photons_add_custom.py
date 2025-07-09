@@ -1,15 +1,15 @@
 ##### IMPORTS #####
-from App.Attenuation.tac_choices import *
-from Core.Attenuation.tac_calculations import *
+from App.Attenuation.Photons.photons_choices import *
+from Core.Attenuation.Photons.photons_calculations import *
 from tkinter import ttk, font
 from App.style import SectionFrame
 
 # For global access to nodes on custom screen
 custom_list = []
 
-def custom_menu(root, common_el, common_mat, element, material, custom_mat,
-                selection, mode, interactions, mac_num, d_num, lac_num, mac_den,
-                d_den, lac_den, energy_unit):
+def photons_add_custom(root, common_el, common_mat, element, material, custom_mat,
+                       selection, mode, interactions, mac_num, d_num, lac_num, mac_den,
+                       d_den, lac_den, energy_unit):
     global custom_list
 
     title_frame = make_title_frame(root, "Photon Attenuation")
@@ -19,8 +19,10 @@ def custom_menu(root, common_el, common_mat, element, material, custom_mat,
     material_frame = SectionFrame(root, title="Enter Material Name")
     material_frame.pack()
     inner_material_frame = material_frame.get_inner_frame()
+    mat_frame = Frame(inner_material_frame, bg="#F2F2F2")
+    mat_frame.pack()
 
-    entry = make_line(inner_material_frame, "Material Name:", 12)
+    entry = make_line(mat_frame, "Material Name:")
 
     # Spacer
     empty_frame1 = make_spacer(root)
@@ -28,8 +30,10 @@ def custom_menu(root, common_el, common_mat, element, material, custom_mat,
     density_frame = SectionFrame(root, title="Enter Density")
     density_frame.pack()
     inner_density_frame = density_frame.get_inner_frame()
+    den_frame = Frame(inner_density_frame, bg="#F2F2F2")
+    den_frame.pack()
 
-    entry2 = make_line(inner_density_frame, f"Density ({d_num}/{d_den}):", 9)
+    entry2 = make_line(den_frame, f"Density ({d_num}/{d_den}):")
 
     # Spacer
     empty_frame2 = make_spacer(root)
@@ -37,16 +41,18 @@ def custom_menu(root, common_el, common_mat, element, material, custom_mat,
     weights_frame = SectionFrame(root, title="Enter Element Weights")
     weights_frame.pack()
     inner_weights_frame = weights_frame.get_inner_frame()
+    w_frame = Frame(inner_weights_frame, bg="#F2F2F2")
+    w_frame.pack()
 
-    ex_frame = Frame(inner_weights_frame, bg="#F2F2F2")
-    ex_frame.pack(side="left", padx=33)
+    ex_frame = Frame(w_frame, bg="#F2F2F2")
+    ex_frame.pack(side="left", padx=(0,30))
 
     label = ttk.Label(ex_frame, text="Element Weights:", style="Black.TLabel")
-    entry3 = Text(inner_weights_frame, width=20, height=10, bg='white', fg='black',
+    entry3 = Text(w_frame, width=20, height=10, bg='white', fg='black',
                   insertbackground="black", borderwidth=3, bd=3,
                   highlightthickness=0, relief='solid', font=monospace_font)
     label.pack()
-    entry3.pack(side="left", padx=33, pady=20)
+    entry3.pack(side="left", padx=(30,0), pady=20)
 
     example_label(ex_frame, "")
     example_label(ex_frame, "Example:")
@@ -61,7 +67,7 @@ def custom_menu(root, common_el, common_mat, element, material, custom_mat,
     def norm():
         root.focus()
 
-    options_frame = SectionFrame(root, title="Custom Materials Options")
+    options_frame = SectionFrame(root, title="Enter Material in Database")
     options_frame.pack()
     inner_options_frame = options_frame.get_inner_frame()
 
@@ -102,15 +108,15 @@ def custom_menu(root, common_el, common_mat, element, material, custom_mat,
                    weights_frame, empty_frame3,
                    options_frame, exit_button]
 
-def make_line(frame, text, pad):
+def make_line(frame, text):
     monospace_font = font.Font(family="Menlo", size=12)
     label = ttk.Label(frame, text=text, style="Black.TLabel")
     entry = Entry(frame, width=32, insertbackground="black",
                   background="white", foreground="black",
                   borderwidth=3, bd=3, highlightthickness=0, relief='solid',
                   font=monospace_font)
-    label.pack(side="left", padx=(20, pad))
-    entry.pack(side="left", padx=(pad, 2), pady=20)
+    label.pack(side="left", padx=(0,5))
+    entry.pack(side="left", padx=(5,0), pady=20)
     return entry
 
 def add_custom(root, name_box, density_box, weights_box, error_label, normalize,
@@ -235,6 +241,10 @@ def example_label(frame, text):
     label = ttk.Label(frame, text=text, style="Black.TLabel")
     label.pack()
 
+"""
+This function clears the photon attenuation add custom screen
+in preparation for opening a different screen.
+"""
 def clear_custom():
     global custom_list
 
@@ -246,12 +256,12 @@ def clear_custom():
 def advanced_back(root, common_el, common_mat, element, material, custom_mat,
                   selection, mode, interactions, mac_num, d_num, lac_num,
                   mac_den, d_den, lac_den, energy_unit):
-    from App.Attenuation.tac_advanced import tac_advanced
+    from App.Attenuation.Photons.photons_advanced import photons_advanced
 
     clear_custom()
-    tac_advanced(root, selection=selection, mode=mode,
-                 interactions_start=interactions, common_el=common_el,
-                 common_mat=common_mat, element=element, material=material,
-                 custom_mat=custom_mat, mac_num=mac_num, d_num=d_num,
-                 lac_num=lac_num, mac_den=mac_den, d_den=d_den,
-                 lac_den=lac_den, energy_unit=energy_unit)
+    photons_advanced(root, selection=selection, mode=mode,
+                     interactions_start=interactions, common_el=common_el,
+                     common_mat=common_mat, element=element, material=material,
+                     custom_mat=custom_mat, mac_num=mac_num, d_num=d_num,
+                     lac_num=lac_num, mac_den=mac_den, d_den=d_den,
+                     lac_den=lac_den, energy_unit=energy_unit)

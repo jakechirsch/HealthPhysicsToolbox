@@ -3,8 +3,12 @@ from Core.Attenuation.Photons.photons_plots import *
 from App.Attenuation.Photons.photons_unit_settings import *
 from App.style import SectionFrame
 
-# For global access to nodes on export screen
+# For global access to nodes on photon attenuation export screen
 export_list = []
+
+#####################################################################################
+# MENU SECTION
+#####################################################################################
 
 def photons_export(root, common_el, common_mat, element, material, custom_mat,
                    selection, mode, interactions, mac_num, d_num, lac_num,
@@ -50,9 +54,6 @@ def photons_export(root, common_el, common_mat, element, material, custom_mat,
     # Spacer
     empty_frame1 = make_spacer(root)
 
-    def save():
-        root.focus()
-
     # Checkbox for saving file
     var_save = IntVar()
     var_save.set(1)
@@ -63,7 +64,7 @@ def photons_export(root, common_el, common_mat, element, material, custom_mat,
     inner_options_frame = options_frame.get_inner_frame()
 
     save = ttk.Checkbutton(inner_options_frame, text="Save File", variable=var_save,
-                           style="Maize.TCheckbutton", command=save)
+                           style="Maize.TCheckbutton", command=lambda: root.focus())
     save.pack(pady=(10,5))
 
     export_type_frame = Frame(inner_options_frame, bg="#F2F2F2")
@@ -115,7 +116,7 @@ def photons_export(root, common_el, common_mat, element, material, custom_mat,
     error_label = ttk.Label(inner_options_frame, text="", style="Error.TLabel")
     error_label.pack(pady=(5,10))
 
-    # Creates exit button to return to T.A.C. screen
+    # Creates exit button to return to photon attenuation advanced screen
     exit_button = ttk.Button(root, text="Back", style="Maize.TButton", padding=(0,0),
                              command=lambda: advanced_back(root, common_el, common_mat,
                                                            element, material, custom_mat,
@@ -129,6 +130,10 @@ def photons_export(root, common_el, common_mat, element, material, custom_mat,
     export_list = [title_frame,
                    interactions_frame, empty_frame1,
                    options_frame, exit_button]
+
+#####################################################################################
+# HELPER SECTION
+#####################################################################################
 
 def get_interactions(var0, var1, var2, var3, var4, var5, var6):
     interactions = []
@@ -148,6 +153,10 @@ def get_interactions(var0, var1, var2, var3, var4, var5, var6):
         interactions.append("Photo-Electric Absorption")
     return interactions
 
+#####################################################################################
+# NAVIGATION SECTION
+#####################################################################################
+
 """
 This function clears the photon attenuation export screen
 in preparation for opening a different screen.
@@ -155,11 +164,18 @@ in preparation for opening a different screen.
 def clear_export():
     global export_list
 
-    # Clears export screen
+    # Clears photon attenuation export screen
     for node in export_list:
         node.destroy()
     export_list.clear()
 
+"""
+This function transitions from the photon attenuation export screen
+to the photon attenuation advanced screen by first clearing the
+photon attenuation export screen and then creating the
+photon attenuation advanced screen.
+It is called when the Back button is hit.
+"""
 def advanced_back(root, common_el, common_mat, element, material, custom_mat,
                   selection, mode, interactions, mac_num, d_num, lac_num,
                   mac_den, d_den, lac_den, energy_unit):

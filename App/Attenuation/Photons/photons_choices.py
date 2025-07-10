@@ -7,31 +7,46 @@ from Utility.Functions.gui_utility import resource_path, get_user_data_path
 element_choices = ["Common Elements", "All Elements"]
 material_choices = ["Common Materials", "All Materials"]
 
+"""
+This function returns the list of items (elements/materials)
+in the selected category.
+If the category is either All Elements or All Materials,
+the choices are read from a Data file.
+Otherwise, the choices are retrieved from the user's
+shelve data.
+If the category is either Custom Elements or Custom Materials,
+a default list is read from a Data file which is used
+if no user shelve data is stored.
+If the category is Custom Materials, the default list is empty.
+"""
 def get_choices(selection):
     choices = []
 
     if selection == "All Elements" or selection == "All Materials":
-        # Obtains list of elements from csv file
-        name = "Elements" if selection == "All Elements" else "Materials"
-        db_path = resource_path('Data/General Data/Density/' + name + '.csv')
-        with open(db_path, 'r') as file:
-            reader = csv.reader(file)
-            for row in reader:
-                if row and row[0] != 'Name':
-                    choices.append(row[0])
+        # Obtains list of items from csv file
+        db_path = resource_path('Data/General Data/Density/' + selection[4:] + '.csv')
+        read_choices(choices, db_path)
         return choices
 
-    # Obtains list of elements from shelve
-    db_path = get_user_data_path('Mass Attenuation/' + selection)
+    # Obtains list of items from shelve
+    db_path = get_user_data_path('Attenuation/Photons/' + selection)
     with shelve.open(db_path) as prefs:
         default = []
         if selection != "Custom Materials":
-            db_path2 = resource_path('Data/Modules/Mass Attenuation/' + selection + '.csv')
-            with open(db_path2, 'r') as file:
-                reader = csv.reader(file)
-                for row in reader:
-                    if row and row[0] != 'Name':
-                        default.append(row[0])
+            # Obtains list of default items from csv file
+            db_path2 = resource_path('Data/Modules/Attenuation/' + selection + '.csv')
+            read_choices(default, db_path2)
         choices = prefs.get(selection, default)
         choices.sort()
         return choices
+
+"""
+This function reads the list of items (elements/materials)
+from a csv data file.
+"""
+def read_choices(choices, path):
+    with open(path, 'r') as file:
+        reader = csv.reader(file)
+        for row in reader:
+            if row and row[0] != 'Name':
+                choices.append(row[0])

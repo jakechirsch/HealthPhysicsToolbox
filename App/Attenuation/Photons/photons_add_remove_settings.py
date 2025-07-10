@@ -2,38 +2,62 @@
 import shelve
 from Utility.Functions.gui_utility import get_width, get_user_data_path
 
-def carry_action(action, category, choices, inverse, var, dropdown):
+"""
+This function is called when the Add/Remove button is hit and
+passes on the work to the individualized functions depending
+on the action.
+"""
+def carry_action(root, action, category, choices, inverse, var, dropdown):
+    root.focus()
     if action == "Add":
         add_c(category, choices, inverse, var, dropdown)
     elif action == "Remove":
         remove_c(category, choices, inverse, var, dropdown)
 
-def add_c(selection, choices, inverse, var, dropdown):
-    db_path = get_user_data_path('Mass Attenuation/' + selection)
+"""
+This function adds a common element or common material
+to the user's saved data, assuming an item is selected.
+The item is appended to the common list and the user data is updated.
+The item is then removed from the non_common list.
+Finally, the non_common dropdown is updated accordingly.
+"""
+def add_c(selection, non_common, common, var, dropdown):
+    db_path = get_user_data_path('Attenuation/Photons/' + selection)
     with shelve.open(db_path) as prefs:
-        # Adds element to common elements
-        element = var.get()
-        if element == "":
+        # Adds item to common
+        item = var.get()
+        if item == "":
             return
-        inverse.append(element)
-        prefs[selection] = inverse
+        common.append(item)
+        prefs[selection] = common
 
-        # Removes element from non-common elements
-        choices.remove(element)
-        dropdown.config(completevalues=choices, width=get_width(choices))
-        var.set(choices[0] if len(choices) > 0 else "")
+        # Removes item from non-common
+        non_common.remove(item)
 
-def remove_c(selection, choices, inverse, var, dropdown):
-    db_path = get_user_data_path('Mass Attenuation/' + selection)
+        # Update non_common dropdown
+        dropdown.config(values=non_common, width=get_width(non_common))
+        var.set(non_common[0] if len(non_common) > 0 else "")
+
+"""
+This function removes a common element or common material
+to the user's saved data, assuming an item is selected.
+The item is removed from the common list and the user data is updated.
+The common dropdown is then updated accordingly.
+Finally, the item is appended to the non_common list.
+"""
+def remove_c(selection, common, non_common, var, dropdown):
+    db_path = get_user_data_path('Attenuation/Photons/' + selection)
     with shelve.open(db_path) as prefs:
-        # Removes element from common elements
-        element = var.get()
-        if element == "":
+        # Removes item from common
+        item = var.get()
+        if item == "":
             return
-        choices.remove(element)
-        prefs[selection] = choices
-        dropdown.config(completevalues=choices, width=get_width(choices))
-        var.set(choices[0] if len(choices) > 0 else "")
+        common.remove(item)
+        prefs[selection] = common
 
-        # Adds element to non-common elements
-        inverse.append(element)
+        # Update common dropdown
+        dropdown.config(values=common, width=get_width(common))
+        var.set(common[0] if len(common) > 0 else "")
+
+        # Adds item to non-common
+        non_common.append(item)

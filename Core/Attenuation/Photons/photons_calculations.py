@@ -40,8 +40,10 @@ Finally, if the calculation did not cause an error,
 the result is converted to the desired units, and then
 displayed in the result label.
 """
-def handle_calculation(selection, mode, interactions, element, energy_str, result_label,
-                       num, den, energy_unit):
+def handle_calculation(root, selection, mode, interactions, element,
+                       energy_str, result_label, num, den, energy_unit):
+    root.focus()
+
     # Error-check for no selected item
     if element == "":
         edit_result(no_selection, result_label)
@@ -110,7 +112,7 @@ def find_mac(selection, interaction, element, energy_target):
         with open(db_path, 'r') as file:
             mac = find_mac_for_material(file, interaction, energy_target)
     else:
-        db_path = get_user_data_path('Mass Attenuation/_' + element)
+        db_path = get_user_data_path('Attenuation/Photons/_' + element)
         with shelve.open(db_path) as db:
             stored_data = db[element]
             stored_data = stored_data.replace('\\n', '\n')
@@ -165,7 +167,7 @@ def find_mac_for_element(element, interaction, energy_target):
     high_coefficient = float('inf')
 
     # Opens file
-    db_path = resource_path('Data/Modules/Mass Attenuation/Elements/' + element + '.csv')
+    db_path = resource_path('Data/Modules/Attenuation/Photons/Elements/' + element + '.csv')
     with open(db_path, 'r') as file:
         # Reads in file in dictionary format
         reader = csv.DictReader(file)

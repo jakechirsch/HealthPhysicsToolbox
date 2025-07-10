@@ -54,7 +54,7 @@ def export_data(root, element, selection, mode, interactions, num, den,
     df = pd.DataFrame(columns=cols)
     if selection in element_choices:
         # Load the CSV file
-        db_path = resource_path('Data/Modules/Mass Attenuation/Elements/' + element + '.csv')
+        db_path = resource_path('Data/Modules/Attenuation/Photons/Elements/' + element + '.csv')
         df2 = pd.read_csv(db_path)
 
         # Converts energy column to desired energy unit
@@ -68,7 +68,7 @@ def export_data(root, element, selection, mode, interactions, num, den,
         with open(db_path, 'r') as file:
             make_df_for_material(file, df, element, selection, interactions)
     else:
-        db_path = get_user_data_path('Mass Attenuation/_' + element)
+        db_path = get_user_data_path('Attenuation/Photons/_' + element)
         with shelve.open(db_path) as db:
             stored_data = db[element]
             stored_data = stored_data.replace('\\n', '\n')
@@ -192,7 +192,7 @@ def make_df_for_material(file_like, df, element, selection, interactions):
     # Create the dataframe
     vals = []
     for row in reader:
-        db_path = resource_path('Data/Modules/Mass Attenuation/Elements/' + row['Element'] + '.csv')
+        db_path = resource_path('Data/Modules/Attenuation/Photons/Elements/' + row['Element'] + '.csv')
         if len(vals) == 0:
             with open(db_path, 'r') as file:
                 # Reads in file

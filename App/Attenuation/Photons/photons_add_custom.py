@@ -4,13 +4,17 @@ from Core.Attenuation.Photons.photons_calculations import *
 from tkinter import ttk, font
 from App.style import SectionFrame
 
-# For global access to nodes on custom screen
-custom_list = []
+# For global access to nodes on photon attenuation add custom screen
+add_custom_list = []
+
+#####################################################################################
+# MENU SECTION
+#####################################################################################
 
 def photons_add_custom(root, common_el, common_mat, element, material, custom_mat,
                        selection, mode, interactions, mac_num, d_num, lac_num, mac_den,
                        d_den, lac_den, energy_unit):
-    global custom_list
+    global add_custom_list
 
     title_frame = make_title_frame(root, "Photon Attenuation")
 
@@ -64,9 +68,6 @@ def photons_add_custom(root, common_el, common_mat, element, material, custom_ma
     # Spacer
     empty_frame3 = make_spacer(root)
 
-    def norm():
-        root.focus()
-
     options_frame = SectionFrame(root, title="Enter Material in Database")
     options_frame.pack()
     inner_options_frame = options_frame.get_inner_frame()
@@ -75,7 +76,7 @@ def photons_add_custom(root, common_el, common_mat, element, material, custom_ma
     var_normalize = IntVar()
 
     normalize = ttk.Checkbutton(inner_options_frame, text="Normalize", variable=var_normalize,
-                                style="Maize.TCheckbutton", command=norm)
+                                style="Maize.TCheckbutton", command=lambda: root.focus())
     normalize.pack(pady=(10,5))
 
     # Creates button
@@ -91,7 +92,7 @@ def photons_add_custom(root, common_el, common_mat, element, material, custom_ma
     error_label = ttk.Label(inner_options_frame, text="", style="Error.TLabel")
     error_label.pack(pady=(5,10))
 
-    # Creates exit button to return to T.A.C. screen
+    # Creates exit button to return to photon attenuation advanced screen
     exit_button = ttk.Button(root, text="Back", style="Maize.TButton", padding=(0,0),
                              command=lambda: advanced_back(root, common_el, common_mat,
                                                            element, material, custom_mat,
@@ -102,11 +103,15 @@ def photons_add_custom(root, common_el, common_mat, element, material, custom_ma
     exit_button.pack(pady=5)
 
     # Stores nodes into global list
-    custom_list = [title_frame,
-                   material_frame, empty_frame1,
-                   density_frame, empty_frame2,
-                   weights_frame, empty_frame3,
-                   options_frame, exit_button]
+    add_custom_list = [title_frame,
+                       material_frame, empty_frame1,
+                       density_frame, empty_frame2,
+                       weights_frame, empty_frame3,
+                       options_frame, exit_button]
+
+#####################################################################################
+# HELPER SECTION
+#####################################################################################
 
 def make_line(frame, text):
     monospace_font = font.Font(family="Menlo", size=12)
@@ -118,6 +123,14 @@ def make_line(frame, text):
     label.pack(side="left", padx=(0,5))
     entry.pack(side="left", padx=(5,0), pady=20)
     return entry
+
+def example_label(frame, text):
+    label = ttk.Label(frame, text=text, style="Black.TLabel")
+    label.pack()
+
+#####################################################################################
+# DATA SECTION
+#####################################################################################
 
 def add_custom(root, name_box, density_box, weights_box, error_label, normalize,
                d_num, d_den):
@@ -220,7 +233,7 @@ def add_custom(root, name_box, density_box, weights_box, error_label, normalize,
 
     error_label.config(style="Success.TLabel", text="Material added!")
 
-    db_path = get_user_data_path('Mass Attenuation/Custom Materials')
+    db_path = get_user_data_path('Attenuation/Photons/Custom Materials')
     with shelve.open(db_path) as prefs:
         choices = prefs.get("Custom Materials", [])
         if not name in choices:
@@ -228,7 +241,7 @@ def add_custom(root, name_box, density_box, weights_box, error_label, normalize,
         prefs["Custom Materials"] = choices
 
     # Save to shelve
-    db_path2 = get_user_data_path('Mass Attenuation/_' + name)
+    db_path2 = get_user_data_path('Attenuation/Photons/_' + name)
     with shelve.open(db_path2) as db:
         db[name] = csv_data
         db[name + '_Density'] = str(float(density) * density_denominator[d_den] / density_numerator[d_num])
@@ -237,28 +250,35 @@ def add_custom(root, name_box, density_box, weights_box, error_label, normalize,
     weights_box.delete("1.0", "end")
     density_box.delete(0, END)
 
-def example_label(frame, text):
-    label = ttk.Label(frame, text=text, style="Black.TLabel")
-    label.pack()
+#####################################################################################
+# NAVIGATION SECTION
+#####################################################################################
 
 """
 This function clears the photon attenuation add custom screen
 in preparation for opening a different screen.
 """
-def clear_custom():
-    global custom_list
+def clear_add_custom():
+    global add_custom_list
 
-    # Clears custom screen
-    for node in custom_list:
+    # Clears photon attenuation add custom screen
+    for node in add_custom_list:
         node.destroy()
-    custom_list.clear()
+    add_custom_list.clear()
 
+"""
+This function transitions from the photon attenuation add custom screen
+to the photon attenuation advanced screen by first clearing the
+photon attenuation add custom screen and then creating the
+photon attenuation advanced screen.
+It is called when the Back button is hit.
+"""
 def advanced_back(root, common_el, common_mat, element, material, custom_mat,
                   selection, mode, interactions, mac_num, d_num, lac_num,
                   mac_den, d_den, lac_den, energy_unit):
     from App.Attenuation.Photons.photons_advanced import photons_advanced
 
-    clear_custom()
+    clear_add_custom()
     photons_advanced(root, selection=selection, mode=mode,
                      interactions_start=interactions, common_el=common_el,
                      common_mat=common_mat, element=element, material=material,

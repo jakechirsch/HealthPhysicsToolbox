@@ -3,11 +3,15 @@ from App.Attenuation.Photons.photons_add_remove_settings import *
 from App.Attenuation.Photons.photons_add_custom import *
 from App.Attenuation.Photons.photons_export_settings import *
 from Core.Attenuation.Photons.photons_plots import *
-from ttkwidgets.autocomplete import AutocompleteCombobox
+from App.style import AutocompleteCombobox
 from App.style import SectionFrame
 
-# For global access to nodes on advanced screen
+# For global access to nodes on photon attenuation advanced screen
 advanced_list = []
+
+#####################################################################################
+# MENU SECTION
+#####################################################################################
 
 def photons_advanced(root, common_el, common_mat, element, material, custom_mat,
                      selection, mode, interactions_start, mac_num, d_num, lac_num,
@@ -284,7 +288,7 @@ def photons_advanced(root, common_el, common_mat, element, material, custom_mat,
     help_button.config(width=get_width(["Help"]))
     help_button.pack(side='left', padx=5)
 
-    # Creates exit button to return to T.A.C. screen
+    # Creates exit button to return to photon attenuation main screen
     exit_button = ttk.Button(root, text="Back", style="Maize.TButton",
                              padding=(0,0),
                              command=lambda: to_main(root, pass_saved(common_el, common),
@@ -307,6 +311,10 @@ def photons_advanced(root, common_el, common_mat, element, material, custom_mat,
                      interactions_frame, empty_frame2,
                      unit_frame, empty_frame3,
                      bottom_frame, exit_button]
+
+#####################################################################################
+# HELPER SECTION
+#####################################################################################
 
 def make_vertical_frame(root, top_frame, action, category,
                         non_common, common, non_common_m, common_m, custom,
@@ -372,13 +380,14 @@ def make_vertical_frame(root, top_frame, action, category,
             value = var.get()
             if value not in choices:
                 var.set(choices[0] if len(choices) > 0 else "")
-            else:
-                # Move focus away from the combobox
-                root.focus()
+            dropdown.selection_clear()
+            dropdown.icursor(END)
+            root.focus()
 
         dropdown = AutocompleteCombobox(vertical_frame, textvariable=var,
-                                        completevalues=choices, justify="center",
+                                        values=choices, justify="center",
                                         style="Maize.TCombobox")
+        dropdown.set_completion_list(choices)
         dropdown.config(width=get_width(choices))
         dropdown.pack()
         dropdown.bind('<Return>', on_enter)
@@ -386,13 +395,11 @@ def make_vertical_frame(root, top_frame, action, category,
         dropdown.bind("<FocusOut>", on_enter)
 
         # Creates button
-        if action == "Remove" and category == "Custom Materials":
-            inverse = [var.get()]
         button[0] = ttk.Button(vertical_frame, text=action,
                                style="Maize.TButton", padding=(0,0),
-                               command=lambda: do_action(root, action, category,
-                                                         choices, inverse, var,
-                                                         dropdown))
+                               command=lambda: carry_action(root, action, category,
+                                                            choices, inverse, var,
+                                                            dropdown))
         button[0].config(width=get_width([action]))
         button[0].pack(pady=(10,0))
 
@@ -401,6 +408,29 @@ def make_vertical_frame(root, top_frame, action, category,
 def pass_saved(saved, choices):
     return saved if saved in choices else choices[0] if len(choices) > 0 else ""
 
+#####################################################################################
+# NAVIGATION SECTION
+#####################################################################################
+
+"""
+This function clears the photon attenuation advanced screen
+in preparation for opening a different screen.
+"""
+def clear_advanced():
+    global advanced_list
+
+    # Clears photon attenuation advanced screen
+    for node in advanced_list:
+        node.destroy()
+    advanced_list.clear()
+
+"""
+This function transitions from the photon attenuation advanced screen
+to the photon attenuation main screen by first clearing the
+photon attenuation advanced screen and then creating the
+photon attenuation main screen.
+It is called when the Back button is hit.
+"""
 def to_main(root, common_el, common_mat, element, material, custom_mat,
             selection, mode, interactions, mac_num, d_num, lac_num,
             mac_den, d_den, lac_den, energy_unit):
@@ -415,17 +445,12 @@ def to_main(root, common_el, common_mat, element, material, custom_mat,
                  lac_den=lac_den, energy_unit=energy_unit)
 
 """
-This function clears the photon attenuation advanced screen
-in preparation for opening a different screen.
+This function transitions from the photon attenuation advanced screen
+to the photon attenuation add custom screen by first clearing the
+photon attenuation advanced screen and then creating the
+photon attenuation add custom screen.
+It is called when the Add Custom Materials button is hit.
 """
-def clear_advanced():
-    global advanced_list
-
-    # Clears advanced screen
-    for node in advanced_list:
-        node.destroy()
-    advanced_list.clear()
-
 def to_custom_menu(root, common_el, common_mat, element, material, custom_mat,
                    selection, mode, interactions, mac_num, d_num, lac_num, mac_den,
                    d_den, lac_den, energy_unit):
@@ -434,6 +459,13 @@ def to_custom_menu(root, common_el, common_mat, element, material, custom_mat,
                        selection, mode, interactions, mac_num, d_num, lac_num, mac_den,
                        d_den, lac_den, energy_unit)
 
+"""
+This function transitions from the photon attenuation advanced screen
+to the photon attenuation export screen by first clearing the
+photon attenuation advanced screen and then creating the
+photon attenuation export screen.
+It is called when the Export button is hit.
+"""
 def to_export_menu(root, common_el, common_mat, element, material, custom_mat,
                    selection, mode, interactions, mac_num, d_num, lac_num,
                    mac_den, d_den, lac_den, energy_unit):
@@ -442,16 +474,18 @@ def to_export_menu(root, common_el, common_mat, element, material, custom_mat,
                    selection, mode, interactions, mac_num, d_num, lac_num,
                    mac_den, d_den, lac_den, energy_unit)
 
+"""
+This function opens the photon attenuation References.txt file.
+"""
 def open_ref(root):
     root.focus()
-    db_path = resource_path('Utility/Modules/Mass Attenuation/References.txt')
+    db_path = resource_path('Utility/Modules/Attenuation/Photons/References.txt')
     open_file(db_path)
 
+"""
+This function opens the photon attenuation Help.txt file.
+"""
 def open_help(root):
     root.focus()
-    db_path = resource_path('Utility/Modules/Mass Attenuation/Help.txt')
+    db_path = resource_path('Utility/Modules/Attenuation/Photons/Help.txt')
     open_file(db_path)
-
-def do_action(root, action, category, choices, inverse, var, dropdown):
-    root.focus()
-    carry_action(action, category, choices, inverse, var, dropdown)

@@ -1,15 +1,19 @@
 ##### IMPORTS #####
 from tkinter import *
 from tkinter import font
-from ttkwidgets.autocomplete import AutocompleteCombobox
+from App.style import AutocompleteCombobox
 from App.Attenuation.Photons.photons_choices import *
 from App.Attenuation.Photons.photons_unit_settings import *
 from Core.Attenuation.Photons.photons_calculations import handle_calculation
 from Utility.Functions.gui_utility import make_spacer, get_width, make_title_frame
 from App.style import SectionFrame
 
-# For global access to nodes on T.A.C. screen
-screen_list = []
+# For global access to nodes on photon attenuation main screen
+main_list = []
+
+#####################################################################################
+# MENU SECTION
+#####################################################################################
 
 def photons_main(root, selection_start="Common Elements",
                  mode_start="Mass Attenuation Coefficient",
@@ -19,7 +23,7 @@ def photons_main(root, selection_start="Common Elements",
                  custom_mat="", mac_num="cm\u00B2", d_num="g", lac_num="1",
                  mac_den="g", d_den="cm\u00B3", lac_den="cm",
                  energy_unit="MeV"):
-    global screen_list
+    global main_list
 
     if interactions is None or not interactions:
         interactions = ["Total Attenuation with Coherent Scattering"]
@@ -84,7 +88,7 @@ def photons_main(root, selection_start="Common Elements",
             empty_frame3.pack_forget()
         elif mode == "Density" \
                 and event.widget.get() != "Density":
-            screen_list.remove(energy_frame)
+            main_list.remove(energy_frame)
             energy_frame.pack_forget()
             energy_label.pack_forget()
             energy_entry.pack_forget()
@@ -98,14 +102,14 @@ def photons_main(root, selection_start="Common Elements",
             energy_label.pack(pady=(15,1))
             energy_entry.pack(pady=(1,20))
             empty_frame3 = make_spacer(root)
-            screen_list.append(empty_frame3)
+            main_list.append(empty_frame3)
             result_frame.pack()
             calc_button.pack(pady=(20,5))
             result.pack(pady=(5,1))
             result_label.pack(pady=(1,20))
             advanced_button.pack(pady=5)
             exit_button.pack(pady=5)
-            screen_list.append(energy_frame)
+            main_list.append(energy_frame)
 
         mode = var_mode.get()
         result_frame.change_title(mode)
@@ -160,7 +164,8 @@ def photons_main(root, selection_start="Common Elements",
                 element if selection == "All Elements" else
                 material if selection == "All Materials" else
                 custom_mat if selection == "Custom Materials" else "")
-        dropdown.config(completevalues=choices, width=get_width(choices))
+        dropdown.set_completion_list(choices)
+        dropdown.config(values=choices, width=get_width(choices))
         root.focus()
 
     # Frame for category selection
@@ -206,7 +211,9 @@ def photons_main(root, selection_start="Common Elements",
                 material = var.get()
             elif selection == "Custom Materials":
                 custom_mat = var.get()
-            root.focus()
+        dropdown.selection_clear()
+        dropdown.icursor(END)
+        root.focus()
 
     def on_select(event):
         event.widget.selection_clear()
@@ -221,8 +228,9 @@ def photons_main(root, selection_start="Common Elements",
     item_label.pack()
 
     # Creates dropdown menu for element selection
-    dropdown = AutocompleteCombobox(item_frame, textvariable=var, completevalues=choices,
+    dropdown = AutocompleteCombobox(item_frame, textvariable=var, values=choices,
                                     justify="center", style="Maize.TCombobox")
+    dropdown.set_completion_list(choices)
     dropdown.config(width=get_width(choices))
     dropdown.pack()
     dropdown.bind('<Return>', on_enter)
@@ -247,7 +255,7 @@ def photons_main(root, selection_start="Common Elements",
     # Creates calculate button
     calc_button = ttk.Button(inner_result_frame, text="Calculate",
                              style="Maize.TButton", padding=(0,0),
-                             command=lambda: start_calculation(root,
+                             command=lambda: handle_calculation(root,
                                                         var_selection.get(), var_mode.get(),
                                                         interactions, var.get(),
                                                         energy_entry.get(), result_label,
@@ -281,12 +289,47 @@ def photons_main(root, selection_start="Common Elements",
     exit_button.pack(pady=5)
 
     # Stores nodes into global list
-    screen_list = [title_frame,
-                   mode_frame, empty_frame1,
-                   main_frame, empty_frame2,
-                   energy_frame, empty_frame3,
-                   result_frame, advanced_button, exit_button]
+    main_list = [title_frame,
+                 mode_frame, empty_frame1,
+                 main_frame, empty_frame2,
+                 energy_frame, empty_frame3,
+                 result_frame, advanced_button, exit_button]
 
+#####################################################################################
+# NAVIGATION SECTION
+#####################################################################################
+
+"""
+This function clears the photon attenuation main screen
+in preparation for opening a different screen.
+"""
+def clear_main():
+    global main_list
+
+    # Clears photon attenuation main screen
+    for node in main_list:
+        node.destroy()
+    main_list.clear()
+
+"""
+This function transitions from the photon attenuation main screen
+to the home screen by first clearing the photon attenuation main screen
+and then creating the home screen.
+It is called when the Exit button is hit.
+"""
+def exit_to_home(root):
+    root.focus()
+    from App.home import return_home
+    clear_main()
+    return_home(root)
+
+"""
+This function transitions from the photon attenuation main screen
+to the photon attenuation advanced screen by first clearing the
+photon attenuation main screen and then creating the
+photon attenuation advanced screen.
+It is called when the Advanced Settings button is hit.
+"""
 def to_advanced(root, common_el, common_mat, element, material,
              custom_mat, selection, mode, interactions,
              mac_num, d_num, lac_num,
@@ -295,33 +338,8 @@ def to_advanced(root, common_el, common_mat, element, material,
     root.focus()
     from App.Attenuation.Photons.photons_advanced import photons_advanced
 
-    # Hides T.A.C. screen
-    clear_screen()
+    clear_main()
     photons_advanced(root, common_el, common_mat, element, material,
                      custom_mat, selection, mode, interactions,
                      mac_num, d_num, lac_num,
                      mac_den, d_den, lac_den, energy_unit)
-
-"""
-This function clears the photon attenuation main screen
-in preparation for opening a different screen.
-"""
-def clear_screen():
-    global screen_list
-
-    # Clears main screen
-    for node in screen_list:
-        node.destroy()
-    screen_list.clear()
-
-def exit_to_home(root):
-    root.focus()
-    from App.home import return_home
-    clear_screen()
-    return_home(root)
-
-def start_calculation(root, selection, mode, interactions, element, energy_str, result_label,
-                       num, den, energy_unit):
-    root.focus()
-    handle_calculation(selection, mode, interactions, element, energy_str, result_label,
-                       num, den, energy_unit)

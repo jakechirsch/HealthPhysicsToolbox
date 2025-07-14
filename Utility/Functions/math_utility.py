@@ -24,13 +24,13 @@ If the category is Custom Materials, the density is retrieved
 from shelve, where the user-inputted density is stored.
 Otherwise, the density is retrieved from the data.
 """
-def find_density(selection, item, module):
-    if selection == "Custom Materials":
+def find_density(category, item, module):
+    if category == "Custom Materials":
         db_path = get_user_data_path(module + '/_' + item)
         with shelve.open(db_path) as db:
             return float(db[item + '_Density'])
 
-    name = 'Elements' if selection in element_choices else 'Materials'
+    name = 'Elements' if category in element_choices else 'Materials'
     db_path = resource_path('Data/General Data/Density/' + name + '.csv')
     with open(db_path, 'r') as file:
         reader = csv.DictReader(file)

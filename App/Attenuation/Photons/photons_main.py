@@ -1,11 +1,10 @@
 ##### IMPORTS #####
-from tkinter import *
 from tkinter import font
 from App.style import AutocompleteCombobox
 from App.Attenuation.Photons.photons_choices import *
 from App.Attenuation.Photons.photons_unit_settings import *
 from Core.Attenuation.Photons.photons_calculations import handle_calculation
-from Utility.Functions.gui_utility import make_spacer, get_width, make_title_frame
+from Utility.Functions.gui_utility import *
 from App.style import SectionFrame
 
 # For global access to nodes on photon attenuation main screen
@@ -15,7 +14,22 @@ main_list = []
 # MENU SECTION
 #####################################################################################
 
-def photons_main(root, selection_start="Common Elements",
+"""
+This function sets up the photon attenuation main screen.
+The following sections and widgets are created:
+   Module Title (Photon Attenuation)
+   Select Calculation Mode section
+   Select Interacting Medium section
+   Input Energy section (only when Calculation Mode is not Density)
+   Result section (title dependent on Calculation Mode)
+   Advanced Settings button
+   Exit button
+This function contains all of the logic involving these widgets'
+behaviors.
+The sections and widgets are stored in main_list so they can be
+accessed later by clear_main.
+"""
+def photons_main(root, category_start="Common Elements",
                  mode_start="Mass Attenuation Coefficient",
                  interactions=None, common_el="Ag",
                  common_mat="Air (dry, near sea level)", element="Ac",
@@ -25,18 +39,21 @@ def photons_main(root, selection_start="Common Elements",
                  energy_unit="MeV"):
     global main_list
 
+    # Sets default interaction - Total Attenuation with Coherent Scattering
     if interactions is None or not interactions:
         interactions = ["Total Attenuation with Coherent Scattering"]
 
+    # Makes title frame
     title_frame = make_title_frame(root, "Photon Attenuation")
 
+    # Creates font for result label and energy entry
     monospace_font = font.Font(family="Menlo", size=12)
 
     # Frame for result
     result_frame = SectionFrame(root, title=mode_start)
     inner_result_frame = result_frame.get_inner_frame()
 
-    # Displays the requested coefficient
+    # Displays the result of calculation
     result = ttk.Label(inner_result_frame, text="Result:",
                        style="Black.TLabel")
     result_label = Text(inner_result_frame, height=1, borderwidth=3, bd=3,
@@ -44,18 +61,18 @@ def photons_main(root, selection_start="Common Elements",
     result_label.config(bg='white', fg='black', state="disabled", width=32,
                         font=monospace_font)
 
-    choices = get_choices(selection_start)
+    # Gets the item options
+    choices = get_choices(category_start)
 
-    # Make sure common default choices are valid selections
+    # Gets customizable categories
     common_elements = get_choices("Common Elements")
-    if not common_el in common_elements:
-        common_el = common_elements[0] if len(common_elements) > 0 else ""
     common_materials = get_choices("Common Materials")
-    if not common_mat in common_materials:
-        common_mat = common_materials[0] if len(common_materials) > 0 else ""
     custom_materials = get_choices("Custom Materials")
-    if not custom_mat in custom_materials:
-        custom_mat = custom_materials[0] if len(custom_materials) > 0 else ""
+
+    # Make sure default choices are valid selections
+    common_el = valid_saved(common_el, common_elements)
+    common_mat = valid_saved(common_mat, common_materials)
+    custom_mat = valid_saved(custom_mat, custom_materials)
 
     # Stores mode and sets default
     var_mode = StringVar(root)
@@ -71,12 +88,14 @@ def photons_main(root, selection_start="Common Elements",
     energy_frame = SectionFrame(root, title="Input Energy")
     inner_energy_frame= energy_frame.get_inner_frame()
 
+    # Energy label
     energy_label = ttk.Label(inner_energy_frame, text="Photon Energy (" + energy_unit + "):",
                              style="Black.TLabel")
     energy_entry = Entry(inner_energy_frame, width=32, insertbackground="black",
                          background="white", foreground="black", borderwidth=3, bd=3,
                          highlightthickness=0, relief='solid', font=monospace_font)
 
+    # Logic for when a Calculation Mode is selected
     def select_mode(event):
         nonlocal energy_label, energy_entry, energy_frame
         nonlocal mode, result_label, empty_frame3, result
@@ -84,11 +103,14 @@ def photons_main(root, selection_start="Common Elements",
 
         if event.widget.get() == "Density" \
                 and mode != "Density":
+            # Gets rid of input energy section when switching to density mode
             energy_frame.pack_forget()
             empty_frame3.pack_forget()
         elif mode == "Density" \
                 and event.widget.get() != "Density":
+            # Reset in preparation to re-add input energy section in correct place
             main_list.remove(energy_frame)
+            main_list.remove(empty_frame3)
             energy_frame.pack_forget()
             energy_label.pack_forget()
             energy_entry.pack_forget()
@@ -98,11 +120,17 @@ def photons_main(root, selection_start="Common Elements",
             result_label.pack_forget()
             advanced_button.pack_forget()
             exit_button.pack_forget()
+
+            # Creates input energy section when switching away from density mode
             energy_frame.pack()
             energy_label.pack(pady=(15,1))
             energy_entry.pack(pady=(1,20))
+
+            # Spacer
             empty_frame3 = make_spacer(root)
             main_list.append(empty_frame3)
+
+            # Re-adds everything below input energy section
             result_frame.pack()
             calc_button.pack(pady=(20,5))
             result.pack(pady=(5,1))
@@ -111,8 +139,10 @@ def photons_main(root, selection_start="Common Elements",
             exit_button.pack(pady=5)
             main_list.append(energy_frame)
 
+        # Update mode variable and fixes result section title
         mode = var_mode.get()
         result_frame.change_title(mode)
+        print(len(main_list))
 
         # Clear result label
         result_label.config(state="normal")
@@ -134,108 +164,112 @@ def photons_main(root, selection_start="Common Elements",
     # Spacer
     empty_frame1 = make_spacer(root)
 
-    # Stores selection and sets default
-    var_selection = StringVar(root)
-    var_selection.set(selection_start)
+    # Stores category selection and sets default
+    var_category = StringVar(root)
+    var_category.set(category_start)
 
-    # Stores element/material selection
+    # Stores element/material selection and sets default
     var = StringVar(root)
     var.set("" if choices == [] else
-            common_el if selection_start == "Common Elements" else
-            common_mat if selection_start == "Common Materials" else
-            element if selection_start == "All Elements" else
-            material if selection_start == "All Materials" else
-            custom_mat if selection_start == "Custom Materials" else "")
+            common_el if category_start == "Common Elements" else
+            common_mat if category_start == "Common Materials" else
+            element if category_start == "All Elements" else
+            material if category_start == "All Materials" else
+            custom_mat if category_start == "Custom Materials" else "")
 
-    # Frame for type selection and element/material
+    # Frame for interacting medium category and item
     main_frame = SectionFrame(root, title="Select Interacting Medium")
     main_frame.pack()
     inner_main_frame = main_frame.get_inner_frame()
 
-    def select_selection(event):
+    # Logic for when an interacting medium category is selected
+    def select_category(event):
         nonlocal choices
 
         event.widget.selection_clear()
-        selection = var_selection.get()
-        choices = get_choices(selection)
+        category = var_category.get()
+
+        # Updates item dropdown to match category
+        choices = get_choices(category)
         var.set("" if choices == [] else
-                common_el if selection == "Common Elements" else
-                common_mat if selection == "Common Materials" else
-                element if selection == "All Elements" else
-                material if selection == "All Materials" else
-                custom_mat if selection == "Custom Materials" else "")
-        dropdown.set_completion_list(choices)
-        dropdown.config(values=choices, width=get_width(choices))
+                common_el if category == "Common Elements" else
+                common_mat if category == "Common Materials" else
+                element if category == "All Elements" else
+                material if category == "All Materials" else
+                custom_mat if category == "Custom Materials" else "")
+        item_dropdown.set_completion_list(choices)
+        item_dropdown.config(values=choices, width=get_width(choices))
         root.focus()
 
-    # Frame for category selection
+    # Frame for interacting medium category selection
     category_frame = Frame(inner_main_frame, bg="#F2F2F2")
     category_frame.pack(pady=(15,5))
 
-    category_label = ttk.Label(category_frame, text="Category:",
-                               style="Black.TLabel")
-    category_label.pack()
+    # Category label
+    basic_label(category_frame, "Category:")
 
-    # Creates dropdown menu for selection
-    selections = ["Common Elements", "All Elements",
+    # Creates dropdown menu for interacting medium category selection
+    categories = ["Common Elements", "All Elements",
                   "Common Materials", "All Materials",
                   "Custom Materials"]
-    selection_dropdown = ttk.Combobox(category_frame, textvariable=var_selection,
-                                      values=selections, justify="center",
+    category_dropdown = ttk.Combobox(category_frame, textvariable=var_category,
+                                      values=categories, justify="center",
                                       state='readonly', style="Maize.TCombobox")
-    selection_dropdown.config(width=get_width(selections))
-    selection_dropdown.pack()
-    selection_dropdown.bind("<<ComboboxSelected>>", select_selection)
+    category_dropdown.config(width=get_width(categories))
+    category_dropdown.pack()
+    category_dropdown.bind("<<ComboboxSelected>>", select_category)
 
+    # Logic for when enter is hit when using the item autocomplete combobox
     def on_enter(_):
         nonlocal common_el, common_mat, element, material, custom_mat
-        value = dropdown.get()
-        selection = var_selection.get()
+        value = item_dropdown.get()
+        category = var_category.get()
         if value not in choices:
-            dropdown.set("" if choices == [] else
-                         common_el if selection == "Common Elements" else
-                         common_mat if selection == "Common Materials" else
-                         element if selection == "All Elements" else
-                         material if selection == "All Materials" else
-                         custom_mat if selection == "Custom Materials" else "")
+            # Falls back on default if invalid item is typed in
+            item_dropdown.set("" if choices == [] else
+                              common_el if category == "Common Elements" else
+                              common_mat if category == "Common Materials" else
+                              element if category == "All Elements" else
+                              material if category == "All Materials" else
+                              custom_mat if category == "Custom Materials" else "")
         else:
-            # Move focus away from the combobox
-            selection = var_selection.get()
-            if selection == "Common Elements":
+            # Stores most recent items
+            if category == "Common Elements":
                 common_el = var.get()
-            elif selection == "All Elements":
+            elif category == "All Elements":
                 element = var.get()
-            elif selection == "Common Materials":
+            elif category == "Common Materials":
                 common_mat = var.get()
-            elif selection == "All Materials":
+            elif category == "All Materials":
                 material = var.get()
-            elif selection == "Custom Materials":
+            elif category == "Custom Materials":
                 custom_mat = var.get()
-        dropdown.selection_clear()
-        dropdown.icursor(END)
+
+        item_dropdown.selection_clear()
+        item_dropdown.icursor(END)
         root.focus()
 
+    # Logic for when an interacting medium item is selected
     def on_select(event):
         event.widget.selection_clear()
         root.focus()
 
-    # Frame for item selection
+    # Frame for interacting medium item selection
     item_frame = Frame(inner_main_frame, bg="#F2F2F2")
     item_frame.pack(pady=(5,20))
 
-    item_label = ttk.Label(item_frame, text="Item:",
-                           style="Black.TLabel")
-    item_label.pack()
+    # Item label
+    basic_label(item_frame, "Item:")
 
-    # Creates dropdown menu for element selection
-    dropdown = AutocompleteCombobox(item_frame, textvariable=var, values=choices,
+    # Creates dropdown menu for interacting medium item selection
+    item_dropdown = AutocompleteCombobox(item_frame, textvariable=var, values=choices,
                                     justify="center", style="Maize.TCombobox")
-    dropdown.set_completion_list(choices)
-    dropdown.config(width=get_width(choices))
-    dropdown.pack()
-    dropdown.bind('<Return>', on_enter)
-    dropdown.bind("<<ComboboxSelected>>", on_select)
-    dropdown.bind("<FocusOut>", on_enter)
+    item_dropdown.set_completion_list(choices)
+    item_dropdown.config(width=get_width(choices))
+    item_dropdown.pack()
+    item_dropdown.bind('<Return>', on_enter)
+    item_dropdown.bind("<<ComboboxSelected>>", on_select)
+    item_dropdown.bind("<FocusOut>", on_enter)
 
     # Spacer
     empty_frame2 = make_spacer(root)
@@ -243,20 +277,22 @@ def photons_main(root, selection_start="Common Elements",
     # Spacer
     empty_frame3 = Frame()
 
-    # Energy input is not necessary if mode is density
+    # Input Energy section is created if Calculation Mode is not Density
     if var_mode.get() != "Density":
         energy_frame.pack()
         energy_label.pack(pady=(15,1))
         energy_entry.pack(pady=(1,20))
+
+        # Spacer
         empty_frame3 = make_spacer(root)
 
     result_frame.pack()
 
-    # Creates calculate button
+    # Creates Calculate button
     calc_button = ttk.Button(inner_result_frame, text="Calculate",
                              style="Maize.TButton", padding=(0,0),
                              command=lambda: handle_calculation(root,
-                                                        var_selection.get(), var_mode.get(),
+                                                        var_category.get(), var_mode.get(),
                                                         interactions, var.get(),
                                                         energy_entry.get(), result_label,
                                       get_unit(mac_num, d_num, lac_num, var_mode.get()),
@@ -265,15 +301,16 @@ def photons_main(root, selection_start="Common Elements",
     calc_button.config(width=get_width(["Calculate"]))
     calc_button.pack(pady=(20,5))
 
+    # Puts result display under Calculate button
     result.pack(pady=(5,1))
     result_label.pack(pady=(1,20))
 
-    # Creates an advanced settings button
+    # Creates Advanced Settings button
     advanced_button = ttk.Button(root, text="Advanced Settings",
                                  style="Maize.TButton", padding=(0,0),
                                  command=lambda: to_advanced(root, common_el, common_mat,
                                                              element, material, custom_mat,
-                                                             var_selection.get(),
+                                                             var_category.get(),
                                                              var_mode.get(), interactions,
                                                              mac_num, d_num, lac_num,
                                                              mac_den, d_den, lac_den,
@@ -281,7 +318,7 @@ def photons_main(root, selection_start="Common Elements",
     advanced_button.config(width=get_width(["Advanced Settings"]))
     advanced_button.pack(pady=5)
 
-    # Creates exit button to return to home screen
+    # Creates Exit button to return to home screen
     exit_button = ttk.Button(root, text="Exit", style="Maize.TButton",
                              padding=(0,0),
                              command=lambda: exit_to_home(root))
@@ -331,15 +368,14 @@ photon attenuation advanced screen.
 It is called when the Advanced Settings button is hit.
 """
 def to_advanced(root, common_el, common_mat, element, material,
-             custom_mat, selection, mode, interactions,
-             mac_num, d_num, lac_num,
-             mac_den, d_den, lac_den,
-             energy_unit):
+                custom_mat, category, mode, interactions,
+                mac_num, d_num, lac_num, mac_den, d_den, lac_den,
+                energy_unit):
     root.focus()
     from App.Attenuation.Photons.photons_advanced import photons_advanced
 
     clear_main()
     photons_advanced(root, common_el, common_mat, element, material,
-                     custom_mat, selection, mode, interactions,
-                     mac_num, d_num, lac_num,
-                     mac_den, d_den, lac_den, energy_unit)
+                     custom_mat, category, mode, interactions,
+                     mac_num, d_num, lac_num, mac_den, d_den, lac_den,
+                     energy_unit)

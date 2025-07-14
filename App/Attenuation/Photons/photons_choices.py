@@ -19,24 +19,24 @@ a default list is read from a Data file which is used
 if no user shelve data is stored.
 If the category is Custom Materials, the default list is empty.
 """
-def get_choices(selection):
+def get_choices(category):
     choices = []
 
-    if selection == "All Elements" or selection == "All Materials":
+    if category == "All Elements" or category == "All Materials":
         # Obtains list of items from csv file
-        db_path = resource_path('Data/General Data/Density/' + selection[4:] + '.csv')
+        db_path = resource_path('Data/General Data/Density/' + category[4:] + '.csv')
         read_choices(choices, db_path)
         return choices
 
     # Obtains list of items from shelve
-    db_path = get_user_data_path('Attenuation/Photons/' + selection)
+    db_path = get_user_data_path('Attenuation/Photons/' + category)
     with shelve.open(db_path) as prefs:
         default = []
-        if selection != "Custom Materials":
+        if category != "Custom Materials":
             # Obtains list of default items from csv file
-            db_path2 = resource_path('Data/Modules/Attenuation/' + selection + '.csv')
+            db_path2 = resource_path('Data/Modules/Attenuation/' + category + '.csv')
             read_choices(default, db_path2)
-        choices = prefs.get(selection, default)
+        choices = prefs.get(category, default)
         choices.sort()
         return choices
 

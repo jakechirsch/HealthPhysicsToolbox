@@ -1,6 +1,6 @@
 ##### IMPORTS #####
 import shelve
-from Utility.Functions.gui_utility import get_width, get_user_data_path
+from Utility.Functions.gui_utility import *
 
 """
 This function is called when the Add/Remove button is hit and
@@ -21,22 +21,23 @@ The item is appended to the common list and the user data is updated.
 The item is then removed from the non_common list.
 Finally, the non_common dropdown is updated accordingly.
 """
-def add_c(selection, non_common, common, var, dropdown):
-    db_path = get_user_data_path('Attenuation/Photons/' + selection)
+def add_c(category, non_common, common, var, dropdown):
+    db_path = get_user_data_path('Attenuation/Photons/' + category)
     with shelve.open(db_path) as prefs:
         # Adds item to common
         item = var.get()
         if item == "":
             return
         common.append(item)
-        prefs[selection] = common
+        common.sort()
+        prefs[category] = common
 
         # Removes item from non-common
         non_common.remove(item)
 
         # Update non_common dropdown
         dropdown.config(values=non_common, width=get_width(non_common))
-        var.set(non_common[0] if len(non_common) > 0 else "")
+        var.set(valid_saved("", non_common))
 
 """
 This function removes a common element or common material
@@ -45,19 +46,20 @@ The item is removed from the common list and the user data is updated.
 The common dropdown is then updated accordingly.
 Finally, the item is appended to the non_common list.
 """
-def remove_c(selection, common, non_common, var, dropdown):
-    db_path = get_user_data_path('Attenuation/Photons/' + selection)
+def remove_c(category, common, non_common, var, dropdown):
+    db_path = get_user_data_path('Attenuation/Photons/' + category)
     with shelve.open(db_path) as prefs:
         # Removes item from common
         item = var.get()
         if item == "":
             return
         common.remove(item)
-        prefs[selection] = common
+        prefs[category] = common
 
         # Update common dropdown
         dropdown.config(values=common, width=get_width(common))
-        var.set(common[0] if len(common) > 0 else "")
+        var.set(valid_saved("", common))
 
         # Adds item to non-common
         non_common.append(item)
+        non_common.sort()

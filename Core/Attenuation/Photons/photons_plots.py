@@ -9,7 +9,7 @@ from tkinter.filedialog import asksaveasfilename
 #####################################################################################
 
 """
-This function is called when the export button is hit.
+This function is called when the Export button is hit.
 The function handles the following errors:
    No selected item
    No interactions selected
@@ -29,7 +29,7 @@ configure_plot.
 Finally, if the file is meant to be saved, we pass on the
 work to the save_file function. Otherwise, we show the plot.
 """
-def export_data(root, element, selection, mode, interactions, num, den,
+def export_data(root, element, category, mode, interactions, num, den,
                 energy_unit, choice, save, error_label):
     root.focus()
 
@@ -52,7 +52,7 @@ def export_data(root, element, selection, mode, interactions, num, den,
         cols.append(interaction)
 
     df = pd.DataFrame(columns=cols)
-    if selection in element_choices:
+    if category in element_choices:
         # Load the CSV file
         db_path = resource_path('Data/Modules/Attenuation/Photons/Elements/' + element + '.csv')
         df2 = pd.read_csv(db_path)
@@ -63,10 +63,10 @@ def export_data(root, element, selection, mode, interactions, num, den,
 
         for interaction in interactions:
             df[interaction] = df2[interaction]
-    elif selection in material_choices:
+    elif category in material_choices:
         db_path = resource_path('Data/General Data/Material Composition/' + element + '.csv')
         with open(db_path, 'r') as file:
-            make_df_for_material(file, df, element, selection, interactions)
+            make_df_for_material(file, df, element, category, interactions)
     else:
         db_path = get_user_data_path('Attenuation/Photons/_' + element)
         with shelve.open(db_path) as db:
@@ -76,7 +76,7 @@ def export_data(root, element, selection, mode, interactions, num, den,
         # Create file-like object from the stored string
         csv_file_like = io.StringIO(stored_data)
 
-        make_df_for_material(csv_file_like, df, element, selection, interactions)
+        make_df_for_material(csv_file_like, df, element, category, interactions)
 
     # Convert to desired unit
     if mode == "Mass Attenuation Coefficient":
@@ -84,7 +84,7 @@ def export_data(root, element, selection, mode, interactions, num, den,
             df[interaction] *= mac_numerator[num]
             df[interaction] /= mac_denominator[den]
     else:
-        density = find_density(selection, element, "Mass Attenuation")
+        density = find_density(category, element, "Mass Attenuation")
         for interaction in interactions:
             df[interaction] *= density
             df[interaction] *= lac_numerator[num]
@@ -185,7 +185,7 @@ with each interaction. If L.A.C. is the selected calculation mode,
 the export_data function will handle the conversion by multiplying
 these rows by the density.
 """
-def make_df_for_material(file_like, df, element, selection, interactions):
+def make_df_for_material(file_like, df, element, category, interactions):
     # Reads in file
     reader = csv.DictReader(file_like)
 
@@ -220,6 +220,6 @@ def make_df_for_material(file_like, df, element, selection, interactions):
         for index, val in enumerate(vals):
             row = [val]
             for interaction in interactions:
-                x = find_mac(selection, interaction, element, val)
+                x = find_mac(category, interaction, element, val)
                 row.append(x)
             df.loc[index] = row

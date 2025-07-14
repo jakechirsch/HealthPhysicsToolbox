@@ -20,7 +20,7 @@ too_high = "Error: Energy too high."
 errors = [no_selection, non_number, too_low, too_high]
 
 #####################################################################################
-# GRAPHICS SECTION
+# GUI SECTION
 #####################################################################################
 
 """
@@ -83,6 +83,34 @@ def make_title_frame(root, title):
     Tooltip(info_icon, "Info")
 
     return title_frame
+
+"""
+This function makes a basic label and packs it in the provided frame.
+"""
+def basic_label(frame, text):
+    label = ttk.Label(frame, text=text, style="Black.TLabel")
+    label.pack()
+
+#####################################################################################
+# LOGIC SECTION
+#####################################################################################
+
+"""
+This function returns the list of selected interactions
+given the list of all interactions and the list of the
+variables storing whether or not each interaction is selected.
+"""
+def get_interactions(interaction_choices, interaction_vars):
+    return [interaction_choices[x] for x in range(len(interaction_choices))
+            if interaction_vars[x].get() == 1]
+
+"""
+This function defaults a saved item choice to the first in the list
+of options in case it was removed from the category. If the list of
+options is empty, it defaults to an empty string.
+"""
+def valid_saved(saved, choices):
+    return saved if saved in choices else choices[0] if len(choices) > 0 else ""
 
 #####################################################################################
 # FONT SECTION

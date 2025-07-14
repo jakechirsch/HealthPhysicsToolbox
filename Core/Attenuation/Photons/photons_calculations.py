@@ -25,7 +25,7 @@ energy_units = {"eV" : 0.001 ** 2, "keV" : 0.001,
 #####################################################################################
 
 """
-This function is called when the calculate button is hit.
+This function is called when the Calculate button is hit.
 The function handles the following errors:
    No selected item
    Non-number energy input
@@ -40,7 +40,7 @@ Finally, if the calculation did not cause an error,
 the result is converted to the desired units, and then
 displayed in the result label.
 """
-def handle_calculation(root, selection, mode, interactions, element,
+def handle_calculation(root, category, mode, interactions, element,
                        energy_str, result_label, num, den, energy_unit):
     root.focus()
 
@@ -66,20 +66,20 @@ def handle_calculation(root, selection, mode, interactions, element,
 
     if mode == "Mass Attenuation Coefficient":
         for interaction in interactions:
-            mac = find_mac(selection, interaction, element, energy_target)
+            mac = find_mac(category, interaction, element, energy_target)
             if mac in errors:
                 result = mac
                 break
             result += mac
     elif mode == "Density":
-        result = find_density(selection, element, "Mass Attenuation")
+        result = find_density(category, element, "Mass Attenuation")
     else:
         for interaction in interactions:
-            mac = find_mac(selection, interaction, element, energy_target)
+            mac = find_mac(category, interaction, element, energy_target)
             if mac in errors:
                 result = mac
                 break
-            result += (mac * find_density(selection, element, "Mass Attenuation"))
+            result += (mac * find_density(category, element, "Mass Attenuation"))
 
     # Displays result label
     if not result in errors:
@@ -104,10 +104,10 @@ mass attenuation coefficient as well as the linear attenuation coefficient.
 Based on the selected category, it passes on the calculation to either
 find_mac_for_element or find_mac_for_material, and then returns the result.
 """
-def find_mac(selection, interaction, element, energy_target):
-    if selection in element_choices:
+def find_mac(category, interaction, element, energy_target):
+    if category in element_choices:
         mac = find_mac_for_element(element, interaction, energy_target)
-    elif selection in material_choices:
+    elif category in material_choices:
         db_path = resource_path('Data/General Data/Material Composition/' + element + '.csv')
         with open(db_path, 'r') as file:
             mac = find_mac_for_material(file, interaction, energy_target)

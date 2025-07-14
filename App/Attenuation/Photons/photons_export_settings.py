@@ -10,11 +10,24 @@ export_list = []
 # MENU SECTION
 #####################################################################################
 
+"""
+This function sets up the photon attenuation export screen.
+The following sections and widgets are created:
+   Module Title (Photon Attenuation)
+   Select Interaction Types section
+   Export Options section
+   Back button
+This function contains all of the logic involving these widgets'
+behaviors.
+The sections and widgets are stored in export_list so they can be
+accessed later by clear_export.
+"""
 def photons_export(root, common_el, common_mat, element, material, custom_mat,
-                   selection, mode, interactions, mac_num, d_num, lac_num,
+                   category, mode, interactions, mac_num, d_num, lac_num,
                    mac_den, d_den, lac_den, energy_unit):
     global export_list
 
+    # Makes title frame
     title_frame = make_title_frame(root, "Photon Attenuation")
 
     # Frame for interactions
@@ -23,8 +36,17 @@ def photons_export(root, common_el, common_mat, element, material, custom_mat,
     inner_interactions_frame = interactions_frame.get_inner_frame()
     inner_interactions_frame.config(pady=10)
 
-    def on_select():
-        root.focus()
+    # Logic for when an interaction type is selected
+    on_select = lambda: root.focus()
+
+    # List of interactions
+    interaction_choices = ["Total Attenuation with Coherent Scattering",
+                           "Total Attenuation without Coherent Scattering",
+                           "Pair Production in Electron Field",
+                           "Pair Production in Nuclear Field",
+                           "Scattering - Incoherent",
+                           "Scattering - Coherent",
+                           "Photo-Electric Absorption"]
 
     # Variables for each interaction type
     var0 = IntVar()
@@ -34,6 +56,7 @@ def photons_export(root, common_el, common_mat, element, material, custom_mat,
     var4 = IntVar()
     var5 = IntVar()
     var6 = IntVar()
+    interaction_vars = [var0, var1, var2, var3, var4, var5, var6]
 
     # Checkboxes for each interaction type
     interaction_checkbox(inner_interactions_frame, var0,
@@ -54,7 +77,7 @@ def photons_export(root, common_el, common_mat, element, material, custom_mat,
     # Spacer
     empty_frame1 = make_spacer(root)
 
-    # Checkbox for saving file
+    # Stores whether file is saved and sets default
     var_save = IntVar()
     var_save.set(1)
 
@@ -63,27 +86,31 @@ def photons_export(root, common_el, common_mat, element, material, custom_mat,
     options_frame.pack()
     inner_options_frame = options_frame.get_inner_frame()
 
+    # Creates checkbox for saving file
     save = ttk.Checkbutton(inner_options_frame, text="Save File", variable=var_save,
                            style="Maize.TCheckbutton", command=lambda: root.focus())
     save.pack(pady=(10,5))
 
+    # Frame for export type
     export_type_frame = Frame(inner_options_frame, bg="#F2F2F2")
     export_type_frame.pack(pady=5)
 
+    # Export label
+    basic_label(export_type_frame, "Export Type:")
+
+    # Logic for when an export type is selected
     def on_select_export(event):
         nonlocal var_save
         event.widget.selection_clear()
         root.focus()
         if event.widget.get() == "Data":
+            # Forces user to save file if export type is Data
             var_save.set(1)
             save.config(state="disabled")
         else:
             save.config(state="normal")
 
-    export_label = ttk.Label(export_type_frame, text="Export Type:", style="Black.TLabel")
-    export_label.pack()
-
-    # Creates dropdown menu for export
+    # Creates dropdown menu for export type
     export_choices = ["Plot", "Data"]
     export_dropdown = ttk.Combobox(export_type_frame, values=export_choices,
                                    justify="center", state='readonly',
@@ -93,18 +120,18 @@ def photons_export(root, common_el, common_mat, element, material, custom_mat,
     export_dropdown.pack()
     export_dropdown.bind("<<ComboboxSelected>>", on_select_export)
 
-    # Creates export button
+    # Creates Export button
     export_button = ttk.Button(inner_options_frame, text="Export", style="Maize.TButton",
                                padding=(0,0),
                                command=lambda:
                                export_data(root,
-                                           common_el if selection == "Common Elements" else
-                                           common_mat if selection == "Common Materials" else
-                                           element if selection == "All Elements" else
-                                           material if selection == "All Materials" else
-                                           custom_mat if selection == "Custom Materials"
-                                           else "", selection, mode,
-                               get_interactions(var0, var1, var2, var3, var4, var5, var6),
+                                           common_el if category == "Common Elements" else
+                                           common_mat if category == "Common Materials" else
+                                           element if category == "All Elements" else
+                                           material if category == "All Materials" else
+                                           custom_mat if category == "Custom Materials"
+                                           else "", category, mode,
+                               get_interactions(interaction_choices, interaction_vars),
                                get_unit(mac_num, d_num, lac_num, mode),
                                get_unit(mac_den, d_den, lac_den, mode),
                                            energy_unit, export_dropdown.get(),
@@ -116,42 +143,21 @@ def photons_export(root, common_el, common_mat, element, material, custom_mat,
     error_label = ttk.Label(inner_options_frame, text="", style="Error.TLabel")
     error_label.pack(pady=(5,10))
 
-    # Creates exit button to return to photon attenuation advanced screen
-    exit_button = ttk.Button(root, text="Back", style="Maize.TButton", padding=(0,0),
+    # Creates Back button to return to photon attenuation advanced screen
+    back_button = ttk.Button(root, text="Back", style="Maize.TButton", padding=(0,0),
                              command=lambda: advanced_back(root, common_el, common_mat,
                                                            element, material, custom_mat,
-                                                           selection, mode, interactions,
+                                                           category, mode, interactions,
                                                            mac_num, d_num, lac_num,
                                                            mac_den, d_den, lac_den,
                                                            energy_unit))
-    exit_button.config(width=get_width(["Back"]))
-    exit_button.pack(pady=5)
+    back_button.config(width=get_width(["Back"]))
+    back_button.pack(pady=5)
 
+    # Stores nodes into global list
     export_list = [title_frame,
                    interactions_frame, empty_frame1,
-                   options_frame, exit_button]
-
-#####################################################################################
-# HELPER SECTION
-#####################################################################################
-
-def get_interactions(var0, var1, var2, var3, var4, var5, var6):
-    interactions = []
-    if var0.get() == 1:
-        interactions.append("Total Attenuation with Coherent Scattering")
-    if var1.get() == 1:
-        interactions.append("Total Attenuation without Coherent Scattering")
-    if var2.get() == 1:
-        interactions.append("Pair Production in Electron Field")
-    if var3.get() == 1:
-        interactions.append("Pair Production in Nuclear Field")
-    if var4.get() == 1:
-        interactions.append("Scattering - Incoherent")
-    if var5.get() == 1:
-        interactions.append("Scattering - Coherent")
-    if var6.get() == 1:
-        interactions.append("Photo-Electric Absorption")
-    return interactions
+                   options_frame, back_button]
 
 #####################################################################################
 # NAVIGATION SECTION
@@ -177,12 +183,12 @@ photon attenuation advanced screen.
 It is called when the Back button is hit.
 """
 def advanced_back(root, common_el, common_mat, element, material, custom_mat,
-                  selection, mode, interactions, mac_num, d_num, lac_num,
+                  category, mode, interactions, mac_num, d_num, lac_num,
                   mac_den, d_den, lac_den, energy_unit):
     from App.Attenuation.Photons.photons_advanced import photons_advanced
 
     clear_export()
-    photons_advanced(root, selection=selection, mode=mode,
+    photons_advanced(root, category=category, mode=mode,
                      interactions_start=interactions, common_el=common_el,
                      common_mat=common_mat, element=element, material=material,
                      custom_mat=custom_mat, mac_num=mac_num, d_num=d_num,

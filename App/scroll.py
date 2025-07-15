@@ -117,7 +117,7 @@ def make_scroll_update(canvas, scrollable_frame, canvas_window, scrollbar_y, scr
         needs_scrollbar_x = scrollable_frame.winfo_reqwidth() > canvas.winfo_width()
 
         if not needs_scrollbar_x:
-            canvas.itemconfig(canvas_window, width=event.width if event else canvas.winfo_width())
+            canvas.itemconfig(canvas_window, width=event.width if event else 625)
 
         if needs_scrollbar_y and not scrollbar_y_visible:
             scrollbar_y.pack(side="right", fill="y")

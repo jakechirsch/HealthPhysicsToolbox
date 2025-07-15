@@ -426,7 +426,6 @@ def make_vertical_frame(root, top_frame, action, category_ar,
         var.set(value)
         item_dropdown.selection_clear()
         item_dropdown.icursor(END)
-        root.focus()
 
     # Creates dropdown menu for interacting medium item selection
     # to be added or removed

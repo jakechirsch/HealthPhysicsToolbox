@@ -247,7 +247,6 @@ def photons_main(root, category_start="Common Elements",
 
         item_dropdown.selection_clear()
         item_dropdown.icursor(END)
-        root.focus()
 
     # Logic for when an interacting medium item is selected
     def on_select(event):

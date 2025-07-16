@@ -58,20 +58,23 @@ def photons_export(root, common_el, common_mat, element, material, custom_mat,
     var6 = IntVar()
     interaction_vars = [var0, var1, var2, var3, var4, var5, var6]
 
+    checks = Frame(inner_interactions_frame, bg="#F2F2F2")
+    checks.pack()
+
     # Checkboxes for each interaction type
-    interaction_checkbox(inner_interactions_frame, var0,
+    interaction_checkbox(checks, var0,
                          "Total Attenuation with Coherent Scattering", on_select)
-    interaction_checkbox(inner_interactions_frame, var1,
+    interaction_checkbox(checks, var1,
                          "Total Attenuation without Coherent Scattering", on_select)
-    interaction_checkbox(inner_interactions_frame, var2,
+    interaction_checkbox(checks, var2,
                          "Pair Production in Electron Field", on_select)
-    interaction_checkbox(inner_interactions_frame, var3,
+    interaction_checkbox(checks, var3,
                          "Pair Production in Nuclear Field", on_select)
-    interaction_checkbox(inner_interactions_frame, var4,
+    interaction_checkbox(checks, var4,
                          "Scattering - Incoherent", on_select)
-    interaction_checkbox(inner_interactions_frame, var5,
+    interaction_checkbox(checks, var5,
                          "Scattering - Coherent", on_select)
-    interaction_checkbox(inner_interactions_frame, var6,
+    interaction_checkbox(checks, var6,
                          "Photo-Electric Absorption", on_select)
 
     # Spacer

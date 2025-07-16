@@ -91,14 +91,16 @@ def export_data(root, element, category, mode, interactions, num, den,
             df[interaction] /= lac_denominator[den]
 
     unit = " (" + num + "/" + den + ")"
+    if num == "1":
+        unit = " (" + den + "\u207B\u00B9)"
 
     if choice == "Plot":
         configure_plot(interactions, df, energy_col, unit, element, mode)
         if save == 1:
             save_file(plt, choice, error_label, element)
         else:
-            plt.show()
             error_label.config(style="Success.TLabel", text=choice + " exported!")
+            plt.show()
     else:
         for interaction in interactions:
             df.rename(columns={interaction: interaction+unit}, inplace=True)

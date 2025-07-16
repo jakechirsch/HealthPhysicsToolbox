@@ -23,7 +23,7 @@ This function creates the home screen.
 def return_home(root):
     global home_list
 
-    title = ttk.Label(root, text="Health Physics Toolbox", style="Home.TLabel")
+    title = ttk.Label(root, text="Health Physics Toolbox", style="Blue.TLabel")
     title.pack(pady=5)
 
     # Creates buttons for home screen

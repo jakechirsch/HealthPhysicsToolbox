@@ -210,22 +210,25 @@ def photons_advanced(root, common_el, common_mat, element, material, custom_mat,
     if mode != "Density":
         interactions_frame.pack()
 
+        checks = Frame(inner_interactions_frame, bg="#F2F2F2")
+        checks.pack()
+
         # Checkboxes for each interaction type
-        interaction_checkbox(inner_interactions_frame, var0,
+        interaction_checkbox(checks, var0,
                              "Total Attenuation with Coherent Scattering",
                              on_select_total_with)
-        interaction_checkbox(inner_interactions_frame, var1,
+        interaction_checkbox(checks, var1,
                              "Total Attenuation without Coherent Scattering",
                              on_select_total_without)
-        interaction_checkbox(inner_interactions_frame, var2,
+        interaction_checkbox(checks, var2,
                              "Pair Production in Electron Field", lambda: on_select(var2))
-        interaction_checkbox(inner_interactions_frame, var3,
+        interaction_checkbox(checks, var3,
                              "Pair Production in Nuclear Field", lambda: on_select(var3))
-        interaction_checkbox(inner_interactions_frame, var4,
+        interaction_checkbox(checks, var4,
                              "Scattering - Incoherent", lambda: on_select(var4))
-        interaction_checkbox(inner_interactions_frame, var5,
+        interaction_checkbox(checks, var5,
                              "Scattering - Coherent", on_select_coherent_scattering)
-        interaction_checkbox(inner_interactions_frame, var6,
+        interaction_checkbox(checks, var6,
                              "Photo-Electric Absorption", lambda: on_select(var6))
 
         # Spacer

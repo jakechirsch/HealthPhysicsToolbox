@@ -4,6 +4,7 @@ import tkinter.font as tk_font
 from tkinter import ttk, Frame, END, INSERT
 from Utility.Functions.gui_utility import get_max_string_pixel_width
 from App.Attenuation.Photons.photons_choices import get_choices
+import platform
 
 #####################################################################################
 # COLORS SECTION
@@ -30,30 +31,34 @@ def configure_style():
               foreground=[('readonly', "black"), ('!readonly', "black")])
     style.configure("Maize.TCheckbutton",
                     background="#F2F2F2",
-                    foreground="#00274C")
+                    foreground="#00274C",
+                    font=("TkDefaultFont", 9 if platform.system() == "Windows" else 13,
+                          "bold"))
     style.map("Maize.TCheckbutton",
               background=[('active', "#F2F2F2")])
     style.configure("White.TLabel",
                     background="#00274C",
                     foreground="white",
-                    font=("Verdana", 16))
+                    font=("Verdana", 13 if platform.system() == "Windows" else 16))
     style.configure("Black.TLabel",
                     background="#F2F2F2",
-                    foreground="black")
-    style.configure("Home.TLabel",
-                    background="#F2F2F2",
-                    foreground="#00274C",
-                    font=("Verdana", 16))
+                    foreground="black",
+                    font=("TkDefaultFont", 9 if platform.system() == "Windows" else 13,
+                          "bold"))
     style.configure("Error.TLabel",
                     background="#F2F2F2",
-                    foreground="red")
+                    foreground="red",
+                    font=("TkDefaultFont", 8 if platform.system() == "Windows" else 12,
+                          "bold"))
     style.configure("Success.TLabel",
                     background="#F2F2F2",
-                    foreground="black")
+                    foreground="black",
+                    font=("TkDefaultFont", 8 if platform.system() == "Windows" else 12,
+                          "bold"))
     style.configure("Blue.TLabel",
                     background="#F2F2F2",
                     foreground="#00274C",
-                    font=("Verdana", 20, "bold"))
+                    font=("Verdana", 17 if platform.system() == "Windows" else 20, "bold"))
 
 #####################################################################################
 # SECTION BORDERS SECTION
@@ -74,7 +79,8 @@ class SectionFrame(tk.Frame):
         self.border_frame.pack(padx=1, pady=10)
 
         # Sets the height of the title bar
-        font = tk_font.Font(family="Verdana", size=16)
+        font = tk_font.Font(family="Verdana",
+                            size=13 if platform.system() == "Windows" else 16)
         font_height = font.metrics("linespace")
         title_height = max(24, font_height + 5)
 
@@ -91,10 +97,10 @@ class SectionFrame(tk.Frame):
                       tk_font.nametofont("TkDefaultFont")) // 2 + 20) * 2
         width = max(400, custom_width, mats_width)
 
-        dpi = parent.winfo_fpixels('1i') / 72
-        adjusted_width = int(width * dpi)
+        if platform.system() == 'Windows':
+            width += 25
 
-        width_frame = Frame(self.inner_frame, bg="#F2F2F2", width=adjusted_width)
+        width_frame = Frame(self.inner_frame, bg="#F2F2F2", width=width)
         width_frame.pack()
         width_frame.pack_propagate(False)
 

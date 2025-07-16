@@ -37,11 +37,12 @@ def edit_result(result, result_label, num="", den=""):
     result_label.config(state="normal")
     result_label.delete("1.0", END)
     result_label.insert(END, result)
+    unit = num + "/" + den
+    if num == "1":
+        unit = den + "\u207B\u00B9"
     if not result in errors:
         result_label.insert(END, " ")
-        result_label.insert(END, num)
-        result_label.insert(END, "/")
-        result_label.insert(END, den)
+        result_label.insert(END, unit)
     result_label.config(state="disabled")
 
 """
@@ -62,7 +63,7 @@ There is no padding in between checkboxes.
 def interaction_checkbox(frame, variable, interaction, command):
     check = ttk.Checkbutton(frame, text=interaction, variable=variable,
                             style="Maize.TCheckbutton", command=command)
-    check.pack()
+    check.pack(anchor="w")
 
 """
 This function is used to make an overall module title.

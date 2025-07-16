@@ -13,7 +13,7 @@ set_mpl_cache_dir()
 ##### WINDOW SETUP #####
 root = tk.Tk()
 root.title("Health Physics Toolbox")
-root.geometry("625x750")
+root.geometry("525x750")
 root.configure(bg="#F2F2F2")
 
 # Configures style of app

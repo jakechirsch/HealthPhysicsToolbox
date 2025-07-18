@@ -84,7 +84,7 @@ def export_data(root, element, category, mode, interactions, num, den,
             df[interaction] *= mac_numerator[num]
             df[interaction] /= mac_denominator[den]
     else:
-        density = find_density(category, element, "Mass Attenuation")
+        density = find_density(category, element, "Attenuation/Photons")
         for interaction in interactions:
             df[interaction] *= density
             df[interaction] *= lac_numerator[num]
@@ -222,6 +222,6 @@ def make_df_for_material(file_like, df, element, category, interactions):
         for index, val in enumerate(vals):
             row = [val]
             for interaction in interactions:
-                x = find_mac(category, interaction, element, val)
+                x = find_data(category, interaction, element, val, "Photons")
                 row.append(x)
             df.loc[index] = row

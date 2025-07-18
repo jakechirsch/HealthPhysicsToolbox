@@ -32,6 +32,8 @@ def return_home(root):
                             padding=(0,0))
     tac_button.config(width=get_width(["Attenuation and Range Data"]))
     tac_button.pack(pady=5)
+
+    # Stores nodes into global list
     home_list = [tac_button, title]
 
 """

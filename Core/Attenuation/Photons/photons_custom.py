@@ -1,8 +1,8 @@
 ##### IMPORTS #####
-from App.Attenuation.Photons.photons_choices import *
 from Core.Attenuation.Photons.photons_calculations import density_numerator, density_denominator
 import io
 from tkinter import END
+from Utility.Functions.choices import *
 
 """
 This function is called when the Add Material button is hit.
@@ -73,7 +73,7 @@ def add_custom(root, name_box, density_box, weights_box, error_label, normalize,
     csv_file_like = io.StringIO(csv_data)
 
     reader = csv.reader(csv_file_like)
-    elements = get_choices("All Elements")
+    elements = get_choices("All Elements", "Photons")
     weights_sum = 0
 
     for row in reader:

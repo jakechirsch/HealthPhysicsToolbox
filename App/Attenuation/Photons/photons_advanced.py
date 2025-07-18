@@ -3,8 +3,7 @@ from App.Attenuation.Photons.photons_add_remove_settings import *
 from App.Attenuation.Photons.photons_add_custom import *
 from App.Attenuation.Photons.photons_export_settings import *
 from Core.Attenuation.Photons.photons_plots import *
-from App.style import AutocompleteCombobox
-from App.style import SectionFrame
+from App.style import AutocompleteCombobox, SectionFrame
 
 # For global access to nodes on photon attenuation advanced screen
 advanced_list = []
@@ -38,17 +37,17 @@ def photons_advanced(root, common_el, common_mat, element, material, custom_mat,
     title_frame = make_title_frame(root, "Photon Attenuation")
 
     # Gets common and non-common elements
-    elements = get_choices("All Elements")
-    common = get_choices("Common Elements")
+    elements = get_choices("All Elements", "Photons")
+    common = get_choices("Common Elements", "Photons")
     non_common = [element for element in elements if element not in common]
 
     # Gets common and non-common materials
-    materials = get_choices("All Materials")
-    common_m = get_choices("Common Materials")
+    materials = get_choices("All Materials", "Photons")
+    common_m = get_choices("Common Materials", "Photons")
     non_common_m = [material for material in materials if material not in common_m]
 
     # Gets custom materials
-    custom = get_choices("Custom Materials")
+    custom = get_choices("Custom Materials", "Photons")
 
     # Frame for add/remove settings
     a_r_frame = SectionFrame(root, title="Customize Categories")

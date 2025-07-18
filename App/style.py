@@ -3,7 +3,7 @@ import tkinter as tk
 import tkinter.font as tk_font
 from tkinter import ttk, Frame, END, INSERT
 from Utility.Functions.gui_utility import get_max_string_pixel_width
-from App.Attenuation.Photons.photons_choices import get_choices
+from Utility.Functions.choices import *
 import platform
 
 #####################################################################################
@@ -89,8 +89,8 @@ class SectionFrame(tk.Frame):
         self.inner_frame.pack(padx=4, pady=(title_height, 4))
 
         # Empty frame to set a consistent width for each section
-        custom = get_choices("Custom Materials")
-        mats = get_choices("All Materials")
+        custom = get_choices("Custom Materials", "Photons")
+        mats = get_choices("All Materials", "Photons")
         custom_width = (get_max_string_pixel_width(custom,
                         tk_font.nametofont("TkDefaultFont")) // 2 + 20) * 2
         mats_width = (get_max_string_pixel_width(mats,
@@ -98,7 +98,7 @@ class SectionFrame(tk.Frame):
         width = max(400, custom_width, mats_width)
 
         if platform.system() == 'Windows':
-            width += 25
+            width += 50
 
         width_frame = Frame(self.inner_frame, bg="#F2F2F2", width=width)
         width_frame.pack()
@@ -155,8 +155,8 @@ class Tooltip:
     def show_tooltip(self):
         if self.tooltip_window or not self.text:
             return
-        x = self.widget.winfo_rootx() + 26
-        y = self.widget.winfo_rooty() + 12
+        x = self.widget.winfo_rootx() + (52 if platform.system() == "Windows" else 26)
+        y = self.widget.winfo_rooty() + (24 if platform.system() == "Windows" else 12)
         self.tooltip_window = tw = tk.Toplevel(self.widget)
         tw.wm_overrideredirect(True)
         tw.wm_geometry(f"+{x}+{y}")

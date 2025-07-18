@@ -1,10 +1,10 @@
 ##### IMPORTS #####
 from tkinter import font
 from App.style import AutocompleteCombobox
-from App.Attenuation.Photons.photons_choices import *
 from App.Attenuation.Photons.photons_unit_settings import *
 from Core.Attenuation.Photons.photons_calculations import handle_calculation
 from Utility.Functions.gui_utility import *
+from Utility.Functions.choices import *
 from App.style import SectionFrame
 
 # For global access to nodes on photon attenuation main screen
@@ -53,21 +53,23 @@ def photons_main(root, category_start="Common Elements",
     result_frame = SectionFrame(root, title=mode_start)
     inner_result_frame = result_frame.get_inner_frame()
 
+    entry_width = 28 if platform.system() == "Windows" else 32
+
     # Displays the result of calculation
     result = ttk.Label(inner_result_frame, text="Result:",
                        style="Black.TLabel")
     result_label = Text(inner_result_frame, height=1, borderwidth=3, bd=3,
                         highlightthickness=0, relief='solid')
-    result_label.config(bg='white', fg='black', state="disabled", width=32,
+    result_label.config(bg='white', fg='black', state="disabled", width=entry_width,
                         font=monospace_font)
 
     # Gets the item options
-    choices = get_choices(category_start)
+    choices = get_choices(category_start, "Photons")
 
     # Gets customizable categories
-    common_elements = get_choices("Common Elements")
-    common_materials = get_choices("Common Materials")
-    custom_materials = get_choices("Custom Materials")
+    common_elements = get_choices("Common Elements", "Photons")
+    common_materials = get_choices("Common Materials", "Photons")
+    custom_materials = get_choices("Custom Materials", "Photons")
 
     # Make sure default choices are valid selections
     common_el = valid_saved(common_el, common_elements)
@@ -89,9 +91,10 @@ def photons_main(root, category_start="Common Elements",
     inner_energy_frame= energy_frame.get_inner_frame()
 
     # Energy label
-    energy_label = ttk.Label(inner_energy_frame, text="Photon Energy (" + energy_unit + "):",
+    energy_label = ttk.Label(inner_energy_frame,
+                             text="Photon Energy (" + energy_unit + "):",
                              style="Black.TLabel")
-    energy_entry = Entry(inner_energy_frame, width=32, insertbackground="black",
+    energy_entry = Entry(inner_energy_frame, width=entry_width, insertbackground="black",
                          background="white", foreground="black", borderwidth=3, bd=3,
                          highlightthickness=0, relief='solid', font=monospace_font)
 
@@ -109,8 +112,6 @@ def photons_main(root, category_start="Common Elements",
         elif mode == "Density" \
                 and event.widget.get() != "Density":
             # Reset in preparation to re-add input energy section in correct place
-            main_list.remove(energy_frame)
-            main_list.remove(empty_frame3)
             energy_frame.pack_forget()
             energy_label.pack_forget()
             energy_entry.pack_forget()
@@ -128,7 +129,6 @@ def photons_main(root, category_start="Common Elements",
 
             # Spacer
             empty_frame3 = make_spacer(root)
-            main_list.append(empty_frame3)
 
             # Re-adds everything below input energy section
             result_frame.pack()
@@ -137,12 +137,10 @@ def photons_main(root, category_start="Common Elements",
             result_label.pack(pady=(1,20))
             advanced_button.pack(pady=5)
             exit_button.pack(pady=5)
-            main_list.append(energy_frame)
 
         # Update mode variable and fixes result section title
         mode = var_mode.get()
         result_frame.change_title(mode)
-        print(len(main_list))
 
         # Clear result label
         result_label.config(state="normal")
@@ -155,8 +153,9 @@ def photons_main(root, category_start="Common Elements",
     mode_choices = ["Mass Attenuation Coefficient",
                     "Density",
                     "Linear Attenuation Coefficient"]
-    mode_dropdown = ttk.Combobox(inner_mode_frame, textvariable=var_mode, values=mode_choices,
-                                 justify="center", state='readonly', style="Maize.TCombobox")
+    mode_dropdown = ttk.Combobox(inner_mode_frame, textvariable=var_mode,
+                                 values=mode_choices, justify="center",
+                                 state='readonly', style="Maize.TCombobox")
     mode_dropdown.config(width=get_width(mode_choices))
     mode_dropdown.pack(pady=20)
     mode_dropdown.bind("<<ComboboxSelected>>", select_mode)
@@ -190,7 +189,7 @@ def photons_main(root, category_start="Common Elements",
         category = var_category.get()
 
         # Updates item dropdown to match category
-        choices = get_choices(category)
+        choices = get_choices(category, "Photons")
         var.set("" if choices == [] else
                 common_el if category == "Common Elements" else
                 common_mat if category == "Common Materials" else
@@ -262,7 +261,7 @@ def photons_main(root, category_start="Common Elements",
 
     # Creates dropdown menu for interacting medium item selection
     item_dropdown = AutocompleteCombobox(item_frame, textvariable=var, values=choices,
-                                    justify="center", style="Maize.TCombobox")
+                                         justify="center", style="Maize.TCombobox")
     item_dropdown.set_completion_list(choices)
     item_dropdown.config(width=get_width(choices))
     item_dropdown.pack()
@@ -277,7 +276,7 @@ def photons_main(root, category_start="Common Elements",
     empty_frame3 = Frame()
 
     # Input Energy section is created if Calculation Mode is not Density
-    if var_mode.get() != "Density":
+    if mode != "Density":
         energy_frame.pack()
         energy_label.pack(pady=(15,1))
         energy_entry.pack(pady=(1,20))
@@ -291,11 +290,11 @@ def photons_main(root, category_start="Common Elements",
     calc_button = ttk.Button(inner_result_frame, text="Calculate",
                              style="Maize.TButton", padding=(0,0),
                              command=lambda: handle_calculation(root,
-                                                        var_category.get(), var_mode.get(),
+                                                        var_category.get(), mode,
                                                         interactions, var.get(),
                                                         energy_entry.get(), result_label,
-                                      get_unit(mac_num, d_num, lac_num, var_mode.get()),
-                                      get_unit(mac_den, d_den, lac_den, var_mode.get()),
+                                      get_unit(mac_num, d_num, lac_num, mode),
+                                      get_unit(mac_den, d_den, lac_den, mode),
                                                         energy_unit))
     calc_button.config(width=get_width(["Calculate"]))
     calc_button.pack(pady=(20,5))
@@ -310,7 +309,7 @@ def photons_main(root, category_start="Common Elements",
                                  command=lambda: to_advanced(root, common_el, common_mat,
                                                              element, material, custom_mat,
                                                              var_category.get(),
-                                                             var_mode.get(), interactions,
+                                                             mode, interactions,
                                                              mac_num, d_num, lac_num,
                                                              mac_den, d_den, lac_den,
                                                              energy_unit))

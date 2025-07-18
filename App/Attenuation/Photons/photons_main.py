@@ -53,6 +53,7 @@ def photons_main(root, category_start="Common Elements",
     result_frame = SectionFrame(root, title=mode_start)
     inner_result_frame = result_frame.get_inner_frame()
 
+    # Input/output box width
     entry_width = 28 if platform.system() == "Windows" else 32
 
     # Displays the result of calculation

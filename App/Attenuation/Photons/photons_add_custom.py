@@ -73,8 +73,10 @@ def photons_add_custom(root, common_el, common_mat, element, material, custom_ma
     # Element weights label
     basic_label(ex_frame, "Element Weights:")
 
-    # Element weights entry
+    # Input/output box width
     entry_width = 16 if platform.system() == "Windows" else 20
+
+    # Element weights entry
     entry3 = Text(w_frame, width=entry_width, height=10, bg='white', fg='black',
                   insertbackground="black", borderwidth=3, bd=3,
                   highlightthickness=0, relief='solid', font=monospace_font)
@@ -143,6 +145,7 @@ This function makes a horizontal frame with a label and an entry.
 It is used for both the Enter Material Name and Enter Density sections.
 """
 def make_line(frame, text, monospace_font):
+    # Input/output box width
     entry_width = 28 if platform.system() == "Windows" else 32
     label = ttk.Label(frame, text=text, style="Black.TLabel")
     entry = Entry(frame, width=entry_width, insertbackground="black",

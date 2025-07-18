@@ -235,10 +235,13 @@ def electrons_main(root, category_start="Common Elements",
     energy_frame = SectionFrame(root, title="Input Energy")
     inner_energy_frame = energy_frame.get_inner_frame()
 
+    # Input/output box width
+    entry_width = 28 if platform.system() == "Windows" else 32
+
     # Energy label
     energy_label = ttk.Label(inner_energy_frame, text="Kinetic Energy (" + energy_unit + "):",
                              style="Black.TLabel")
-    energy_entry = Entry(inner_energy_frame, width=32, insertbackground="black",
+    energy_entry = Entry(inner_energy_frame, width=entry_width, insertbackground="black",
                          background="white", foreground="black", borderwidth=3, bd=3,
                          highlightthickness=0, relief='solid', font=monospace_font)
 
@@ -274,7 +277,7 @@ def electrons_main(root, category_start="Common Elements",
                        style="Black.TLabel")
     result_label = Text(inner_result_frame, height=1, borderwidth=3, bd=3,
                         highlightthickness=0, relief='solid')
-    result_label.config(bg='white', fg='black', state="disabled", width=32,
+    result_label.config(bg='white', fg='black', state="disabled", width=entry_width,
                         font=monospace_font)
     result.pack(pady=(5, 1))
     result_label.pack(pady=(1, 20))

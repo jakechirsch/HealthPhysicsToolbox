@@ -233,7 +233,6 @@ def electrons_main(root, category_start="Common Elements",
 
     # Frame for energy input
     energy_frame = SectionFrame(root, title="Input Energy")
-    energy_frame.pack()
     inner_energy_frame = energy_frame.get_inner_frame()
 
     # Energy label
@@ -242,11 +241,17 @@ def electrons_main(root, category_start="Common Elements",
     energy_entry = Entry(inner_energy_frame, width=32, insertbackground="black",
                          background="white", foreground="black", borderwidth=3, bd=3,
                          highlightthickness=0, relief='solid', font=monospace_font)
-    energy_label.pack(pady=(15, 1))
-    energy_entry.pack(pady=(1, 20))
 
-    # Spacer
-    empty_frame3 = make_spacer(root)
+    empty_frame3 = Frame()
+
+    # Input Energy section is created if Calculation Mode is not Density
+    if mode != "Density":
+        energy_frame.pack()
+        energy_label.pack(pady=(15, 1))
+        energy_entry.pack(pady=(1, 20))
+
+        # Spacer
+        empty_frame3 = make_spacer(root)
 
     # Frame for result
     result_frame = SectionFrame(root, title=mode_start)

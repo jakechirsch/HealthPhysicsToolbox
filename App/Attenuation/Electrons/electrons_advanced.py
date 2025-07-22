@@ -1,8 +1,6 @@
 ##### IMPORTS #####
-from App.style import AutocompleteCombobox, SectionFrame
 from Core.Attenuation.Electrons.electrons_calculations import *
-from Utility.Functions.choices import *
-from Utility.Functions.customize import *
+from App.Attenuation.Electrons.electrons_add_custom import *
 
 # For global access to nodes on electron attenuation advanced screen
 advanced_list = []
@@ -11,6 +9,21 @@ advanced_list = []
 # MENU SECTION
 #####################################################################################
 
+"""
+This function sets up the electron attenuation advanced screen.
+The following sections and widgets are created:
+   Module Title (Electron Range)
+   Customize Categories section
+   Select Units section
+   Export Menu button
+   References button
+   Help button
+   Back button
+This function contains all of the logic involving these widgets'
+behaviors.
+The sections and widgets are stored in advanced_list so they can be
+accessed later by clear_advanced.
+"""
 def electrons_advanced(root, category, mode, common_el, common_mat, element,
                        material, custom_mat, csda_num, d_num, rec_num, csda_den, d_den,
                        rec_den, energy_unit):
@@ -46,10 +59,16 @@ def electrons_advanced(root, category, mode, common_el, common_mat, element,
 
     # Simplifies calls to make_vertical_frame
     def make_v_frame():
-        v_frame = make_vertical_frame(root, inner_a_r_frame, action_dropdown.get(),
-                                      category_dropdown.get(), non_common, common,
-                                      non_common_m, common_m, custom, a_r_button)
-        return v_frame
+        to_custom = lambda: to_custom_menu(root, category, mode,
+                                           common_el, common_mat,
+                                           element, material, custom_mat,
+                                           num_units[0], num_units[4], num_units[1],
+                                           den_units[0], den_units[4], den_units[1],
+                                           energy_unit)
+        return make_vertical_frame(root, inner_a_r_frame, action_dropdown.get(),
+                                   category_dropdown.get(), non_common, common,
+                                   non_common_m, common_m, custom, a_r_button,
+                                   to_custom, "Attenuation/Electrons")
 
     # Logic for when an action or category is selected
     def on_select_options(event):
@@ -159,10 +178,8 @@ def electrons_advanced(root, category, mode, common_el, common_mat, element,
     empty_frame2 = make_spacer(root)
 
     # Frame for Export Menu, References, & Help
-    """
     bottom_frame = Frame(root, bg="#F2F2F2")
-    bottom_frame.pack(#pady=5)
-    """
+    bottom_frame.pack(pady=5)
 
     # Energy Unit options are only created if
     # Calculation Mode is not Density
@@ -201,21 +218,21 @@ def electrons_advanced(root, category, mode, common_el, common_mat, element,
         export_button.config(width=get_width(["Export Menu"]))
         export_button.pack(side='left', #padx=5)
         """
-    """
+
     # Creates References button
     references_button = ttk.Button(bottom_frame, text="References", style="Maize.TButton",
                                    padding=(0, 0),
                                    command=lambda: open_ref(root))
     references_button.config(width=get_width(["References"]))
-    references_button.pack(side='left', #padx=5)
+    references_button.pack(side='left', padx=5)
 
     # Creates Help button
     help_button = ttk.Button(bottom_frame, text="Help", style="Maize.TButton",
                              padding=(0, 0),
                              command=lambda: open_help(root))
     help_button.config(width=get_width(["Help"]))
-    help_button.pack(side='left', #padx=5)
-    """
+    help_button.pack(side='left', padx=5)
+
     # Creates Back button to return to electron attenuation main screen
     back_button = ttk.Button(root, text="Back", style="Maize.TButton",
                              padding=(0, 0),
@@ -231,93 +248,8 @@ def electrons_advanced(root, category, mode, common_el, common_mat, element,
     # Stores nodes into global list
     advanced_list = [title_frame,
                      a_r_frame, a_r_button[0], empty_frame1,
-                     unit_frame, empty_frame2, back_button]
-
-#####################################################################################
-# HELPER SECTION
-#####################################################################################
-
-def make_vertical_frame(root, top_frame, action, category_ar,
-                        non_common, common, non_common_m, common_m, custom,
-                        button):
-    # Clear previous button
-    button[0].destroy()
-
-    # Make vertical frame
-    vertical_frame = Frame(top_frame, bg="#F2F2F2")
-    vertical_frame.pack(pady=(5,20))
-
-    if action == "Add" and category_ar == "Custom Materials":
-        # Creates Add Custom Materials button
-        button[0] = ttk.Button(vertical_frame, text="Add Custom Materials",
-                               style="Maize.TButton", padding=(0,0))
-        button[0].config(width=get_width(["Add Custom Materials"]))
-        button[0].pack(pady=(10,0))
-        return vertical_frame
-
-    # Stores element and sets default
-    var = StringVar(root)
-    choices = []
-    inverse = []
-    if action == "Add" and category_ar == "Common Elements":
-        var.set(valid_saved("", non_common))
-        choices = non_common
-        inverse = common
-    elif action == "Add" and category_ar == "Common Materials":
-        var.set(valid_saved("", non_common_m))
-        choices = non_common_m
-        inverse = common_m
-    elif action == "Remove" and category_ar == "Common Elements":
-        var.set(valid_saved("", common))
-        choices = common
-        inverse = non_common
-    elif action == "Remove" and category_ar == "Common Materials":
-        var.set(valid_saved("", common_m))
-        choices = common_m
-        inverse = non_common_m
-    elif action == "Remove" and category_ar == "Custom Materials":
-        var.set(valid_saved("", custom))
-        choices = custom
-
-    # Item label
-    basic_label(vertical_frame, "Item:")
-
-    # Logic for when an interacting medium item is selected
-    def on_select(event):
-        event.widget.selection_clear()
-        root.focus()
-
-    # Logic for when enter is hit when using the item autocomplete combobox
-    def on_enter(_):
-        value = var.get()
-        value = valid_saved(value, choices)
-        var.set(value)
-        item_dropdown.selection_clear()
-        item_dropdown.icursor(END)
-
-    # Creates dropdown menu for interacting medium item selection
-    # to be added or removed
-    item_dropdown = AutocompleteCombobox(vertical_frame, textvariable=var,
-                                         values=choices, justify="center",
-                                         style="Maize.TCombobox")
-    item_dropdown.set_completion_list(choices)
-    item_dropdown.config(width=get_width(choices))
-    item_dropdown.pack()
-    item_dropdown.bind('<Return>', on_enter)
-    item_dropdown.bind("<<ComboboxSelected>>", on_select)
-    item_dropdown.bind("<FocusOut>", on_enter)
-
-    # Creates button
-    button[0] = ttk.Button(vertical_frame, text=action,
-                           style="Maize.TButton", padding=(0,0),
-                           command=lambda: carry_action(root, action, category_ar,
-                                                        choices, inverse, var,
-                                                        item_dropdown,
-                                                        "Attenuation/Electrons"))
-    button[0].config(width=get_width([action]))
-    button[0].pack(pady=(10,0))
-
-    return vertical_frame
+                     unit_frame, empty_frame2,
+                     bottom_frame, back_button]
 
 #####################################################################################
 # NAVIGATION SECTION
@@ -351,3 +283,34 @@ def to_main(root, category, mode, common_el, common_mat, element,
     electrons_main(root, category, mode, common_el, common_mat, element,
                    material, custom_mat, csda_num, d_num, rec_num, csda_den, d_den,
                    rec_den, energy_unit)
+
+"""
+This function transitions from the electron attenuation advanced screen
+to the electron attenuation add custom screen by first clearing the
+electron attenuation advanced screen and then creating the
+electron attenuation add custom screen.
+It is called when the Add Custom Materials button is hit.
+"""
+def to_custom_menu(root, category, mode, common_el, common_mat, element,
+                   material, custom_mat, csda_num, d_num, rec_num, csda_den, d_den,
+                   rec_den, energy_unit):
+    clear_advanced()
+    electrons_add_custom(root, category, mode, common_el, common_mat, element,
+                         material, custom_mat, csda_num, d_num, rec_num, csda_den, d_den,
+                         rec_den, energy_unit)
+
+"""
+This function opens the electron attenuation References.txt file.
+"""
+def open_ref(root):
+    root.focus()
+    db_path = resource_path('Utility/Modules/Attenuation/Electrons/References.txt')
+    open_file(db_path)
+
+"""
+This function opens the electron attenuation Help.txt file.
+"""
+def open_help(root):
+    root.focus()
+    db_path = resource_path('Utility/Modules/Attenuation/Electrons/Help.txt')
+    open_file(db_path)

@@ -4,7 +4,7 @@ from tkinter import ttk
 import os
 import subprocess
 import platform
-import tkinter.font as tk_font
+import tkinter.font as font
 import sys
 from pathlib import Path
 
@@ -103,6 +103,154 @@ def basic_label(frame, text):
     label = ttk.Label(frame, text=text, style="Black.TLabel")
     label.pack()
 
+"""
+This function makes a horizontal frame with a label and an entry.
+It is used for both the Enter Material Name and Enter Density sections
+in Export menus.
+"""
+def make_entry_line(frame, text):
+    # Creates font
+    monospace_font = font.Font(family="Menlo", size=12)
+
+    # Input/output box width
+    entry_width = 22 if platform.system() == "Windows" else 32
+
+    label = ttk.Label(frame, text=text, style="Black.TLabel")
+    entry = Entry(frame, width=entry_width, insertbackground="black",
+                  background="white", foreground="black",
+                  borderwidth=3, bd=3, highlightthickness=0, relief='solid',
+                  font=monospace_font)
+    label.pack(side="left", padx=(0,5))
+    entry.pack(side="left", padx=(5,0), pady=20)
+    return entry
+
+def make_weights_line(frame):
+    # Creates font
+    monospace_font = font.Font(family="Menlo", size=12)
+
+    # Input/output box width
+    entry_width = 16 if platform.system() == "Windows" else 20
+
+    # Frame for element weights example
+    ex_frame = Frame(frame, bg="#F2F2F2")
+    ex_frame.pack(side="left", padx=(0,30))
+
+    # Element weights label
+    basic_label(ex_frame, "Element Weights:")
+
+    # Element weights entry
+    entry3 = Text(frame, width=entry_width, height=10, bg='white', fg='black',
+                  insertbackground="black", borderwidth=3, bd=3,
+                  highlightthickness=0, relief='solid', font=monospace_font)
+    entry3.pack(side="left", padx=(30,0), pady=20)
+
+    # Make element weights example
+    basic_label(ex_frame, "")
+    basic_label(ex_frame, "Example:")
+    basic_label(ex_frame, "0.30, Pb")
+    basic_label(ex_frame, "0.55, Si")
+    basic_label(ex_frame, "0.13, O")
+    basic_label(ex_frame, "0.02, K")
+
+#####################################################################################
+# FULL FRAME SECTION
+#####################################################################################
+
+"""
+This function creates a vertical frame dependent on the
+action and category for Customize Categories settings.
+If action is Add and category is Custom Materials,
+we create the Add Custom Materials button to direct
+to the photon attenuation add custom screen.
+Otherwise, we find the choices for the selected
+action and category, and create a label, an item dropdown,
+and a button to carry out the action.
+"""
+def make_vertical_frame(root, top_frame, action, category_ar,
+                        non_common, common, non_common_m, common_m, custom,
+                        button, to_custom, module):
+    from App.style import AutocompleteCombobox
+    from Utility.Functions.customize import carry_action
+
+    # Clear previous button
+    button[0].destroy()
+
+    # Make vertical frame
+    vertical_frame = Frame(top_frame, bg="#F2F2F2")
+    vertical_frame.pack(pady=(5,20))
+
+    if action == "Add" and category_ar == "Custom Materials":
+        # Creates Add Custom Materials button
+        button[0] = ttk.Button(vertical_frame, text="Add Custom Materials",
+                               style="Maize.TButton", padding=(0,0),
+                               command=lambda: to_custom())
+        button[0].config(width=get_width(["Add Custom Materials"]))
+        button[0].pack(pady=(10,0))
+        return vertical_frame
+
+    # Stores element and sets default
+    var = StringVar(root)
+    choices = []
+    inverse = []
+    if action == "Add" and category_ar == "Common Elements":
+        var.set(valid_saved("", non_common))
+        choices = non_common
+        inverse = common
+    elif action == "Add" and category_ar == "Common Materials":
+        var.set(valid_saved("", non_common_m))
+        choices = non_common_m
+        inverse = common_m
+    elif action == "Remove" and category_ar == "Common Elements":
+        var.set(valid_saved("", common))
+        choices = common
+        inverse = non_common
+    elif action == "Remove" and category_ar == "Common Materials":
+        var.set(valid_saved("", common_m))
+        choices = common_m
+        inverse = non_common_m
+    elif action == "Remove" and category_ar == "Custom Materials":
+        var.set(valid_saved("", custom))
+        choices = custom
+
+    # Item label
+    basic_label(vertical_frame, "Item:")
+
+    # Logic for when an interacting medium item is selected
+    def on_select(event):
+        event.widget.selection_clear()
+        root.focus()
+
+    # Logic for when enter is hit when using the item autocomplete combobox
+    def on_enter(_):
+        value = var.get()
+        value = valid_saved(value, choices)
+        var.set(value)
+        item_dropdown.selection_clear()
+        item_dropdown.icursor(END)
+
+    # Creates dropdown menu for interacting medium item selection
+    # to be added or removed
+    item_dropdown = AutocompleteCombobox(vertical_frame, textvariable=var,
+                                         values=choices, justify="center",
+                                         style="Maize.TCombobox")
+    item_dropdown.set_completion_list(choices)
+    item_dropdown.config(width=get_width(choices))
+    item_dropdown.pack()
+    item_dropdown.bind('<Return>', on_enter)
+    item_dropdown.bind("<<ComboboxSelected>>", on_select)
+    item_dropdown.bind("<FocusOut>", on_enter)
+
+    # Creates button
+    button[0] = ttk.Button(vertical_frame, text=action,
+                           style="Maize.TButton", padding=(0,0),
+                           command=lambda: carry_action(root, action, category_ar,
+                                                        choices, inverse, var,
+                                                        item_dropdown, module))
+    button[0].config(width=get_width([action]))
+    button[0].pack(pady=(10,0))
+
+    return vertical_frame
+
 #####################################################################################
 # LOGIC SECTION
 #####################################################################################
@@ -154,8 +302,8 @@ def get_unit(units, modes, mode):
 This function measures each string in a list in the provided font
 and returns the widest string's measurement.
 """
-def get_max_string_pixel_width(strings, font):
-    return max(font.measure(s) for s in strings) if len(strings) > 0 else 2
+def get_max_string_pixel_width(strings, font_obj):
+    return max(font_obj.measure(s) for s in strings) if len(strings) > 0 else 2
 
 """
 This function converts the widest string in a list to a pixel width.
@@ -163,11 +311,11 @@ Used for determining dropbox width to fit the longest option.
 """
 def get_width(choices):
     # Measures the width of the longest dropdown option in the device's default font
-    font = tk_font.nametofont("TkDefaultFont")  # or the font you set in the style
-    max_width_px = get_max_string_pixel_width(choices, font)
+    font_obj = font.nametofont("TkDefaultFont")  # or the font you set in the style
+    max_width_px = get_max_string_pixel_width(choices, font_obj)
 
     # Convert pixels to character width approx
-    avg_char_width = font.measure("0")
+    avg_char_width = font_obj.measure("0")
     char_width = int(max_width_px / avg_char_width) + 2  # +2 for padding/margin
 
     return char_width

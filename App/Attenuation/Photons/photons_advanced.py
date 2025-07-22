@@ -1,8 +1,7 @@
 ##### IMPORTS #####
-from Utility.Functions.customize import *
 from App.Attenuation.Photons.photons_add_custom import *
-from App.Attenuation.Photons.photons_export_settings import *
-from App.style import AutocompleteCombobox, SectionFrame
+from App.Attenuation.Photons.photons_export import *
+from App.style import SectionFrame
 
 # For global access to nodes on photon attenuation advanced screen
 advanced_list = []
@@ -27,8 +26,8 @@ behaviors.
 The sections and widgets are stored in advanced_list so they can be
 accessed later by clear_advanced.
 """
-def photons_advanced(root, common_el, common_mat, element, material, custom_mat,
-                     category, mode, interactions_start, mac_num, d_num, lac_num,
+def photons_advanced(root, category, mode, interactions_start, common_el, common_mat,
+                     element, material, custom_mat, mac_num, d_num, lac_num,
                      mac_den, d_den, lac_den, energy_unit):
     global advanced_list
 
@@ -86,15 +85,17 @@ def photons_advanced(root, common_el, common_mat, element, material, custom_mat,
 
     # Simplifies calls to make_vertical_frame
     def make_v_frame():
-        v_frame = make_vertical_frame(root, inner_a_r_frame, action_dropdown.get(),
-                            category_dropdown.get(), non_common, common,
-                            non_common_m, common_m, custom, common_el, common_mat,
-                            element, material, custom_mat, category, mode,
-                            get_interactions(interaction_choices, interaction_vars),
-                            num_units[0], num_units[1], num_units[2],
-                            den_units[0], den_units[1], den_units[2],
-                            energy_unit, a_r_button)
-        return v_frame
+        to_custom = lambda: to_custom_menu(root, category, mode,
+                                get_interactions(interaction_choices, interaction_vars),
+                                           common_el, common_mat,
+                                           element, material, custom_mat,
+                                    num_units[0], num_units[1], num_units[2],
+                                    den_units[0], den_units[1], den_units[2],
+                                           energy_unit)
+        return make_vertical_frame(root, inner_a_r_frame, action_dropdown.get(),
+                                   category_dropdown.get(), non_common, common,
+                                   non_common_m, common_m, custom, a_r_button,
+                                   to_custom, "Attenuation/Photons")
 
     # Logic for when an action or category is selected
     def on_select_options(event):
@@ -318,9 +319,10 @@ def photons_advanced(root, common_el, common_mat, element, material, custom_mat,
         export_button = ttk.Button(bottom_frame, text="Export Menu", style="Maize.TButton",
                                    padding=(0,0),
                                    command=lambda:
-                                   to_export_menu(root, common_el, common_mat, element, material,
-                                                  custom_mat, category, mode,
+                                   to_export_menu(root, category, mode,
                                    get_interactions(interaction_choices, interaction_vars),
+                                                  common_el, common_mat, element, material,
+                                                  custom_mat,
                                                   num_units[0], num_units[1], num_units[2],
                                                   den_units[0], den_units[1], den_units[2],
                                                   energy_unit))
@@ -344,14 +346,14 @@ def photons_advanced(root, common_el, common_mat, element, material, custom_mat,
     # Creates Back button to return to photon attenuation main screen
     back_button = ttk.Button(root, text="Back", style="Maize.TButton",
                              padding=(0,0),
-                             command=lambda: to_main(root, valid_saved(common_el, common),
+                             command=lambda: to_main(root, category, mode,
+                            get_interactions(interaction_choices, interaction_vars),
+                                                     valid_saved(common_el, common),
                                                      valid_saved(common_mat, common_m),
                                                      element, material,
                                                      valid_saved(custom_mat, custom),
-                                                     category, mode,
-                                                     get_interactions(interaction_choices, interaction_vars),
-                                                     num_units[0], num_units[1], num_units[2],
-                                                     den_units[0], den_units[1], den_units[2],
+                                                num_units[0], num_units[1], num_units[2],
+                                                den_units[0], den_units[1], den_units[2],
                                                      energy_unit))
     back_button.config(width=get_width(["Back"]))
     back_button.pack(pady=5)
@@ -362,115 +364,6 @@ def photons_advanced(root, common_el, common_mat, element, material, custom_mat,
                      interactions_frame, empty_frame2,
                      unit_frame, empty_frame3,
                      bottom_frame, back_button]
-
-#####################################################################################
-# HELPER SECTION
-#####################################################################################
-
-"""
-This function creates a vertical frame dependent on the
-action and category for Customize Categories settings.
-If action is Add and category is Custom Materials,
-we create the Add Custom Materials button to direct
-to the photon attenuation add custom screen.
-Otherwise, we find the choices for the selected
-action and category, and create a label, an item dropdown,
-and a button to carry out the action.
-"""
-def make_vertical_frame(root, top_frame, action, category_ar,
-                        non_common, common, non_common_m, common_m, custom,
-                        common_el, common_mat, element, material, custom_mat,
-                        category, mode, interactions, mac_num, d_num, lac_num, mac_den,
-                        d_den, lac_den, energy_unit, button):
-    # Clear previous button
-    button[0].destroy()
-
-    # Make vertical frame
-    vertical_frame = Frame(top_frame, bg="#F2F2F2")
-    vertical_frame.pack(pady=(5,20))
-
-    if action == "Add" and category_ar == "Custom Materials":
-        # Creates Add Custom Materials button
-        button[0] = ttk.Button(vertical_frame, text="Add Custom Materials",
-                               style="Maize.TButton", padding=(0,0),
-                               command=lambda: to_custom_menu(root, common_el=common_el,
-                                                              common_mat=common_mat,
-                                                              element=element,
-                                                              material=material,
-                                                              custom_mat=custom_mat,
-                                                              category=category, mode=mode,
-                                                              interactions=interactions,
-                                                              mac_num=mac_num, d_num=d_num,
-                                                              lac_num=lac_num, mac_den=mac_den,
-                                                              d_den=d_den, lac_den=lac_den,
-                                                              energy_unit=energy_unit))
-        button[0].config(width=get_width(["Add Custom Materials"]))
-        button[0].pack(pady=(10,0))
-        return vertical_frame
-
-    # Stores element and sets default
-    var = StringVar(root)
-    choices = []
-    inverse = []
-    if action == "Add" and category_ar == "Common Elements":
-        var.set(valid_saved("", non_common))
-        choices = non_common
-        inverse = common
-    elif action == "Add" and category_ar == "Common Materials":
-        var.set(valid_saved("", non_common_m))
-        choices = non_common_m
-        inverse = common_m
-    elif action == "Remove" and category_ar == "Common Elements":
-        var.set(valid_saved("", common))
-        choices = common
-        inverse = non_common
-    elif action == "Remove" and category_ar == "Common Materials":
-        var.set(valid_saved("", common_m))
-        choices = common_m
-        inverse = non_common_m
-    elif action == "Remove" and category_ar == "Custom Materials":
-        var.set(valid_saved("", custom))
-        choices = custom
-
-    # Item label
-    basic_label(vertical_frame, "Item:")
-
-    # Logic for when an interacting medium item is selected
-    def on_select(event):
-        event.widget.selection_clear()
-        root.focus()
-
-    # Logic for when enter is hit when using the item autocomplete combobox
-    def on_enter(_):
-        value = var.get()
-        value = valid_saved(value, choices)
-        var.set(value)
-        item_dropdown.selection_clear()
-        item_dropdown.icursor(END)
-
-    # Creates dropdown menu for interacting medium item selection
-    # to be added or removed
-    item_dropdown = AutocompleteCombobox(vertical_frame, textvariable=var,
-                                         values=choices, justify="center",
-                                         style="Maize.TCombobox")
-    item_dropdown.set_completion_list(choices)
-    item_dropdown.config(width=get_width(choices))
-    item_dropdown.pack()
-    item_dropdown.bind('<Return>', on_enter)
-    item_dropdown.bind("<<ComboboxSelected>>", on_select)
-    item_dropdown.bind("<FocusOut>", on_enter)
-
-    # Creates button
-    button[0] = ttk.Button(vertical_frame, text=action,
-                           style="Maize.TButton", padding=(0,0),
-                           command=lambda: carry_action(root, action, category_ar,
-                                                        choices, inverse, var,
-                                                        item_dropdown,
-                                                        "Attenuation/Photons"))
-    button[0].config(width=get_width([action]))
-    button[0].pack(pady=(10,0))
-
-    return vertical_frame
 
 #####################################################################################
 # NAVIGATION SECTION
@@ -495,18 +388,15 @@ photon attenuation advanced screen and then creating the
 photon attenuation main screen.
 It is called when the Back button is hit.
 """
-def to_main(root, common_el, common_mat, element, material, custom_mat,
-            category, mode, interactions, mac_num, d_num, lac_num,
+def to_main(root, category, mode, interactions, common_el, common_mat,
+            element, material, custom_mat, mac_num, d_num, lac_num,
             mac_den, d_den, lac_den, energy_unit):
     from App.Attenuation.Photons.photons_main import photons_main
 
     clear_advanced()
-    photons_main(root, category_start=category, mode_start=mode,
-                 interactions=interactions, common_el=common_el,
-                 common_mat=common_mat, element=element, material=material,
-                 custom_mat=custom_mat, mac_num=mac_num, d_num=d_num,
-                 lac_num=lac_num, mac_den=mac_den, d_den=d_den,
-                 lac_den=lac_den, energy_unit=energy_unit)
+    photons_main(root, category, mode, interactions, common_el, common_mat,
+                 element, material, custom_mat, mac_num, d_num, lac_num,
+                 mac_den, d_den, lac_den, energy_unit)
 
 """
 This function transitions from the photon attenuation advanced screen
@@ -515,13 +405,13 @@ photon attenuation advanced screen and then creating the
 photon attenuation add custom screen.
 It is called when the Add Custom Materials button is hit.
 """
-def to_custom_menu(root, common_el, common_mat, element, material, custom_mat,
-                   category, mode, interactions, mac_num, d_num, lac_num, mac_den,
-                   d_den, lac_den, energy_unit):
+def to_custom_menu(root, category, mode, interactions, common_el, common_mat,
+                   element, material, custom_mat, mac_num, d_num, lac_num,
+                   mac_den, d_den, lac_den, energy_unit):
     clear_advanced()
-    photons_add_custom(root, common_el, common_mat, element, material, custom_mat,
-                       category, mode, interactions, mac_num, d_num, lac_num, mac_den,
-                       d_den, lac_den, energy_unit)
+    photons_add_custom(root, category, mode, interactions, common_el, common_mat,
+                       element, material, custom_mat, mac_num, d_num, lac_num,
+                       mac_den, d_den, lac_den, energy_unit)
 
 """
 This function transitions from the photon attenuation advanced screen
@@ -530,12 +420,12 @@ photon attenuation advanced screen and then creating the
 photon attenuation export screen.
 It is called when the Export button is hit.
 """
-def to_export_menu(root, common_el, common_mat, element, material, custom_mat,
-                   category, mode, interactions, mac_num, d_num, lac_num,
+def to_export_menu(root, category, mode, interactions, common_el, common_mat,
+                   element, material, custom_mat, mac_num, d_num, lac_num,
                    mac_den, d_den, lac_den, energy_unit):
     clear_advanced()
-    photons_export(root, common_el, common_mat, element, material, custom_mat,
-                   category, mode, interactions, mac_num, d_num, lac_num,
+    photons_export(root, category, mode, interactions, common_el, common_mat,
+                   element, material, custom_mat, mac_num, d_num, lac_num,
                    mac_den, d_den, lac_den, energy_unit)
 
 """

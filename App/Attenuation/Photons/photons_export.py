@@ -21,8 +21,8 @@ behaviors.
 The sections and widgets are stored in export_list so they can be
 accessed later by clear_export.
 """
-def photons_export(root, common_el, common_mat, element, material, custom_mat,
-                   category, mode, interactions, mac_num, d_num, lac_num,
+def photons_export(root, category, mode, interactions, common_el, common_mat,
+                   element, material, custom_mat, mac_num, d_num, lac_num,
                    mac_den, d_den, lac_den, energy_unit):
     global export_list
 
@@ -153,9 +153,10 @@ def photons_export(root, common_el, common_mat, element, material, custom_mat,
 
     # Creates Back button to return to photon attenuation advanced screen
     back_button = ttk.Button(root, text="Back", style="Maize.TButton", padding=(0,0),
-                             command=lambda: advanced_back(root, common_el, common_mat,
-                                                           element, material, custom_mat,
-                                                           category, mode, interactions,
+                             command=lambda: advanced_back(root, category, mode,
+                                                           interactions, common_el,
+                                                           common_mat, element,
+                                                           material, custom_mat,
                                                            mac_num, d_num, lac_num,
                                                            mac_den, d_den, lac_den,
                                                            energy_unit))
@@ -190,15 +191,12 @@ photon attenuation export screen and then creating the
 photon attenuation advanced screen.
 It is called when the Back button is hit.
 """
-def advanced_back(root, common_el, common_mat, element, material, custom_mat,
-                  category, mode, interactions, mac_num, d_num, lac_num,
+def advanced_back(root, category, mode, interactions, common_el, common_mat,
+                  element, material, custom_mat, mac_num, d_num, lac_num,
                   mac_den, d_den, lac_den, energy_unit):
     from App.Attenuation.Photons.photons_advanced import photons_advanced
 
     clear_export()
-    photons_advanced(root, category=category, mode=mode,
-                     interactions_start=interactions, common_el=common_el,
-                     common_mat=common_mat, element=element, material=material,
-                     custom_mat=custom_mat, mac_num=mac_num, d_num=d_num,
-                     lac_num=lac_num, mac_den=mac_den, d_den=d_den,
-                     lac_den=lac_den, energy_unit=energy_unit)
+    photons_advanced(root, category, mode, interactions, common_el, common_mat,
+                     element, material, custom_mat, mac_num, d_num, lac_num,
+                     mac_den, d_den, lac_den, energy_unit)

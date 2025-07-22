@@ -15,7 +15,7 @@ main_list = []
 """
 This function sets up the electron attenuation main screen.
 The following sections and widgets are created:
-   Module Title (Electron Attenuation)
+   Module Title (Electron Range)
    Select Calculation Mode section
    Select Interacting Medium section
    Input Energy section (only when Calculation Mode is not Density)
@@ -47,8 +47,8 @@ def electrons_main(root, category_start="Common Elements",
 
     # Gets customizable categories
     common_elements = get_choices("Common Elements", "Electrons")
-    common_materials = get_choices("Common Materials", "Photons")
-    custom_materials = get_choices("Custom Materials", "Photons")
+    common_materials = get_choices("Common Materials", "Electrons")
+    custom_materials = get_choices("Custom Materials", "Electrons")
 
     # Make sure default choices are valid selections
     common_el = valid_saved(common_el, common_elements)

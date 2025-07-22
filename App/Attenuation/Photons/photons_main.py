@@ -297,10 +297,10 @@ def photons_main(root, category_start="Common Elements",
     # Creates Advanced Settings button
     advanced_button = ttk.Button(root, text="Advanced Settings",
                                  style="Maize.TButton", padding=(0,0),
-                                 command=lambda: to_advanced(root, common_el, common_mat,
-                                                             element, material, custom_mat,
-                                                             var_category.get(),
+                                 command=lambda: to_advanced(root, var_category.get(),
                                                              mode, interactions,
+                                                             common_el, common_mat,
+                                                             element, material, custom_mat,
                                                              mac_num, d_num, lac_num,
                                                              mac_den, d_den, lac_den,
                                                              energy_unit))
@@ -356,15 +356,13 @@ photon attenuation main screen and then creating the
 photon attenuation advanced screen.
 It is called when the Advanced Settings button is hit.
 """
-def to_advanced(root, common_el, common_mat, element, material,
-                custom_mat, category, mode, interactions,
-                mac_num, d_num, lac_num, mac_den, d_den, lac_den,
-                energy_unit):
+def to_advanced(root, category, mode, interactions, common_el, common_mat,
+                element, material, custom_mat, mac_num, d_num, lac_num,
+                mac_den, d_den, lac_den, energy_unit):
     root.focus()
     from App.Attenuation.Photons.photons_advanced import photons_advanced
 
     clear_main()
-    photons_advanced(root, common_el, common_mat, element, material,
-                     custom_mat, category, mode, interactions,
-                     mac_num, d_num, lac_num, mac_den, d_den, lac_den,
-                     energy_unit)
+    photons_advanced(root, category, mode, interactions, common_el, common_mat,
+                     element, material, custom_mat, mac_num, d_num, lac_num,
+                     mac_den, d_den, lac_den, energy_unit)

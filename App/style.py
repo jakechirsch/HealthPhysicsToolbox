@@ -98,7 +98,7 @@ class SectionFrame(tk.Frame):
         width = max(400, custom_width, mats_width)
 
         if platform.system() == 'Windows':
-            width += 50
+            width += 60
 
         width_frame = Frame(self.inner_frame, bg="#F2F2F2", width=width)
         width_frame.pack()

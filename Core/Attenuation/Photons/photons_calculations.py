@@ -8,11 +8,8 @@ from Utility.Functions.math_utility import *
 # Unit choices paired with their factor in relation to the default
 mac_numerator = {"mm\u00B2" : 10 ** 2, "cm\u00B2" : 1,
                  "m\u00B2" : 0.01 ** 2}
-density_numerator = {"mg" : 1000, "g" : 1, "kg" : 0.001}
-lac_numerator= {"1" : 1}
+lac_numerator = {"1" : 1}
 mac_denominator = {"mg" : 1000, "g" : 1, "kg" : 0.001}
-density_denominator = {"mm\u00B3" : 10 ** 3, "cm\u00B3" : 1,
-                       "m\u00B3" : 0.01 ** 3}
 lac_denominator = {"mm" : 10, "cm" : 1, "m" : 0.01}
 
 #####################################################################################

@@ -31,11 +31,13 @@ def electrons_main(root, category_start="Common Elements",
                    mode_start="CSDA Range", common_el="Ag",
                    common_mat="Air (dry, near sea level)", element="Ac",
                    material="A-150 Tissue-Equivalent Plastic (A150TEP)",
-                   num="", den="", energy_unit="MeV"):
+                   custom_mat="", csda_num="g", d_num="g", rec_num="g",
+                   csda_den="cm\u00B2", d_den="cm\u00B3", rec_den="cm\u00B2",
+                   energy_unit="MeV"):
     global main_list
 
     # Makes title frame
-    title_frame = make_title_frame(root, "Electron Attenuation")
+    title_frame = make_title_frame(root, "Electron Range")
 
     # Creates font for result label and energy entry
     monospace_font = font.Font(family="Menlo", size=12)
@@ -46,10 +48,12 @@ def electrons_main(root, category_start="Common Elements",
     # Gets customizable categories
     common_elements = get_choices("Common Elements", "Electrons")
     common_materials = get_choices("Common Materials", "Photons")
+    custom_materials = get_choices("Custom Materials", "Photons")
 
     # Make sure default choices are valid selections
     common_el = valid_saved(common_el, common_elements)
     common_mat = valid_saved(common_mat, common_materials)
+    custom_mat = valid_saved(custom_mat, custom_materials)
 
     # Stores mode and sets default
     var_mode = StringVar(root)
@@ -63,9 +67,9 @@ def electrons_main(root, category_start="Common Elements",
 
     # Logic for when a Calculation Mode is selected
     def select_mode(event):
-        nonlocal energy_label, energy_entry, energy_frame
-        nonlocal mode, result_label, empty_frame3, result
+        nonlocal mode, empty_frame3
         event.widget.selection_clear()
+        warning_label.config(text="")
 
         if event.widget.get() == "Density" \
                 and mode != "Density":
@@ -75,6 +79,7 @@ def electrons_main(root, category_start="Common Elements",
         elif mode == "Density" \
                 and event.widget.get() != "Density":
             # Reset in preparation to re-add input energy section in correct place
+            main_list.remove(empty_frame3)
             energy_frame.pack_forget()
             energy_label.pack_forget()
             energy_entry.pack_forget()
@@ -82,22 +87,25 @@ def electrons_main(root, category_start="Common Elements",
             calc_button.pack_forget()
             result.pack_forget()
             result_label.pack_forget()
+            warning_label.pack_forget()
             advanced_button.pack_forget()
             exit_button.pack_forget()
 
             # Creates input energy section when switching away from density mode
             energy_frame.pack()
-            energy_label.pack(pady=(15, 1))
-            energy_entry.pack(pady=(1, 20))
+            energy_label.pack(pady=(15,1))
+            energy_entry.pack(pady=(1,20))
 
             # Spacer
             empty_frame3 = make_spacer(root)
+            main_list.append(empty_frame3)
 
             # Re-adds everything below input energy section
             result_frame.pack()
-            calc_button.pack(pady=(20, 5))
-            result.pack(pady=(5, 1))
-            result_label.pack(pady=(1, 20))
+            calc_button.pack(pady=(20,5))
+            result.pack(pady=(5,1))
+            result_label.pack(pady=(1,0))
+            warning_label.pack(pady=(1,5))
             advanced_button.pack(pady=5)
             exit_button.pack(pady=5)
 
@@ -114,10 +122,10 @@ def electrons_main(root, category_start="Common Elements",
 
     # Creates dropdown menu for mode
     mode_choices = ["CSDA Range",
+                    "Range-Energy Curve",
                     "Radiation Yield",
                     "Density Effect Delta",
-                    "Density",
-                    "Range-Energy Curve"]
+                    "Density"]
     mode_dropdown = ttk.Combobox(inner_mode_frame, textvariable=var_mode,
                                  values=mode_choices, justify="center",
                                  state='readonly', style="Maize.TCombobox")
@@ -134,11 +142,7 @@ def electrons_main(root, category_start="Common Elements",
 
     # Stores element/material selection and sets default
     var = StringVar(root)
-    var.set("" if choices == [] else
-            common_el if category_start == "Common Elements" else
-            common_mat if category_start == "Common Materials" else
-            element if category_start == "All Elements" else
-            material if category_start == "All Materials" else "")
+    var.set(get_item(category_start, common_el, common_mat, element, material, custom_mat))
 
     # Frame for interacting medium category and item
     main_frame = SectionFrame(root, title="Select Interacting Medium")
@@ -154,11 +158,7 @@ def electrons_main(root, category_start="Common Elements",
 
         # Updates item dropdown to match category
         choices = get_choices(category, "Electrons")
-        var.set("" if choices == [] else
-                common_el if category == "Common Elements" else
-                common_mat if category == "Common Materials" else
-                element if category == "All Elements" else
-                material if category == "All Materials" else "")
+        var.set(get_item(category, common_el, common_mat, element, material, custom_mat))
         item_dropdown.set_completion_list(choices)
         item_dropdown.config(values=choices, width=get_width(choices))
         root.focus()
@@ -172,7 +172,8 @@ def electrons_main(root, category_start="Common Elements",
 
     # Creates dropdown menu for interacting medium category selection
     categories = ["Common Elements", "All Elements",
-                  "Common Materials", "All Materials"]
+                  "Common Materials", "All Materials",
+                  "Custom Materials"]
     category_dropdown = ttk.Combobox(category_frame, textvariable=var_category,
                                       values=categories, justify="center",
                                       state='readonly', style="Maize.TCombobox")
@@ -182,16 +183,13 @@ def electrons_main(root, category_start="Common Elements",
 
     # Logic for when enter is hit when using the item autocomplete combobox
     def on_enter(_):
-        nonlocal common_el, common_mat, element, material
+        nonlocal common_el, common_mat, element, material, custom_mat
         value = item_dropdown.get()
         category = var_category.get()
         if value not in choices:
             # Falls back on default if invalid item is typed in
-            item_dropdown.set("" if choices == [] else
-                              common_el if category_start == "Common Elements" else
-                              common_mat if category_start == "Common Materials" else
-                              element if category_start == "All Elements" else
-                              material if category_start == "All Materials" else "")
+            item_dropdown.set(get_item(category, common_el, common_mat,
+                                       element, material, custom_mat))
         else:
             # Stores most recent items
             if category == "Common Elements":
@@ -202,6 +200,8 @@ def electrons_main(root, category_start="Common Elements",
                 common_mat = var.get()
             elif category == "All Materials":
                 material = var.get()
+            elif category == "Custom Materials":
+                custom_mat = var.get()
 
         item_dropdown.selection_clear()
         item_dropdown.icursor(END)
@@ -239,7 +239,7 @@ def electrons_main(root, category_start="Common Elements",
     entry_width = 28 if platform.system() == "Windows" else 32
 
     # Energy label
-    energy_label = ttk.Label(inner_energy_frame, text="Kinetic Energy (" + energy_unit + "):",
+    energy_label = ttk.Label(inner_energy_frame, text="Electron Energy (" + energy_unit + "):",
                              style="Black.TLabel")
     energy_entry = Entry(inner_energy_frame, width=entry_width, insertbackground="black",
                          background="white", foreground="black", borderwidth=3, bd=3,
@@ -250,8 +250,8 @@ def electrons_main(root, category_start="Common Elements",
     # Input Energy section is created if Calculation Mode is not Density
     if mode != "Density":
         energy_frame.pack()
-        energy_label.pack(pady=(15, 1))
-        energy_entry.pack(pady=(1, 20))
+        energy_label.pack(pady=(15,1))
+        energy_entry.pack(pady=(1,20))
 
         # Spacer
         empty_frame3 = make_spacer(root)
@@ -261,16 +261,22 @@ def electrons_main(root, category_start="Common Elements",
     result_frame.pack()
     inner_result_frame = result_frame.get_inner_frame()
 
+    # Stores units in list
+    num_units = [csda_num, rec_num, "", "", d_num]
+    den_units = [csda_den, rec_den, "", "", d_den]
+
     # Creates Calculate button
     calc_button = ttk.Button(inner_result_frame, text="Calculate",
                              style="Maize.TButton", padding=(0,0),
                              command=lambda: handle_calculation(root, var_category.get(),
                                                                 mode, var.get(),
                                                                 energy_entry.get(),
-                                                                result_label, num, den,
+                                                                result_label, warning_label,
+                                                get_unit(num_units, mode_choices, mode),
+                                                get_unit(den_units, mode_choices, mode),
                                                                 energy_unit))
     calc_button.config(width=get_width(["Calculate"]))
-    calc_button.pack(pady=(20, 5))
+    calc_button.pack(pady=(20,5))
 
     # Displays the result of calculation
     result = ttk.Label(inner_result_frame, text="Result:",
@@ -279,16 +285,22 @@ def electrons_main(root, category_start="Common Elements",
                         highlightthickness=0, relief='solid')
     result_label.config(bg='white', fg='black', state="disabled", width=entry_width,
                         font=monospace_font)
-    result.pack(pady=(5, 1))
-    result_label.pack(pady=(1, 20))
+    result.pack(pady=(5,1))
+    result_label.pack(pady=(1,0))
+
+    # Creates warning label for bad input
+    warning_label = ttk.Label(inner_result_frame, text="", style="Error.TLabel")
+    warning_label.pack(pady=(1,5))
 
     # Creates Advanced Settings button
     advanced_button = ttk.Button(root, text="Advanced Settings",
                                  style="Maize.TButton", padding=(0,0),
                                  command=lambda: to_advanced(root, var_category.get(),
                                                              mode, common_el, common_mat,
-                                                             element, material,
-                                                             num, den, energy_unit))
+                                                             element, material, custom_mat,
+                                                             csda_num, d_num, rec_num,
+                                                             csda_den, d_den, rec_den,
+                                                             energy_unit))
     advanced_button.config(width=get_width(["Advanced Settings"]))
     advanced_button.pack(pady=5)
 
@@ -342,10 +354,12 @@ electron attenuation advanced screen.
 It is called when the Advanced Settings button is hit.
 """
 def to_advanced(root, category, mode, common_el, common_mat, element,
-                material, num, den, energy_unit):
+                material, custom_mat, csda_num, d_num, rec_num, csda_den, d_den,
+                rec_den, energy_unit):
     root.focus()
     from App.Attenuation.Electrons.electrons_advanced import electrons_advanced
 
     clear_main()
     electrons_advanced(root, category, mode, common_el, common_mat, element,
-                       material, num, den, energy_unit)
+                       material, custom_mat, csda_num, d_num, rec_num, csda_den, d_den,
+                       rec_den, energy_unit)

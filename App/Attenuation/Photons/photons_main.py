@@ -1,7 +1,6 @@
 ##### IMPORTS #####
 from tkinter import font
 from App.style import AutocompleteCombobox
-from App.Attenuation.Photons.photons_unit_settings import *
 from Core.Attenuation.Photons.photons_calculations import handle_calculation
 from Utility.Functions.gui_utility import *
 from Utility.Functions.choices import *
@@ -101,8 +100,7 @@ def photons_main(root, category_start="Common Elements",
 
     # Logic for when a Calculation Mode is selected
     def select_mode(event):
-        nonlocal energy_label, energy_entry, energy_frame
-        nonlocal mode, result_label, empty_frame3, result
+        nonlocal mode, empty_frame3
         event.widget.selection_clear()
 
         if event.widget.get() == "Density" \
@@ -113,6 +111,7 @@ def photons_main(root, category_start="Common Elements",
         elif mode == "Density" \
                 and event.widget.get() != "Density":
             # Reset in preparation to re-add input energy section in correct place
+            main_list.remove(empty_frame3)
             energy_frame.pack_forget()
             energy_label.pack_forget()
             energy_entry.pack_forget()
@@ -130,6 +129,7 @@ def photons_main(root, category_start="Common Elements",
 
             # Spacer
             empty_frame3 = make_spacer(root)
+            main_list.append(empty_frame3)
 
             # Re-adds everything below input energy section
             result_frame.pack()
@@ -170,12 +170,7 @@ def photons_main(root, category_start="Common Elements",
 
     # Stores element/material selection and sets default
     var = StringVar(root)
-    var.set("" if choices == [] else
-            common_el if category_start == "Common Elements" else
-            common_mat if category_start == "Common Materials" else
-            element if category_start == "All Elements" else
-            material if category_start == "All Materials" else
-            custom_mat if category_start == "Custom Materials" else "")
+    var.set(get_item(category_start, common_el, common_mat, element, material, custom_mat))
 
     # Frame for interacting medium category and item
     main_frame = SectionFrame(root, title="Select Interacting Medium")
@@ -191,12 +186,7 @@ def photons_main(root, category_start="Common Elements",
 
         # Updates item dropdown to match category
         choices = get_choices(category, "Photons")
-        var.set("" if choices == [] else
-                common_el if category == "Common Elements" else
-                common_mat if category == "Common Materials" else
-                element if category == "All Elements" else
-                material if category == "All Materials" else
-                custom_mat if category == "Custom Materials" else "")
+        var.set(get_item(category, common_el, common_mat, element, material, custom_mat))
         item_dropdown.set_completion_list(choices)
         item_dropdown.config(values=choices, width=get_width(choices))
         root.focus()
@@ -226,12 +216,8 @@ def photons_main(root, category_start="Common Elements",
         category = var_category.get()
         if value not in choices:
             # Falls back on default if invalid item is typed in
-            item_dropdown.set("" if choices == [] else
-                              common_el if category == "Common Elements" else
-                              common_mat if category == "Common Materials" else
-                              element if category == "All Elements" else
-                              material if category == "All Materials" else
-                              custom_mat if category == "Custom Materials" else "")
+            item_dropdown.set(get_item(category, common_el, common_mat,
+                                       element, material, custom_mat))
         else:
             # Stores most recent items
             if category == "Common Elements":
@@ -287,6 +273,10 @@ def photons_main(root, category_start="Common Elements",
 
     result_frame.pack()
 
+    # Stores units in list
+    num_units = [mac_num, d_num, lac_num]
+    den_units = [mac_den, d_den, lac_den]
+
     # Creates Calculate button
     calc_button = ttk.Button(inner_result_frame, text="Calculate",
                              style="Maize.TButton", padding=(0,0),
@@ -294,8 +284,8 @@ def photons_main(root, category_start="Common Elements",
                                                         var_category.get(), mode,
                                                         interactions, var.get(),
                                                         energy_entry.get(), result_label,
-                                      get_unit(mac_num, d_num, lac_num, mode),
-                                      get_unit(mac_den, d_den, lac_den, mode),
+                                      get_unit(num_units, mode_choices, mode),
+                                      get_unit(den_units, mode_choices, mode),
                                                         energy_unit))
     calc_button.config(width=get_width(["Calculate"]))
     calc_button.pack(pady=(20,5))

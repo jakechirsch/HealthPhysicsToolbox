@@ -4,12 +4,23 @@ import shelve
 import io
 from Utility.Functions.gui_utility import *
 
-energy_units = {"eV" : 0.001 ** 2, "keV" : 0.001,
-                "MeV" : 1, "GeV" : 1000}
-
 # Choices using an element or a material
 element_choices = ["Common Elements", "All Elements"]
 material_choices = ["Common Materials", "All Materials"]
+
+#####################################################################################
+# UNITS SECTION
+#####################################################################################
+
+density_numerator = {"mg" : 1000, "g" : 1, "kg" : 0.001}
+density_denominator = {"mm\u00B3" : 10 ** 3, "cm\u00B3" : 1,
+                       "m\u00B3" : 0.01 ** 3}
+energy_units = {"eV" : 0.001 ** 2, "keV" : 0.001,
+                "MeV" : 1, "GeV" : 1000}
+
+#####################################################################################
+# MATH SECTION
+#####################################################################################
 
 """
 This function performs linear interpolation on the provided arguments.
@@ -21,6 +32,10 @@ def linear_interpolation(target, near_low, near_high, val_low, val_high):
     percentage = (target - near_low) / difference
     value = val_low + percentage * (val_high - val_low)
     return value
+
+#####################################################################################
+# DATA SECTION
+#####################################################################################
 
 """
 This function finds the density of the provided item.

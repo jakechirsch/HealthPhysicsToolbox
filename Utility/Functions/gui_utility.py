@@ -40,7 +40,7 @@ def edit_result(result, result_label, num="", den=""):
     unit = num + "/" + den
     if num == "1":
         unit = den + "\u207B\u00B9"
-    if not result in errors:
+    if not result in errors and num != "":
         result_label.insert(END, " ")
         result_label.insert(END, unit)
     result_label.config(state="disabled")
@@ -64,6 +64,17 @@ def interaction_checkbox(frame, variable, interaction, command):
     check = ttk.Checkbutton(frame, text=interaction, variable=variable,
                             style="Maize.TCheckbutton", command=command)
     check.pack(anchor="w")
+
+"""
+This function makes a Combobox dropdown for units selections.
+"""
+def unit_dropdown(frame, choices, unit, on_select_u):
+    dropdown = ttk.Combobox(frame, values=choices, justify="center", state='readonly',
+                            style="Maize.TCombobox")
+    dropdown.config(width=get_width(choices))
+    dropdown.set(unit)
+    dropdown.pack(side='left', padx=5)
+    dropdown.bind("<<ComboboxSelected>>", on_select_u)
 
 """
 This function is used to make an overall module title.
@@ -112,6 +123,28 @@ options is empty, it defaults to an empty string.
 """
 def valid_saved(saved, choices):
     return saved if saved in choices else choices[0] if len(choices) > 0 else ""
+
+"""
+This function returns the correct saved item based on the selected category.
+"""
+def get_item(category, common_el, common_mat, element, material, custom_mat):
+    return common_el if category == "Common Elements" else\
+           common_mat if category == "Common Materials" else\
+           element if category == "All Elements" else\
+           material if category == "All Materials" else\
+           custom_mat if category == "Custom Materials" else ""
+
+"""
+This function returns the relevant item based on the
+calculation mode.
+It is used in two cases:
+1. To retrieve the correct unit out of the saved units
+   of each mode
+2. To retrieve the correct list of unit choices for the
+   selected mode
+"""
+def get_unit(units, modes, mode):
+    return dict(zip(modes, units))[mode]
 
 #####################################################################################
 # FONT SECTION

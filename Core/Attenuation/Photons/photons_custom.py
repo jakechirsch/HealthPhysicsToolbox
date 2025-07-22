@@ -1,5 +1,5 @@
 ##### IMPORTS #####
-from Core.Attenuation.Photons.photons_calculations import density_numerator, density_denominator
+from Utility.Functions.math_utility import density_numerator, density_denominator
 import io
 from tkinter import END
 from Utility.Functions.choices import *

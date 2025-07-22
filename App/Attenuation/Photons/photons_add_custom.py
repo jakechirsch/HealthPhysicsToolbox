@@ -146,7 +146,7 @@ It is used for both the Enter Material Name and Enter Density sections.
 """
 def make_line(frame, text, monospace_font):
     # Input/output box width
-    entry_width = 28 if platform.system() == "Windows" else 32
+    entry_width = 22 if platform.system() == "Windows" else 32
     label = ttk.Label(frame, text=text, style="Black.TLabel")
     entry = Entry(frame, width=entry_width, insertbackground="black",
                   background="white", foreground="black",

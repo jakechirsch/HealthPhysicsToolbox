@@ -1,6 +1,5 @@
 ##### IMPORTS #####
 from Core.Attenuation.Photons.photons_plots import *
-from App.Attenuation.Photons.photons_unit_settings import *
 from App.style import SectionFrame
 
 # For global access to nodes on photon attenuation export screen
@@ -123,20 +122,26 @@ def photons_export(root, common_el, common_mat, element, material, custom_mat,
     export_dropdown.pack()
     export_dropdown.bind("<<ComboboxSelected>>", on_select_export)
 
+    # Mode choices
+    mode_choices = ["Mass Attenuation Coefficient",
+                    "Density",
+                    "Linear Attenuation Coefficient"]
+
+    # Stores units in list
+    num_units = [mac_num, d_num, lac_num]
+    den_units = [mac_den, d_den, lac_den]
+
     # Creates Export button
     export_button = ttk.Button(inner_options_frame, text="Export", style="Maize.TButton",
                                padding=(0,0),
                                command=lambda:
                                export_data(root,
-                                           common_el if category == "Common Elements" else
-                                           common_mat if category == "Common Materials" else
-                                           element if category == "All Elements" else
-                                           material if category == "All Materials" else
-                                           custom_mat if category == "Custom Materials"
-                                           else "", category, mode,
+                               get_item(category, common_el, common_mat,
+                                        element, material, custom_mat),
+                                           category, mode,
                                get_interactions(interaction_choices, interaction_vars),
-                               get_unit(mac_num, d_num, lac_num, mode),
-                               get_unit(mac_den, d_den, lac_den, mode),
+                               get_unit(num_units, mode_choices, mode),
+                               get_unit(den_units, mode_choices, mode),
                                            energy_unit, export_dropdown.get(),
                                            var_save.get(), error_label))
     export_button.config(width=get_width(["Export"]))

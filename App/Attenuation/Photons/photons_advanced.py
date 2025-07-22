@@ -1,8 +1,7 @@
 ##### IMPORTS #####
-from App.Attenuation.Photons.photons_add_remove_settings import *
+from Utility.Functions.customize import *
 from App.Attenuation.Photons.photons_add_custom import *
 from App.Attenuation.Photons.photons_export_settings import *
-from Core.Attenuation.Photons.photons_plots import *
 from App.style import AutocompleteCombobox, SectionFrame
 
 # For global access to nodes on photon attenuation advanced screen
@@ -247,29 +246,42 @@ def photons_advanced(root, common_el, common_mat, element, material, custom_mat,
     unit_label.pack(side='left', padx=5)
 
     # Logic for when a unit is selected
-    on_select_num = get_select_unit(root, num_units, mode)
-    on_select_den = get_select_unit(root, den_units, mode)
-    def on_select_energy(event):
-        nonlocal energy_unit
-        event.widget.selection_clear()
-        root.focus()
-        energy_unit = event.widget.get()
+    def get_select_unit(units):
+        def on_select_unit(event):
+            event.widget.selection_clear()
+            root.focus()
+            if mode == "Mass Attenuation Coefficient":
+                units[0] = event.widget.get()
+            elif mode == "Density":
+                units[1] = event.widget.get()
+            else:
+                units[2] = event.widget.get()
+        return on_select_unit
+    on_select_num = get_select_unit(num_units)
+    on_select_den = get_select_unit(den_units)
+
+    # Mode choices
+    mode_choices = ["Mass Attenuation Coefficient",
+                    "Density",
+                    "Linear Attenuation Coefficient"]
+
+    # Possible unit choices
+    num_choices = [mac_numerator, density_numerator, lac_numerator]
+    den_choices = [mac_denominator, density_denominator, lac_denominator]
 
     # Creates dropdown menu for numerator unit
-    numerator_choices = get_unit_keys(mac_numerator, density_numerator,
-                                      lac_numerator, mode)
+    numerator_choices = list(get_unit(num_choices, mode_choices, mode).keys())
     unit_dropdown(unit_side_frame, numerator_choices,
-                  get_unit(mac_num, d_num, lac_num, mode), on_select_num)
+                  get_unit(num_units, mode_choices, mode), on_select_num)
 
     # / label
     slash_label = ttk.Label(unit_side_frame, text="/", style="Black.TLabel")
     slash_label.pack(side='left')
 
     # Creates dropdown menu for denominator unit
-    denominator_choices = get_unit_keys(mac_denominator, density_denominator,
-                                        lac_denominator, mode)
+    denominator_choices = list(get_unit(den_choices, mode_choices, mode).keys())
     unit_dropdown(unit_side_frame, denominator_choices,
-                  get_unit(mac_den, d_den, lac_den, mode), on_select_den)
+                  get_unit(den_units, mode_choices, mode), on_select_den)
 
     # Spacer
     empty_frame3 = make_spacer(root)
@@ -289,6 +301,13 @@ def photons_advanced(root, common_el, common_mat, element, material, custom_mat,
         energy_unit_label = ttk.Label(energy_unit_side_frame, text="Energy Unit:",
                                       style="Black.TLabel")
         energy_unit_label.pack(side='left', padx=5)
+
+        # Logic for when an energy unit is selected
+        def on_select_energy(event):
+            nonlocal energy_unit
+            event.widget.selection_clear()
+            root.focus()
+            energy_unit = event.widget.get()
 
         # Creates dropdown menu for denominator unit
         energy_choices = list(energy_units.keys())
@@ -446,7 +465,8 @@ def make_vertical_frame(root, top_frame, action, category_ar,
                            style="Maize.TButton", padding=(0,0),
                            command=lambda: carry_action(root, action, category_ar,
                                                         choices, inverse, var,
-                                                        item_dropdown))
+                                                        item_dropdown,
+                                                        "Attenuation/Photons"))
     button[0].config(width=get_width([action]))
     button[0].pack(pady=(10,0))
 

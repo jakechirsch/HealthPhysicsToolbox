@@ -1,21 +1,21 @@
 ##### IMPORTS #####
 from tkinter import ttk
-from App.Attenuation.Photons.photons_main import photons_main
-from App.Attenuation.Electrons.electrons_main import electrons_main
+from App.Shielding.Photons.photons_main import photons_main
+from App.Shielding.Electrons.electrons_main import electrons_main
 from Utility.Functions.gui_utility import get_width, make_title_frame
 
-# For global access to nodes on attenuation screen
-attenuation_list = []
+# For global access to nodes on shielding screen
+shielding_list = []
 
 #####################################################################################
 # MENU SECTION
 #####################################################################################
 
 """
-This function creates the attenuation screen.
+This function creates the shielding screen.
 """
-def attenuation_menu(root):
-    global attenuation_list
+def shielding_menu(root):
+    global shielding_list
 
     title = make_title_frame(root, "Attenuation and Range Data")
 
@@ -34,43 +34,43 @@ def attenuation_menu(root):
     electrons_button.pack(pady=5)
 
     # Stores nodes into global list
-    attenuation_list = [title, photons_button, electrons_button]
+    shielding_list = [title, photons_button, electrons_button]
 
 #####################################################################################
 # NAVIGATION SECTION
 #####################################################################################
 
 """
-This function clears the attenuation screen in preparation
+This function clears the shielding screen in preparation
 for opening a different screen.
 """
-def clear_attenuation():
-    global attenuation_list
+def clear_shielding():
+    global shielding_list
 
     # Clears home
-    for node in attenuation_list:
+    for node in shielding_list:
         node.destroy()
 
 """
-This function transitions from the attenuation screen
+This function transitions from the shielding screen
 to the photon attenuation main screen by first
-clearing the attenuation screen and then creating the
+clearing the shielding screen and then creating the
 photon attenuation main screen.
 It is called when the Photons button is hit.
 """
 def to_photons(root):
     root.focus()
-    clear_attenuation()
+    clear_shielding()
     photons_main(root)
 
 """
-This function transitions from the attenuation screen
-to the electron attenuation main screen by first
-clearing the attenuation screen and then creating the
-electron attenuation main screen.
+This function transitions from the shielding screen
+to the electron range main screen by first
+clearing the shielding screen and then creating the
+electron range main screen.
 It is called when the Electrons button is hit.
 """
 def to_electrons(root):
     root.focus()
-    clear_attenuation()
+    clear_shielding()
     electrons_main(root)

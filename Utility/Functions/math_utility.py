@@ -3,6 +3,7 @@ import csv
 import shelve
 import io
 from Utility.Functions.gui_utility import *
+from Utility.Functions.files import *
 
 # Choices using an element or a material
 element_choices = ["Common Elements", "All Elements"]
@@ -72,7 +73,7 @@ def find_data(category, column, element, energy_target, particle):
         with open(db_path, 'r') as file:
             result = find_data_for_material(file, column, energy_target, particle)
     else:
-        db_path = get_user_data_path('Attenuation/' + particle + '/_' + element)
+        db_path = get_user_data_path('Shielding/' + particle + '/_' + element)
         with shelve.open(db_path) as db:
             stored_data = db[element]
             stored_data = stored_data.replace('\\n', '\n')
@@ -131,7 +132,7 @@ def find_data_for_element(element, column, energy_target, particle):
     energy_col = "Photon Energy" if particle == "Photons" else "Kinetic Energy"
 
     # Opens file
-    db_path = resource_path('Data/Modules/Attenuation/' + particle + '/Elements/' + element + '.csv')
+    db_path = resource_path('Data/Modules/Shielding/' + particle + '/Elements/' + element + '.csv')
     with open(db_path, 'r') as file:
         # Reads in file in dictionary format
         reader = csv.DictReader(file)

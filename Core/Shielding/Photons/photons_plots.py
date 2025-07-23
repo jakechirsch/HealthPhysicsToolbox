@@ -1,8 +1,7 @@
 ##### IMPORTS #####
 import matplotlib.pyplot as plt
 import pandas as pd
-from Core.Attenuation.Photons.photons_calculations import *
-from tkinter.filedialog import asksaveasfilename
+from Core.Shielding.Photons.photons_calculations import *
 
 #####################################################################################
 # EXPORT SECTION
@@ -54,12 +53,10 @@ def export_data(root, element, category, mode, interactions, num, den,
     df = pd.DataFrame(columns=cols)
     if category in element_choices:
         # Load the CSV file
-        db_path = resource_path('Data/Modules/Attenuation/Photons/Elements/' + element + '.csv')
+        db_path = resource_path('Data/Modules/Shielding/Photons/Elements/' + element + '.csv')
         df2 = pd.read_csv(db_path)
 
-        # Converts energy column to desired energy unit
         df[energy_col] = df2["Photon Energy"]
-        df[energy_col] /= energy_units[energy_unit]
 
         for interaction in interactions:
             df[interaction] = df2[interaction]
@@ -68,7 +65,7 @@ def export_data(root, element, category, mode, interactions, num, den,
         with open(db_path, 'r') as file:
             make_df_for_material(file, df, element, category, interactions)
     else:
-        db_path = get_user_data_path('Attenuation/Photons/_' + element)
+        db_path = get_user_data_path('Shielding/Photons/_' + element)
         with shelve.open(db_path) as db:
             stored_data = db[element]
             stored_data = stored_data.replace('\\n', '\n')
@@ -78,13 +75,16 @@ def export_data(root, element, category, mode, interactions, num, den,
 
         make_df_for_material(csv_file_like, df, element, category, interactions)
 
+    # Converts energy column to desired energy unit
+    df[energy_col] /= energy_units[energy_unit]
+
     # Convert to desired unit
     if mode == "Mass Attenuation Coefficient":
         for interaction in interactions:
             df[interaction] *= mac_numerator[num]
             df[interaction] /= mac_denominator[den]
     else:
-        density = find_density(category, element, "Attenuation/Photons")
+        density = find_density(category, element, "Shielding/Photons")
         for interaction in interactions:
             df[interaction] *= density
             df[interaction] *= lac_numerator[num]
@@ -97,14 +97,14 @@ def export_data(root, element, category, mode, interactions, num, den,
     if choice == "Plot":
         configure_plot(interactions, df, energy_col, unit, element, mode)
         if save == 1:
-            save_file(plt, choice, error_label, element)
+            save_file(plt, choice, error_label, element, "attenuation")
         else:
             error_label.config(style="Success.TLabel", text=choice + " exported!")
             plt.show()
     else:
         for interaction in interactions:
             df.rename(columns={interaction: interaction+unit}, inplace=True)
-        save_file(df, choice, error_label, element)
+        save_file(df, choice, error_label, element, "attenuation")
 
 #####################################################################################
 # PLOT SECTION
@@ -136,42 +136,6 @@ def configure_plot(interactions, df, energy_col, unit, element, mode):
     plt.tight_layout()
 
 #####################################################################################
-# SAVING SECTION
-#####################################################################################
-
-"""
-This function is called when the exported file is
-going to be saved. It prompts the user to select
-a file name and location, and handles the error of
-the user canceling the export. If the export is not
-canceled, the file is saved with the selected name
-and location and then opened.
-"""
-def save_file(obj, choice, error_label, element):
-    file_format = ".csv"
-    if choice == "Plot":
-        file_format = ".png"
-
-    # Show the "Save As" dialog
-    file_path = asksaveasfilename(
-        defaultextension=file_format,
-        filetypes=[(file_format[1:].upper() + " files", "*" + file_format)],
-        title="Save " + file_format[1:].upper() + " As...",
-        initialfile=element.lower().replace(" ", "_") + "_attenuation_" + choice.lower()
-    )
-
-    # If the user selected a path, save the file
-    if file_path:
-        if choice == "Plot":
-            obj.savefig(file_path)
-        else:
-            obj.to_csv(file_path, index=False)
-        error_label.config(style="Success.TLabel", text=choice + " exported!")
-        open_file(file_path)
-    else:
-        error_label.config(style="Error.TLabel", text="Export canceled.")
-
-#####################################################################################
 # DATA SECTION
 #####################################################################################
 
@@ -182,7 +146,7 @@ the energy values for the dataframe by taking the values
 from the raw data of the first element and then removing
 any values that are out of range for any of the remaining
 elements. Then, for each energy value, we get the M.A.C. values
-for the rest of the row by calling the find_mac function
+for the rest of the row by calling the find_data function
 with each interaction. If L.A.C. is the selected calculation mode,
 the export_data function will handle the conversion by multiplying
 these rows by the density.
@@ -194,7 +158,7 @@ def make_df_for_material(file_like, df, element, category, interactions):
     # Create the dataframe
     vals = []
     for row in reader:
-        db_path = resource_path('Data/Modules/Attenuation/Photons/Elements/' + row['Element'] + '.csv')
+        db_path = resource_path('Data/Modules/Shielding/Photons/Elements/' + row['Element'] + '.csv')
         if len(vals) == 0:
             with open(db_path, 'r') as file:
                 # Reads in file
@@ -218,10 +182,10 @@ def make_df_for_material(file_like, df, element, category, interactions):
                     if val > max_val or val < min_val:
                         vals.remove(val)
 
-        # Finds the T.A.C. at each energy value and adds to dataframe
-        for index, val in enumerate(vals):
-            row = [val]
-            for interaction in interactions:
-                x = find_data(category, interaction, element, val, "Photons")
-                row.append(x)
-            df.loc[index] = row
+    # Finds the M.A.C. at each energy value and adds to dataframe
+    for index, val in enumerate(vals):
+        row = [val]
+        for interaction in interactions:
+            x = find_data(category, interaction, element, val, "Photons")
+            row.append(x)
+        df.loc[index] = row

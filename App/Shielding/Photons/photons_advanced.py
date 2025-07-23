@@ -1,7 +1,6 @@
 ##### IMPORTS #####
-from App.Attenuation.Photons.photons_add_custom import *
-from App.Attenuation.Photons.photons_export import *
-from App.style import SectionFrame
+from App.Shielding.Photons.photons_add_custom import *
+from App.Shielding.Photons.photons_export import *
 
 # For global access to nodes on photon attenuation advanced screen
 advanced_list = []
@@ -95,7 +94,7 @@ def photons_advanced(root, category, mode, interactions_start, common_el, common
         return make_vertical_frame(root, inner_a_r_frame, action_dropdown.get(),
                                    category_dropdown.get(), non_common, common,
                                    non_common_m, common_m, custom, a_r_button,
-                                   to_custom, "Attenuation/Photons")
+                                   to_custom, "Shielding/Photons")
 
     # Logic for when an action or category is selected
     def on_select_options(event):
@@ -391,7 +390,7 @@ It is called when the Back button is hit.
 def to_main(root, category, mode, interactions, common_el, common_mat,
             element, material, custom_mat, mac_num, d_num, lac_num,
             mac_den, d_den, lac_den, energy_unit):
-    from App.Attenuation.Photons.photons_main import photons_main
+    from App.Shielding.Photons.photons_main import photons_main
 
     clear_advanced()
     photons_main(root, category, mode, interactions, common_el, common_mat,
@@ -418,7 +417,7 @@ This function transitions from the photon attenuation advanced screen
 to the photon attenuation export screen by first clearing the
 photon attenuation advanced screen and then creating the
 photon attenuation export screen.
-It is called when the Export button is hit.
+It is called when the Export Menu button is hit.
 """
 def to_export_menu(root, category, mode, interactions, common_el, common_mat,
                    element, material, custom_mat, mac_num, d_num, lac_num,
@@ -433,7 +432,7 @@ This function opens the photon attenuation References.txt file.
 """
 def open_ref(root):
     root.focus()
-    db_path = resource_path('Utility/Modules/Attenuation/Photons/References.txt')
+    db_path = resource_path('Utility/Modules/Shielding/Photons/References.txt')
     open_file(db_path)
 
 """
@@ -441,5 +440,5 @@ This function opens the photon attenuation Help.txt file.
 """
 def open_help(root):
     root.focus()
-    db_path = resource_path('Utility/Modules/Attenuation/Photons/Help.txt')
+    db_path = resource_path('Utility/Modules/Shielding/Photons/Help.txt')
     open_file(db_path)

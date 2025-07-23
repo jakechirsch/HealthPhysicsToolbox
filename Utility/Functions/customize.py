@@ -1,6 +1,7 @@
 ##### IMPORTS #####
 import shelve
 from Utility.Functions.gui_utility import *
+from Utility.Functions.files import *
 
 """
 This function is called when the Add/Remove button is hit and

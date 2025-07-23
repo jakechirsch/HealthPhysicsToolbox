@@ -1,11 +1,11 @@
 ##### IMPORTS #####
-from tkinter import font
+from App.style import AutocompleteCombobox
+from Core.Shielding.Photons.photons_calculations import handle_calculation
 from Utility.Functions.gui_utility import *
 from Utility.Functions.choices import *
-from App.style import SectionFrame, AutocompleteCombobox
-from Core.Attenuation.Electrons.electrons_calculations import handle_calculation
+from App.style import SectionFrame
 
-# For global access to nodes on electron attenuation main screen
+# For global access to nodes on photon attenuation main screen
 main_list = []
 
 #####################################################################################
@@ -13,9 +13,9 @@ main_list = []
 #####################################################################################
 
 """
-This function sets up the electron attenuation main screen.
+This function sets up the photon attenuation main screen.
 The following sections and widgets are created:
-   Module Title (Electron Range)
+   Module Title (Photon Attenuation)
    Select Calculation Mode section
    Select Interacting Medium section
    Input Energy section (only when Calculation Mode is not Density)
@@ -27,28 +27,48 @@ behaviors.
 The sections and widgets are stored in main_list so they can be
 accessed later by clear_main.
 """
-def electrons_main(root, category_start="Common Elements",
-                   mode_start="CSDA Range", common_el="Ag",
-                   common_mat="Air (dry, near sea level)", element="Ac",
-                   material="A-150 Tissue-Equivalent Plastic (A150TEP)",
-                   custom_mat="", csda_num="g", d_num="g", rec_num="g",
-                   csda_den="cm\u00B2", d_den="cm\u00B3", rec_den="cm\u00B2",
-                   energy_unit="MeV"):
+def photons_main(root, category_start="Common Elements",
+                 mode_start="Mass Attenuation Coefficient",
+                 interactions=None, common_el="Ag",
+                 common_mat="Air (dry, near sea level)", element="Ac",
+                 material="A-150 Tissue-Equivalent Plastic (A150TEP)",
+                 custom_mat="", mac_num="cm\u00B2", d_num="g", lac_num="1",
+                 mac_den="g", d_den="cm\u00B3", lac_den="cm",
+                 energy_unit="MeV"):
     global main_list
 
+    # Sets default interaction - Total Attenuation with Coherent Scattering
+    if interactions is None or not interactions:
+        interactions = ["Total Attenuation with Coherent Scattering"]
+
     # Makes title frame
-    title_frame = make_title_frame(root, "Electron Range")
+    title_frame = make_title_frame(root, "Photon Attenuation")
 
     # Creates font for result label and energy entry
     monospace_font = font.Font(family="Menlo", size=12)
 
+    # Frame for result
+    result_frame = SectionFrame(root, title=mode_start)
+    inner_result_frame = result_frame.get_inner_frame()
+
+    # Input/output box width
+    entry_width = 28 if platform.system() == "Windows" else 32
+
+    # Displays the result of calculation
+    result = ttk.Label(inner_result_frame, text="Result:",
+                       style="Black.TLabel")
+    result_label = Text(inner_result_frame, height=1, borderwidth=3, bd=3,
+                        highlightthickness=0, relief='solid')
+    result_label.config(bg='white', fg='black', state="disabled", width=entry_width,
+                        font=monospace_font)
+
     # Gets the item options
-    choices = get_choices(category_start, "Electrons")
+    choices = get_choices(category_start, "Photons")
 
     # Gets customizable categories
-    common_elements = get_choices("Common Elements", "Electrons")
-    common_materials = get_choices("Common Materials", "Electrons")
-    custom_materials = get_choices("Custom Materials", "Electrons")
+    common_elements = get_choices("Common Elements", "Photons")
+    common_materials = get_choices("Common Materials", "Photons")
+    custom_materials = get_choices("Custom Materials", "Photons")
 
     # Make sure default choices are valid selections
     common_el = valid_saved(common_el, common_elements)
@@ -65,11 +85,22 @@ def electrons_main(root, category_start="Common Elements",
     mode_frame.pack()
     inner_mode_frame = mode_frame.get_inner_frame()
 
+    # Frame for energy input
+    energy_frame = SectionFrame(root, title="Input Energy")
+    inner_energy_frame= energy_frame.get_inner_frame()
+
+    # Energy label
+    energy_label = ttk.Label(inner_energy_frame,
+                             text="Photon Energy (" + energy_unit + "):",
+                             style="Black.TLabel")
+    energy_entry = Entry(inner_energy_frame, width=entry_width, insertbackground="black",
+                         background="white", foreground="black", borderwidth=3, bd=3,
+                         highlightthickness=0, relief='solid', font=monospace_font)
+
     # Logic for when a Calculation Mode is selected
     def select_mode(event):
         nonlocal mode, empty_frame3
         event.widget.selection_clear()
-        warning_label.config(text="")
 
         if event.widget.get() == "Density" \
                 and mode != "Density":
@@ -87,7 +118,6 @@ def electrons_main(root, category_start="Common Elements",
             calc_button.pack_forget()
             result.pack_forget()
             result_label.pack_forget()
-            warning_label.pack_forget()
             advanced_button.pack_forget()
             exit_button.pack_forget()
 
@@ -104,8 +134,7 @@ def electrons_main(root, category_start="Common Elements",
             result_frame.pack()
             calc_button.pack(pady=(20,5))
             result.pack(pady=(5,1))
-            result_label.pack(pady=(1,0))
-            warning_label.pack(pady=(1,5))
+            result_label.pack(pady=(1,20))
             advanced_button.pack(pady=5)
             exit_button.pack(pady=5)
 
@@ -121,11 +150,9 @@ def electrons_main(root, category_start="Common Elements",
         root.focus()
 
     # Creates dropdown menu for mode
-    mode_choices = ["CSDA Range",
-                    "Range-Energy Curve",
-                    "Radiation Yield",
-                    "Density Effect Delta",
-                    "Density"]
+    mode_choices = ["Mass Attenuation Coefficient",
+                    "Density",
+                    "Linear Attenuation Coefficient"]
     mode_dropdown = ttk.Combobox(inner_mode_frame, textvariable=var_mode,
                                  values=mode_choices, justify="center",
                                  state='readonly', style="Maize.TCombobox")
@@ -157,7 +184,7 @@ def electrons_main(root, category_start="Common Elements",
         category = var_category.get()
 
         # Updates item dropdown to match category
-        choices = get_choices(category, "Electrons")
+        choices = get_choices(category, "Photons")
         var.set(get_item(category, common_el, common_mat, element, material, custom_mat))
         item_dropdown.set_completion_list(choices)
         item_dropdown.config(values=choices, width=get_width(choices))
@@ -231,20 +258,7 @@ def electrons_main(root, category_start="Common Elements",
     # Spacer
     empty_frame2 = make_spacer(root)
 
-    # Frame for energy input
-    energy_frame = SectionFrame(root, title="Input Energy")
-    inner_energy_frame = energy_frame.get_inner_frame()
-
-    # Input/output box width
-    entry_width = 28 if platform.system() == "Windows" else 32
-
-    # Energy label
-    energy_label = ttk.Label(inner_energy_frame, text="Electron Energy (" + energy_unit + "):",
-                             style="Black.TLabel")
-    energy_entry = Entry(inner_energy_frame, width=entry_width, insertbackground="black",
-                         background="white", foreground="black", borderwidth=3, bd=3,
-                         highlightthickness=0, relief='solid', font=monospace_font)
-
+    # Spacer
     empty_frame3 = Frame()
 
     # Input Energy section is created if Calculation Mode is not Density
@@ -256,50 +270,38 @@ def electrons_main(root, category_start="Common Elements",
         # Spacer
         empty_frame3 = make_spacer(root)
 
-    # Frame for result
-    result_frame = SectionFrame(root, title=mode_start)
     result_frame.pack()
-    inner_result_frame = result_frame.get_inner_frame()
 
     # Stores units in list
-    num_units = [csda_num, rec_num, "", "", d_num]
-    den_units = [csda_den, rec_den, "", "", d_den]
+    num_units = [mac_num, d_num, lac_num]
+    den_units = [mac_den, d_den, lac_den]
 
     # Creates Calculate button
     calc_button = ttk.Button(inner_result_frame, text="Calculate",
                              style="Maize.TButton", padding=(0,0),
-                             command=lambda: handle_calculation(root, var_category.get(),
-                                                                mode, var.get(),
-                                                                energy_entry.get(),
-                                                                result_label, warning_label,
-                                                get_unit(num_units, mode_choices, mode),
-                                                get_unit(den_units, mode_choices, mode),
-                                                                energy_unit))
+                             command=lambda: handle_calculation(root,
+                                                        var_category.get(), mode,
+                                                        interactions, var.get(),
+                                                        energy_entry.get(), result_label,
+                                      get_unit(num_units, mode_choices, mode),
+                                      get_unit(den_units, mode_choices, mode),
+                                                        energy_unit))
     calc_button.config(width=get_width(["Calculate"]))
     calc_button.pack(pady=(20,5))
 
-    # Displays the result of calculation
-    result = ttk.Label(inner_result_frame, text="Result:",
-                       style="Black.TLabel")
-    result_label = Text(inner_result_frame, height=1, borderwidth=3, bd=3,
-                        highlightthickness=0, relief='solid')
-    result_label.config(bg='white', fg='black', state="disabled", width=entry_width,
-                        font=monospace_font)
+    # Puts result display under Calculate button
     result.pack(pady=(5,1))
-    result_label.pack(pady=(1,0))
-
-    # Creates warning label for bad input
-    warning_label = ttk.Label(inner_result_frame, text="", style="Error.TLabel")
-    warning_label.pack(pady=(1,5))
+    result_label.pack(pady=(1,20))
 
     # Creates Advanced Settings button
     advanced_button = ttk.Button(root, text="Advanced Settings",
                                  style="Maize.TButton", padding=(0,0),
                                  command=lambda: to_advanced(root, var_category.get(),
-                                                             mode, common_el, common_mat,
+                                                             mode, interactions,
+                                                             common_el, common_mat,
                                                              element, material, custom_mat,
-                                                             csda_num, d_num, rec_num,
-                                                             csda_den, d_den, rec_den,
+                                                             mac_num, d_num, lac_num,
+                                                             mac_den, d_den, lac_den,
                                                              energy_unit))
     advanced_button.config(width=get_width(["Advanced Settings"]))
     advanced_button.pack(pady=5)
@@ -323,20 +325,20 @@ def electrons_main(root, category_start="Common Elements",
 #####################################################################################
 
 """
-This function clears the electron attenuation main screen
+This function clears the photon attenuation main screen
 in preparation for opening a different screen.
 """
 def clear_main():
     global main_list
 
-    # Clears electron attenuation main screen
+    # Clears photon attenuation main screen
     for node in main_list:
         node.destroy()
     main_list.clear()
 
 """
-This function transitions from the electron attenuation main screen
-to the home screen by first clearing the electron attenuation main screen
+This function transitions from the photon attenuation main screen
+to the home screen by first clearing the photon attenuation main screen
 and then creating the home screen.
 It is called when the Exit button is hit.
 """
@@ -347,19 +349,19 @@ def exit_to_home(root):
     return_home(root)
 
 """
-This function transitions from the electron attenuation main screen
-to the electron attenuation advanced screen by first clearing the
-electron attenuation main screen and then creating the
-electron attenuation advanced screen.
+This function transitions from the photon attenuation main screen
+to the photon attenuation advanced screen by first clearing the
+photon attenuation main screen and then creating the
+photon attenuation advanced screen.
 It is called when the Advanced Settings button is hit.
 """
-def to_advanced(root, category, mode, common_el, common_mat, element,
-                material, custom_mat, csda_num, d_num, rec_num, csda_den, d_den,
-                rec_den, energy_unit):
+def to_advanced(root, category, mode, interactions, common_el, common_mat,
+                element, material, custom_mat, mac_num, d_num, lac_num,
+                mac_den, d_den, lac_den, energy_unit):
     root.focus()
-    from App.Attenuation.Electrons.electrons_advanced import electrons_advanced
+    from App.Shielding.Photons.photons_advanced import photons_advanced
 
     clear_main()
-    electrons_advanced(root, category, mode, common_el, common_mat, element,
-                       material, custom_mat, csda_num, d_num, rec_num, csda_den, d_den,
-                       rec_den, energy_unit)
+    photons_advanced(root, category, mode, interactions, common_el, common_mat,
+                     element, material, custom_mat, mac_num, d_num, lac_num,
+                     mac_den, d_den, lac_den, energy_unit)

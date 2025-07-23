@@ -5,20 +5,34 @@ from tkinter import *
 from tkinter import ttk
 from App.style import SectionFrame
 
-# For global access to nodes on electron attenuation add custom screen
+# For global access to nodes on photon attenuation add custom screen
 add_custom_list = []
 
 #####################################################################################
 # MENU SECTION
 #####################################################################################
 
-def electrons_add_custom(root, category, mode, common_el, common_mat, element,
-                         material, custom_mat, csda_num, d_num, rec_num, csda_den, d_den,
-                         rec_den, energy_unit):
+"""
+This function sets up the photon attenuation add custom screen.
+The following sections and widgets are created:
+   Module Title (Photon Attenuation)
+   Enter Material Name section
+   Enter Density section
+   Enter Element Weights section
+   Enter Material in Database section
+   Back button
+This function contains all of the logic involving these widgets'
+behaviors.
+The sections and widgets are stored in add_custom_list so they can be
+accessed later by clear_add_custom.
+"""
+def photons_add_custom(root, category, mode, interactions, common_el, common_mat,
+                       element, material, custom_mat, mac_num, d_num, lac_num,
+                       mac_den, d_den, lac_den, energy_unit):
     global add_custom_list
 
     # Makes title frame
-    title_frame = make_title_frame(root, "Electron Range")
+    title_frame = make_title_frame(root, "Photon Attenuation")
 
     # Frame for material name
     material_frame = SectionFrame(root, title="Enter Material Name")
@@ -71,7 +85,7 @@ def electrons_add_custom(root, category, mode, common_el, common_mat, element,
                         padding=(0,0),
                         command=lambda: add_custom(root, entry, entry2, entry3,
                                                    error_label, var_normalize.get(),
-                                                   d_num, d_den, "Electrons"))
+                                                   d_num, d_den, "Photons"))
     add_button.config(width=get_width(["Add Material"]))
     add_button.pack(pady=5)
 
@@ -79,13 +93,14 @@ def electrons_add_custom(root, category, mode, common_el, common_mat, element,
     error_label = ttk.Label(inner_options_frame, text="", style="Error.TLabel")
     error_label.pack(pady=(5,10))
 
-    # Creates Back button to return to electron attenuation advanced screen
+    # Creates Back button to return to photon attenuation advanced screen
     back_button = ttk.Button(root, text="Back", style="Maize.TButton", padding=(0,0),
                              command=lambda: advanced_back(root, category, mode,
-                                                           common_el, common_mat, element,
-                                                           material, custom_mat, csda_num,
-                                                           d_num, rec_num, csda_den, d_den,
-                                                           rec_den, energy_unit))
+                                                           interactions, common_el,
+                                                           common_mat, element, material,
+                                                           custom_mat, mac_num, d_num,
+                                                           lac_num, mac_den, d_den,
+                                                           lac_den, energy_unit))
     back_button.config(width=get_width(["Back"]))
     back_button.pack(pady=5)
 
@@ -101,30 +116,30 @@ def electrons_add_custom(root, category, mode, common_el, common_mat, element,
 #####################################################################################
 
 """
-This function clears the electron attenuation add custom screen
+This function clears the photon attenuation add custom screen
 in preparation for opening a different screen.
 """
 def clear_add_custom():
     global add_custom_list
 
-    # Clears electron attenuation add custom screen
+    # Clears photon attenuation add custom screen
     for node in add_custom_list:
         node.destroy()
     add_custom_list.clear()
 
 """
-This function transitions from the electron attenuation add custom screen
-to the electron attenuation advanced screen by first clearing the
-electron attenuation add custom screen and then creating the
-electron attenuation advanced screen.
+This function transitions from the photon attenuation add custom screen
+to the photon attenuation advanced screen by first clearing the
+photon attenuation add custom screen and then creating the
+photon attenuation advanced screen.
 It is called when the Back button is hit.
 """
-def advanced_back(root, category, mode, common_el, common_mat, element,
-                  material, custom_mat, csda_num, d_num, rec_num, csda_den, d_den,
-                  rec_den, energy_unit):
-    from App.Attenuation.Electrons.electrons_advanced import electrons_advanced
+def advanced_back(root, category, mode, interactions, common_el, common_mat,
+                  element, material, custom_mat, mac_num, d_num, lac_num,
+                  mac_den, d_den, lac_den, energy_unit):
+    from App.Shielding.Photons.photons_advanced import photons_advanced
 
     clear_add_custom()
-    electrons_advanced(root, category, mode, common_el, common_mat, element,
-                       material, custom_mat, csda_num, d_num, rec_num, csda_den, d_den,
-                       rec_den, energy_unit)
+    photons_advanced(root, category, mode, interactions, common_el, common_mat,
+                     element, material, custom_mat, mac_num, d_num, lac_num,
+                     mac_den, d_den, lac_den, energy_unit)

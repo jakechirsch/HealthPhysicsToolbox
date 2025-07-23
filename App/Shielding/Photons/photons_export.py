@@ -1,5 +1,5 @@
 ##### IMPORTS #####
-from Core.Attenuation.Photons.photons_plots import *
+from Core.Shielding.Photons.photons_plots import *
 from App.style import SectionFrame
 
 # For global access to nodes on photon attenuation export screen
@@ -194,7 +194,7 @@ It is called when the Back button is hit.
 def advanced_back(root, category, mode, interactions, common_el, common_mat,
                   element, material, custom_mat, mac_num, d_num, lac_num,
                   mac_den, d_den, lac_den, energy_unit):
-    from App.Attenuation.Photons.photons_advanced import photons_advanced
+    from App.Shielding.Photons.photons_advanced import photons_advanced
 
     clear_export()
     photons_advanced(root, category, mode, interactions, common_el, common_mat,

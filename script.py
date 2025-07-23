@@ -3,7 +3,7 @@ import tkinter as tk
 from App.home import return_home
 from App.style import configure_style
 from App.scroll import configure_scrolling
-from Utility.Functions.gui_utility import set_mpl_cache_dir
+from Utility.Functions.files import set_mpl_cache_dir
 
 # Configure matplotlib
 import matplotlib

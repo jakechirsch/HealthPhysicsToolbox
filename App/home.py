@@ -1,6 +1,6 @@
 ##### IMPORTS #####
 from tkinter import ttk
-from App.Attenuation.attenuation import attenuation_menu
+from App.Shielding.shielding import shielding_menu
 from Utility.Functions.gui_utility import get_width
 
 # For global access to nodes on home screen
@@ -26,23 +26,23 @@ def return_home(root):
     title = ttk.Label(root, text="Health Physics Toolbox", style="Blue.TLabel")
     title.pack(pady=5)
 
-    # Creates buttons for home screen
-    tac_button = ttk.Button(root, text="Attenuation and Range Data",
-                            command=lambda: tac(root), style="Maize.TButton",
-                            padding=(0,0))
-    tac_button.config(width=get_width(["Attenuation and Range Data"]))
-    tac_button.pack(pady=5)
+    # Creates button for shielding menu
+    shielding_button = ttk.Button(root, text="Attenuation and Range Data",
+                                  command=lambda: shielding(root),
+                                  style="Maize.TButton", padding=(0,0))
+    shielding_button.config(width=get_width(["Attenuation and Range Data"]))
+    shielding_button.pack(pady=5)
 
     # Stores nodes into global list
-    home_list = [tac_button, title]
+    home_list = [shielding_button, title]
 
 """
 This function transitions from the home screen
-to the attenuation screen by first clearing the
-home screen and then creating the attenuation screen.
-It is called when the Attenuation Coefficients button is hit.
+to the shielding screen by first clearing the
+home screen and then creating the shielding screen.
+It is called when the Attenuation and Range Data button is hit.
 """
-def tac(root):
+def shielding(root):
     root.focus()
     clear_home()
-    attenuation_menu(root)
+    shielding_menu(root)

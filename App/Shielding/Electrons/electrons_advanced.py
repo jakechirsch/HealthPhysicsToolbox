@@ -1,8 +1,8 @@
 ##### IMPORTS #####
-from Core.Attenuation.Electrons.electrons_calculations import *
-from App.Attenuation.Electrons.electrons_add_custom import *
+from App.Shielding.Electrons.electrons_add_custom import *
+from App.Shielding.Electrons.electrons_export import *
 
-# For global access to nodes on electron attenuation advanced screen
+# For global access to nodes on electron range advanced screen
 advanced_list = []
 
 #####################################################################################
@@ -10,7 +10,7 @@ advanced_list = []
 #####################################################################################
 
 """
-This function sets up the electron attenuation advanced screen.
+This function sets up the electron range advanced screen.
 The following sections and widgets are created:
    Module Title (Electron Range)
    Customize Categories section
@@ -68,7 +68,7 @@ def electrons_advanced(root, category, mode, common_el, common_mat, element,
         return make_vertical_frame(root, inner_a_r_frame, action_dropdown.get(),
                                    category_dropdown.get(), non_common, common,
                                    non_common_m, common_m, custom, a_r_button,
-                                   to_custom, "Attenuation/Electrons")
+                                   to_custom, "Shielding/Electrons")
 
     # Logic for when an action or category is selected
     def on_select_options(event):
@@ -204,38 +204,38 @@ def electrons_advanced(root, category, mode, common_el, common_mat, element,
         energy_choices = list(energy_units.keys())
         unit_dropdown(energy_unit_side_frame, energy_choices,
                       energy_unit, on_select_energy)
-        """
+
         # Creates Export Menu button
         export_button = ttk.Button(bottom_frame, text="Export Menu", style="Maize.TButton",
-                                   padding=(0, 0),
+                                   padding=(0,0),
                                    command=lambda:
-                                   to_export_menu(root, common_el, common_mat, element, material,
-                                                  custom_mat, category, mode,
-                                                  get_interactions(interaction_choices, interaction_vars),
+                                   to_export_menu(root, category, mode,
+                                                  common_el, common_mat,
+                                                  element, material, custom_mat,
                                                   num_units[0], num_units[4], num_units[1],
                                                   den_units[0], den_units[4], den_units[1],
                                                   energy_unit))
         export_button.config(width=get_width(["Export Menu"]))
-        export_button.pack(side='left', #padx=5)
-        """
+        export_button.pack(side='left', padx=5)
+
 
     # Creates References button
     references_button = ttk.Button(bottom_frame, text="References", style="Maize.TButton",
-                                   padding=(0, 0),
+                                   padding=(0,0),
                                    command=lambda: open_ref(root))
     references_button.config(width=get_width(["References"]))
     references_button.pack(side='left', padx=5)
 
     # Creates Help button
     help_button = ttk.Button(bottom_frame, text="Help", style="Maize.TButton",
-                             padding=(0, 0),
+                             padding=(0,0),
                              command=lambda: open_help(root))
     help_button.config(width=get_width(["Help"]))
     help_button.pack(side='left', padx=5)
 
-    # Creates Back button to return to electron attenuation main screen
+    # Creates Back button to return to electron range main screen
     back_button = ttk.Button(root, text="Back", style="Maize.TButton",
-                             padding=(0, 0),
+                             padding=(0,0),
                              command=lambda: to_main(root, category, mode, common_el,
                                                      common_mat, element, material,
                                                      custom_mat,
@@ -256,28 +256,28 @@ def electrons_advanced(root, category, mode, common_el, common_mat, element,
 #####################################################################################
 
 """
-This function clears the electron attenuation advanced screen
+This function clears the electron range advanced screen
 in preparation for opening a different screen.
 """
 def clear_advanced():
     global advanced_list
 
-    # Clears electron attenuation advanced screen
+    # Clears electron range advanced screen
     for node in advanced_list:
         node.destroy()
     advanced_list.clear()
 
 """
-This function transitions from the electron attenuation advanced screen
-to the electron attenuation main screen by first clearing the
-electron attenuation advanced screen and then creating the
-electron attenuation main screen.
+This function transitions from the electron range advanced screen
+to the electron range main screen by first clearing the
+electron range advanced screen and then creating the
+electron range main screen.
 It is called when the Back button is hit.
 """
 def to_main(root, category, mode, common_el, common_mat, element,
             material, custom_mat, csda_num, d_num, rec_num, csda_den, d_den, rec_den,
             energy_unit):
-    from App.Attenuation.Electrons.electrons_main import electrons_main
+    from App.Shielding.Electrons.electrons_main import electrons_main
 
     clear_advanced()
     electrons_main(root, category, mode, common_el, common_mat, element,
@@ -285,10 +285,10 @@ def to_main(root, category, mode, common_el, common_mat, element,
                    rec_den, energy_unit)
 
 """
-This function transitions from the electron attenuation advanced screen
-to the electron attenuation add custom screen by first clearing the
-electron attenuation advanced screen and then creating the
-electron attenuation add custom screen.
+This function transitions from the electron range advanced screen
+to the electron range add custom screen by first clearing the
+electron range advanced screen and then creating the
+electron range add custom screen.
 It is called when the Add Custom Materials button is hit.
 """
 def to_custom_menu(root, category, mode, common_el, common_mat, element,
@@ -300,17 +300,32 @@ def to_custom_menu(root, category, mode, common_el, common_mat, element,
                          rec_den, energy_unit)
 
 """
-This function opens the electron attenuation References.txt file.
+This function transitions from the electron range advanced screen
+to the electron range export screen by first clearing the
+electron range advanced screen and then creating the
+electron range export screen.
+It is called when the Export Menu button is hit.
+"""
+def to_export_menu(root, category, mode, common_el, common_mat, element,
+                   material, custom_mat, csda_num, d_num, rec_num, csda_den, d_den,
+                   rec_den, energy_unit):
+    clear_advanced()
+    electrons_export(root, category, mode, common_el, common_mat, element,
+                     material, custom_mat, csda_num, d_num, rec_num, csda_den, d_den,
+                     rec_den, energy_unit)
+
+"""
+This function opens the electron range References.txt file.
 """
 def open_ref(root):
     root.focus()
-    db_path = resource_path('Utility/Modules/Attenuation/Electrons/References.txt')
+    db_path = resource_path('Utility/Modules/Shielding/Electrons/References.txt')
     open_file(db_path)
 
 """
-This function opens the electron attenuation Help.txt file.
+This function opens the electron range Help.txt file.
 """
 def open_help(root):
     root.focus()
-    db_path = resource_path('Utility/Modules/Attenuation/Electrons/Help.txt')
+    db_path = resource_path('Utility/Modules/Shielding/Electrons/Help.txt')
     open_file(db_path)

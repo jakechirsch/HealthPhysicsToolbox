@@ -1,7 +1,7 @@
 ##### IMPORTS #####
 import csv
 import shelve
-from Utility.Functions.gui_utility import resource_path, get_user_data_path
+from Utility.Functions.files import *
 
 # Choices using an element or a material
 element_choices = ["Common Elements", "All Elements"]
@@ -30,17 +30,17 @@ def get_choices(category, particle):
 
     if category == "All Elements":
         # Obtains list of items from csv file
-        db_path = resource_path('Data/Modules/Attenuation/' + particle + '/Elements.csv')
+        db_path = resource_path('Data/Modules/Shielding/' + particle + '/Elements.csv')
         read_choices(choices, db_path)
         return choices
 
     # Obtains list of items from shelve
-    db_path = get_user_data_path('Attenuation/' + particle + '/' + category)
+    db_path = get_user_data_path('Shielding/' + particle + '/' + category)
     with shelve.open(db_path) as prefs:
         default = []
         if category != "Custom Materials":
             # Obtains list of default items from csv file
-            db_path2 = resource_path('Data/Modules/Attenuation/' + category + '.csv')
+            db_path2 = resource_path('Data/Modules/Shielding/' + category + '.csv')
             read_choices(default, db_path2)
         choices = prefs.get(category, default)
         choices.sort()

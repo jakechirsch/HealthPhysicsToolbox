@@ -26,6 +26,8 @@ def get_choices(category, particle):
         # Obtains list of items from csv file
         db_path = resource_path('Data/General Data/Density/Materials.csv')
         read_choices(choices, db_path)
+        if particle == "Alphas":
+            return [choice for choice in choices if "Plutonium" not in choice]
         return choices
 
     if category == "All Elements":

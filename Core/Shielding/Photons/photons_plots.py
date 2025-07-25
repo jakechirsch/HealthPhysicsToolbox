@@ -23,7 +23,7 @@ Once the dataframe is filled out, we convert the interaction
 columns to the desired unit. If L.A.C. is the selected
 calculation mode, we also need to multiply the interaction
 columns by the item's density.
-Then, if the select export type is plot, we call
+Then, if the selected export type is Plot, we call
 configure_plot.
 Finally, if the file is meant to be saved, we pass on the
 work to the save_file function. Otherwise, we show the plot.

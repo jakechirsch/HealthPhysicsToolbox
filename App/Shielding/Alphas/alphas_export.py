@@ -1,8 +1,8 @@
 ##### IMPORTS #####
-from Core.Shielding.Electrons.electrons_plots import *
+from Core.Shielding.Alphas.alphas_plots import *
 from App.style import SectionFrame
 
-# For global access to nodes on electron range export screen
+# For global access to nodes on alpha range export screen
 export_list = []
 
 #####################################################################################
@@ -10,9 +10,9 @@ export_list = []
 #####################################################################################
 
 """
-This function sets up the electron range export screen.
+This function sets up the alpha range export screen.
 The following sections and widgets are created:
-   Module Title (Electron Range)
+   Module Title (Alpha Range)
    Export Options section
    Back button
 This function contains all of the logic involving these widgets'
@@ -20,13 +20,13 @@ behaviors.
 The sections and widgets are stored in export_list so they can be
 accessed later by clear_export.
 """
-def electrons_export(root, category, mode, common_el, common_mat, element,
-                     material, custom_mat, csda_num, d_num, rec_num, csda_den, d_den,
-                     rec_den, energy_unit):
+def alphas_export(root, category, mode, common_el, common_mat, element,
+                  material, custom_mat, csda_num, d_num, csda_den, d_den,
+                  energy_unit):
     global export_list
 
     # Makes title frame
-    title_frame = make_title_frame(root, "Electron Range")
+    title_frame = make_title_frame(root, "Alpha Range")
 
     # Stores whether file is saved and sets default
     var_save = IntVar()
@@ -73,14 +73,11 @@ def electrons_export(root, category, mode, common_el, common_mat, element,
 
     # Mode choices
     mode_choices = ["CSDA Range",
-                    "Range-Energy Curve",
-                    "Radiation Yield",
-                    "Density Effect Delta",
                     "Density"]
 
     # Stores units in list
-    num_units = [csda_num, rec_num, "", "", d_num]
-    den_units = [csda_den, rec_den, "", "", d_den]
+    num_units = [csda_num, d_num]
+    den_units = [csda_den, d_den]
 
     # Creates Export button
     export_button = ttk.Button(inner_options_frame, text="Export", style="Maize.TButton",
@@ -101,13 +98,13 @@ def electrons_export(root, category, mode, common_el, common_mat, element,
     error_label = ttk.Label(inner_options_frame, text="", style="Error.TLabel")
     error_label.pack(pady=(5,10))
 
-    # Creates Back button to return to electron range advanced screen
+    # Creates Back button to return to alpha range advanced screen
     back_button = ttk.Button(root, text="Back", style="Maize.TButton", padding=(0,0),
                              command=lambda: advanced_back(root, category, mode,
                                                            common_el, common_mat, element,
                                                            material, custom_mat, csda_num,
-                                                           d_num, rec_num, csda_den, d_den,
-                                                           rec_den, energy_unit))
+                                                           d_num, csda_den, d_den,
+                                                           energy_unit))
     back_button.config(width=get_width(["Back"]))
     back_button.pack(pady=5)
 
@@ -120,30 +117,30 @@ def electrons_export(root, category, mode, common_el, common_mat, element,
 #####################################################################################
 
 """
-This function clears the electron range export screen
+This function clears the alpha range export screen
 in preparation for opening a different screen.
 """
 def clear_export():
     global export_list
 
-    # Clears electron range export screen
+    # Clears alpha range export screen
     for node in export_list:
         node.destroy()
     export_list.clear()
 
 """
-This function transitions from the electron range export screen
-to the electron range advanced screen by first clearing the
-electron range export screen and then creating the
-electron range advanced screen.
+This function transitions from the alpha range export screen
+to the alpha range advanced screen by first clearing the
+alpha range export screen and then creating the
+alpha range advanced screen.
 It is called when the Back button is hit.
 """
 def advanced_back(root, category, mode, common_el, common_mat, element,
-                  material, custom_mat, csda_num, d_num, rec_num, csda_den, d_den,
-                  rec_den, energy_unit):
-    from App.Shielding.Electrons.electrons_advanced import electrons_advanced
+                  material, custom_mat, csda_num, d_num, csda_den, d_den,
+                  energy_unit):
+    from App.Shielding.Alphas.alphas_advanced import alphas_advanced
 
     clear_export()
-    electrons_advanced(root, category, mode, common_el, common_mat, element,
-                       material, custom_mat, csda_num, d_num, rec_num, csda_den, d_den,
-                       rec_den, energy_unit)
+    alphas_advanced(root, category, mode, common_el, common_mat, element,
+                       material, custom_mat, csda_num, d_num, csda_den, d_den,
+                       energy_unit)

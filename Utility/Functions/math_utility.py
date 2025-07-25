@@ -129,7 +129,11 @@ def find_data_for_element(element, column, energy_target, particle):
     high_coefficient = float('inf')
 
     # Retrieves name of energy column
-    energy_col = "Photon Energy" if particle == "Photons" else "Kinetic Energy"
+    energy_col = "Photon Energy" if particle == "Photons" else\
+                 "Kinetic Energy" if particle == "Electrons" else\
+                 "Alpha Energy" if particle == "Alphas" else None
+    if energy_col is None:
+        sys.exit()
 
     # Opens file
     db_path = resource_path('Data/Modules/Shielding/' + particle + '/Elements/' + element + '.csv')

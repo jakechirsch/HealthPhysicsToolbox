@@ -1,7 +1,7 @@
 ##### IMPORTS #####
 import matplotlib.pyplot as plt
 import pandas as pd
-from Core.Shielding.Electrons.electrons_calculations import *
+from Core.Shielding.Alphas.alphas_calculations import *
 
 #####################################################################################
 # EXPORT SECTION
@@ -13,13 +13,10 @@ The function handles the following errors:
    No selected item
 If the error is not applicable, a dataframe is set up
 with a column for energy as well as a column for the mode.
-If we are working with an element and the selected calculation
-mode is not Range-Energy Curve, we copy these columns
+If we are working with an element, we copy these columns
 from the raw data, converting the energy column to the
-desired energy unit. If the calculation mode is Range-Energy
-Curve, we calculate each of the values. If we are working with
-a material, we pass on the work of filling out the dataframe
-to the make_df_for_material function.
+desired energy unit. Otherwise, we pass on the work of
+filling out the dataframe to the make_df_for_material function.
 Once the dataframe is filled out, we convert the mode column
 to the desired unit.
 Then, if the selected export type is Plot, we call
@@ -39,38 +36,25 @@ def export_data(root, element, category, mode, num, den,
     error_label.config(style="Error.TLabel", text="")
 
     # Sets up columns for dataframe
-    energy_col = "Electron Energy (" + energy_unit + ")"
+    energy_col = "Alpha Energy (" + energy_unit + ")"
     unit = " (" + num + "/" + den + ")"
-    mode_col = mode
-    if mode == "CSDA Range" or mode == "Range-Energy Curve":
-        mode_col += unit
+    mode_col = mode + unit
     cols = [energy_col, mode_col]
 
     df = pd.DataFrame(columns=cols)
     if category in element_choices:
         # Load the CSV file
-        db_path = resource_path('Data/Modules/Shielding/Electrons/Elements/' + element + '.csv')
+        db_path = resource_path('Data/Modules/Shielding/Alphas/Elements/' + element + '.csv')
         df2 = pd.read_csv(db_path)
 
-        df[energy_col] = df2["Kinetic Energy"]
-
-        if mode != "Range-Energy Curve":
-            df[mode_col] = df2[mode]
-        else:
-            min_val = 0.001
-            max_val = 10
-            df = df[df[energy_col] <= max_val]
-            df = df[df[energy_col] >= min_val]
-            for index, row in df.iterrows():
-                row[mode_col] = range_energy_curve(float(row[energy_col]),
-                                                   energy_unit, None)
-                df.loc[index] = [row[energy_col], row[mode_col]]
+        df[energy_col] = df2["Alpha Energy"]
+        df[mode_col] = df2[mode]
     elif category in material_choices:
         db_path = resource_path('Data/General Data/Material Composition/' + element + '.csv')
         with open(db_path, 'r') as file:
-            make_df_for_material(file, df, element, category, mode, energy_unit)
+            make_df_for_material(file, df, element, category, mode)
     else:
-        db_path = get_user_data_path('Shielding/Electrons/_' + element)
+        db_path = get_user_data_path('Shielding/Alphas/_' + element)
         with shelve.open(db_path) as db:
             stored_data = db[element]
             stored_data = stored_data.replace('\\n', '\n')
@@ -78,15 +62,14 @@ def export_data(root, element, category, mode, num, den,
         # Create file-like object from the stored string
         csv_file_like = io.StringIO(stored_data)
 
-        make_df_for_material(csv_file_like, df, element, category, mode, energy_unit)
+        make_df_for_material(csv_file_like, df, element, category, mode)
 
     # Converts energy column to desired energy unit
     df[energy_col] /= energy_units[energy_unit]
 
     # Convert to desired unit
-    if mode == "CSDA Range" or mode == "Range-Energy Curve":
-        df[mode_col] *= csda_numerator[num]
-        df[mode_col] /= csda_denominator[den]
+    df[mode_col] *= csda_numerator[num]
+    df[mode_col] /= csda_denominator[den]
 
     if choice == "Plot":
         configure_plot(df, energy_col, mode_col, element)
@@ -137,17 +120,16 @@ from the raw data of the first element and then removing
 any values that are out of range for any of the remaining
 elements. Then, for each energy value, we get the corresponding
 calculation mode value by calling the find_data function
-with the mode. If Range-Energy Curve is the selected calculation mode,
-then instead of finding the values in the data, we calculate them.
+with the mode.
 """
-def make_df_for_material(file_like, df, element, category, mode, energy_unit):
+def make_df_for_material(file_like, df, element, category, mode):
     # Reads in file
     reader = csv.DictReader(file_like)
 
     # Create the dataframe
     vals = []
     for row in reader:
-        db_path = resource_path('Data/Modules/Shielding/Electrons/Elements/' + row['Element'] + '.csv')
+        db_path = resource_path('Data/Modules/Shielding/Alphas/Elements/' + row['Element'] + '.csv')
         if len(vals) == 0:
             with open(db_path, 'r') as file:
                 # Reads in file
@@ -155,7 +137,7 @@ def make_df_for_material(file_like, df, element, category, mode, energy_unit):
 
                 # Gets energy values to use as dots
                 for row2 in reader2:
-                    vals.append(float(row2["Kinetic Energy"]))
+                    vals.append(float(row2["Alpha Energy"]))
         else:
             with open(db_path, 'r') as file:
                 # Reads in file
@@ -164,26 +146,15 @@ def make_df_for_material(file_like, df, element, category, mode, energy_unit):
                 new_vals = []
                 # Gets energy values to use as dots
                 for row2 in reader2:
-                    new_vals.append(float(row2["Kinetic Energy"]))
+                    new_vals.append(float(row2["Alpha Energy"]))
                 max_val = max(new_vals)
                 min_val = min(new_vals)
                 for val in vals:
                     if val > max_val or val < min_val:
                         vals.remove(val)
 
-    # Gets rid of bad R.E.C. energy values
-    if mode == "Range-Energy Curve":
-        for val in vals:
-            min_val = 0.001 / energy_units[energy_unit]
-            max_val = 10 / energy_units[energy_unit]
-            if val > max_val or val < min_val:
-                vals.remove(val)
-
     # Finds the data for mode at each energy value and adds to dataframe
     for index, val in enumerate(vals):
-        if mode == "Range-Energy Curve":
-            x = range_energy_curve(val, energy_unit, None)
-        else:
-            x = find_data(category, mode, element, val, "Electrons")
+        x = find_data(category, mode, element, val, "Alphas")
         row = [val, x]
         df.loc[index] = row

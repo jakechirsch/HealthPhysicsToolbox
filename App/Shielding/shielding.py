@@ -2,6 +2,7 @@
 from tkinter import ttk
 from App.Shielding.Photons.photons_main import photons_main
 from App.Shielding.Electrons.electrons_main import electrons_main
+from App.Shielding.Alphas.alphas_main import alphas_main
 from Utility.Functions.gui_utility import get_width, make_title_frame
 
 # For global access to nodes on shielding screen
@@ -33,8 +34,15 @@ def shielding_menu(root):
     electrons_button.config(width=get_width(["Electrons"]))
     electrons_button.pack(pady=5)
 
+    # Creates alphas button
+    alphas_button = ttk.Button(root, text="Alphas",
+                               command=lambda: to_alphas(root),
+                               style="Maize.TButton", padding=(0,0))
+    alphas_button.config(width=get_width(["Alphas"]))
+    alphas_button.pack(pady=5)
+
     # Stores nodes into global list
-    shielding_list = [title, photons_button, electrons_button]
+    shielding_list = [title, photons_button, electrons_button, alphas_button]
 
 #####################################################################################
 # NAVIGATION SECTION
@@ -74,3 +82,15 @@ def to_electrons(root):
     root.focus()
     clear_shielding()
     electrons_main(root)
+
+"""
+This function transitions from the shielding screen
+to the alpha range main screen by first
+clearing the shielding screen and then creating the
+alpha range main screen.
+It is called when the Alphas button is hit.
+"""
+def to_alphas(root):
+    root.focus()
+    clear_shielding()
+    alphas_main(root)

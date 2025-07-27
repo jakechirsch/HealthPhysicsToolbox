@@ -136,7 +136,7 @@ def find_data_for_element(element, column, energy_target, particle):
         sys.exit()
 
     # Opens file
-    db_path = resource_path('Data/Modules/Shielding/' + particle + '/Elements/' + element + '.csv')
+    db_path = resource_path('Data/NIST Coefficients/' + particle + '/Elements/' + element + '.csv')
     with open(db_path, 'r') as file:
         # Reads in file in dictionary format
         reader = csv.DictReader(file)

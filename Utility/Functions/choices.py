@@ -32,7 +32,7 @@ def get_choices(category, particle):
 
     if category == "All Elements":
         # Obtains list of items from csv file
-        db_path = resource_path('Data/Modules/Shielding/' + particle + '/Elements.csv')
+        db_path = resource_path('Data/NIST Coefficients/' + particle + '/Elements.csv')
         read_choices(choices, db_path)
         return choices
 
@@ -42,7 +42,7 @@ def get_choices(category, particle):
         default = []
         if category != "Custom Materials":
             # Obtains list of default items from csv file
-            db_path2 = resource_path('Data/Modules/Shielding/' + category + '.csv')
+            db_path2 = resource_path('Data/General Data/' + category + '.csv')
             read_choices(default, db_path2)
         choices = prefs.get(category, default)
         choices.sort()

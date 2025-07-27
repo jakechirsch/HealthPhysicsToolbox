@@ -77,7 +77,7 @@ This function is used to make an overall module title.
 The titles also have a tooltip for more info.
 The title label and tooltip are packed into a frame and returned.
 """
-def make_title_frame(root, title):
+def make_title_frame(root, title, module):
     from App.style import Tooltip
 
     title_frame = Frame(root, bg="#F2F2F2")
@@ -88,7 +88,7 @@ def make_title_frame(root, title):
 
     info_icon = ttk.Label(title_frame, text="\u24D8", style="Blue.TLabel", cursor="hand2")
     info_icon.pack(side="left", padx=2, pady=(20, 10))
-    Tooltip(info_icon, "Info")
+    Tooltip(info_icon, module)
 
     return title_frame
 

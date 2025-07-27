@@ -18,7 +18,7 @@ This function creates the shielding screen.
 def shielding_menu(root):
     global shielding_list
 
-    title = make_title_frame(root, "Attenuation and Range Data")
+    title = make_title_frame(root, "Attenuation and Range Data", "Shielding")
 
     # Creates photons button
     photons_button = ttk.Button(root, text="Photons",

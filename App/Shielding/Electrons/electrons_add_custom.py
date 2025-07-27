@@ -32,7 +32,7 @@ def electrons_add_custom(root, category, mode, common_el, common_mat, element,
     global add_custom_list
 
     # Makes title frame
-    title_frame = make_title_frame(root, "Electron Range")
+    title_frame = make_title_frame(root, "Electron Range", "Shielding/Electrons")
 
     # Frame for material name
     material_frame = SectionFrame(root, title="Enter Material Name")

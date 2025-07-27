@@ -30,7 +30,7 @@ def electrons_advanced(root, category, mode, common_el, common_mat, element,
     global advanced_list
 
     # Makes title frame
-    title_frame = make_title_frame(root, "Electron Range")
+    title_frame = make_title_frame(root, "Electron Range", "Shielding/Electrons")
 
     # Gets common and non-common elements
     elements = get_choices("All Elements", "Electrons")

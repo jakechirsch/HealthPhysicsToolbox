@@ -26,7 +26,7 @@ def alphas_export(root, category, mode, common_el, common_mat, element,
     global export_list
 
     # Makes title frame
-    title_frame = make_title_frame(root, "Alpha Range")
+    title_frame = make_title_frame(root, "Alpha Range", "Shielding/Alphas")
 
     # Stores whether file is saved and sets default
     var_save = IntVar()

@@ -26,7 +26,7 @@ def electrons_export(root, category, mode, common_el, common_mat, element,
     global export_list
 
     # Makes title frame
-    title_frame = make_title_frame(root, "Electron Range")
+    title_frame = make_title_frame(root, "Electron Range", "Shielding/Electrons")
 
     # Stores whether file is saved and sets default
     var_save = IntVar()

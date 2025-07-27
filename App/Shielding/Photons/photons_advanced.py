@@ -31,7 +31,7 @@ def photons_advanced(root, category, mode, interactions_start, common_el, common
     global advanced_list
 
     # Makes title frame
-    title_frame = make_title_frame(root, "Photon Attenuation")
+    title_frame = make_title_frame(root, "Photon Attenuation", "Shielding/Photons")
 
     # Gets common and non-common elements
     elements = get_choices("All Elements", "Photons")

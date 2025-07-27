@@ -36,7 +36,7 @@ def electrons_main(root, category_start="Common Elements",
     global main_list
 
     # Makes title frame
-    title_frame = make_title_frame(root, "Electron Range")
+    title_frame = make_title_frame(root, "Electron Range", "Shielding/Electrons")
 
     # Creates font for result label and energy entry
     monospace_font = font.Font(family="Menlo", size=12)

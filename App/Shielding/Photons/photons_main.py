@@ -42,7 +42,7 @@ def photons_main(root, category_start="Common Elements",
         interactions = ["Total Attenuation with Coherent Scattering"]
 
     # Makes title frame
-    title_frame = make_title_frame(root, "Photon Attenuation")
+    title_frame = make_title_frame(root, "Photon Attenuation", "Shielding/Photons")
 
     # Creates font for result label and energy entry
     monospace_font = font.Font(family="Menlo", size=12)

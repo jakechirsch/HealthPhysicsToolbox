@@ -32,7 +32,7 @@ def photons_add_custom(root, category, mode, interactions, common_el, common_mat
     global add_custom_list
 
     # Makes title frame
-    title_frame = make_title_frame(root, "Photon Attenuation")
+    title_frame = make_title_frame(root, "Photon Attenuation", "Shielding/Photons")
 
     # Frame for material name
     material_frame = SectionFrame(root, title="Enter Material Name")

@@ -134,9 +134,9 @@ This class represents a tooltip for more information on
 a particular module.
 """
 class Tooltip:
-    def __init__(self, widget, text):
+    def __init__(self, widget, module):
         self.widget = widget
-        self.text = text
+        self.module = module
         self.tooltip_window = None
         self.after_id = None
         self.delay = 10
@@ -153,15 +153,18 @@ class Tooltip:
         self.hide_tooltip()
 
     def show_tooltip(self):
-        if self.tooltip_window or not self.text:
+        if self.tooltip_window or not self.module:
             return
         x = self.widget.winfo_rootx() + (52 if platform.system() == "Windows" else 26)
         y = self.widget.winfo_rooty() + (24 if platform.system() == "Windows" else 12)
         self.tooltip_window = tw = tk.Toplevel(self.widget)
         tw.wm_overrideredirect(True)
         tw.wm_geometry(f"+{x}+{y}")
+        db_path = resource_path('Utility/Modules/' + self.module + '/Info.txt')
+        with open(db_path, 'r') as file:
+            text = file.read()
         label = ttk.Label(
-            tw, text=self.text, justify='left', style="Blue.TLabel",
+            tw, text=text, justify='left', style="Blue.TLabel",
             relief='solid', borderwidth=1,
             font=("Verdana", 12, "normal")
         )

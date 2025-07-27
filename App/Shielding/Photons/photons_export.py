@@ -27,7 +27,7 @@ def photons_export(root, category, mode, interactions, common_el, common_mat,
     global export_list
 
     # Makes title frame
-    title_frame = make_title_frame(root, "Photon Attenuation")
+    title_frame = make_title_frame(root, "Photon Attenuation", "Shielding/Photons")
 
     # Frame for interactions
     interactions_frame = SectionFrame(root, title="Select Interaction Types")

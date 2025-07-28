@@ -5,7 +5,7 @@ from tkinter import *
 from tkinter import ttk
 from App.style import SectionFrame
 
-# For global access to nodes on alpha range add custom screen
+# For global access to nodes on add custom menu
 add_custom_list = []
 
 #####################################################################################
@@ -13,9 +13,9 @@ add_custom_list = []
 #####################################################################################
 
 """
-This function sets up the alpha range add custom screen.
+This function sets up the add custom menu.
 The following sections and widgets are created:
-   Module Title (Alpha Range)
+   Module Title (Add Custom Materials)
    Enter Material Name section
    Enter Density section
    Enter Element Weights section
@@ -26,13 +26,11 @@ behaviors.
 The sections and widgets are stored in add_custom_list so they can be
 accessed later by clear_add_custom.
 """
-def alphas_add_custom(root, category, mode, common_el, common_mat, element,
-                         material, custom_mat, csda_num, d_num, csda_den, d_den,
-                         energy_unit):
+def add_custom_menu(root, d_num, d_den, back):
     global add_custom_list
 
     # Makes title frame
-    title_frame = make_title_frame(root, "Alpha Range", "Shielding/Alphas")
+    title_frame = make_title_frame(root, "Add Custom Materials", "Custom")
 
     # Frame for material name
     material_frame = SectionFrame(root, title="Enter Material Name")
@@ -85,7 +83,7 @@ def alphas_add_custom(root, category, mode, common_el, common_mat, element,
                         padding=(0,0),
                         command=lambda: add_custom(root, entry, entry2, entry3,
                                                    error_label, var_normalize.get(),
-                                                   d_num, d_den, "Alphas"))
+                                                   d_num, d_den))
     add_button.config(width=get_width(["Add Material"]))
     add_button.pack(pady=5)
 
@@ -93,13 +91,9 @@ def alphas_add_custom(root, category, mode, common_el, common_mat, element,
     error_label = ttk.Label(inner_options_frame, text="", style="Error.TLabel")
     error_label.pack(pady=(5,10))
 
-    # Creates Back button to return to alpha range advanced screen
+    # Creates Back button to return to previous advanced screen
     back_button = ttk.Button(root, text="Back", style="Maize.TButton", padding=(0,0),
-                             command=lambda: advanced_back(root, category, mode,
-                                                           common_el, common_mat, element,
-                                                           material, custom_mat, csda_num,
-                                                           d_num, csda_den, d_den,
-                                                           energy_unit))
+                             command=lambda: advanced_back(back))
     back_button.config(width=get_width(["Back"]))
     back_button.pack(pady=5)
 
@@ -115,30 +109,24 @@ def alphas_add_custom(root, category, mode, common_el, common_mat, element,
 #####################################################################################
 
 """
-This function clears the alpha range add custom screen
+This function clears the add custom menu
 in preparation for opening a different screen.
 """
 def clear_add_custom():
     global add_custom_list
 
-    # Clears alpha range add custom screen
+    # Clears add custom menu
     for node in add_custom_list:
         node.destroy()
     add_custom_list.clear()
 
 """
-This function transitions from the alpha range add custom screen
-to the alpha range advanced screen by first clearing the
-alpha range add custom screen and then creating the
-alpha range advanced screen.
+This function transitions from the add custom menu
+to the previous advanced screen by first clearing the
+add custom menu and then creating the
+advanced screen that the user came from.
 It is called when the Back button is hit.
 """
-def advanced_back(root, category, mode, common_el, common_mat, element,
-                  material, custom_mat, csda_num, d_num, csda_den, d_den,
-                  energy_unit):
-    from App.Shielding.Alphas.alphas_advanced import alphas_advanced
-
+def advanced_back(back):
     clear_add_custom()
-    alphas_advanced(root, category, mode, common_el, common_mat, element,
-                    material, custom_mat, csda_num, d_num, csda_den, d_den,
-                    energy_unit)
+    back()

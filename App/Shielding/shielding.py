@@ -41,8 +41,16 @@ def shielding_menu(root):
     alphas_button.config(width=get_width(["Alphas"]))
     alphas_button.pack(pady=5)
 
+    # Creates Exit button to return to home screen
+    exit_button = ttk.Button(root, text="Exit", style="Maize.TButton",
+                             padding=(0, 0),
+                             command=lambda: exit_to_home(root))
+    exit_button.config(width=get_width(["Exit"]))
+    exit_button.pack(pady=5)
+
     # Stores nodes into global list
-    shielding_list = [title, photons_button, electrons_button, alphas_button]
+    shielding_list = [title, photons_button, electrons_button, alphas_button,
+                      exit_button]
 
 #####################################################################################
 # NAVIGATION SECTION
@@ -58,6 +66,18 @@ def clear_shielding():
     # Clears home
     for node in shielding_list:
         node.destroy()
+
+"""
+This function transitions from the shielding screen
+to the home screen by first clearing the shielding main screen
+and then creating the home screen.
+It is called when the Exit button is hit.
+"""
+def exit_to_home(root):
+    root.focus()
+    from App.home import return_home
+    clear_shielding()
+    return_home(root)
 
 """
 This function transitions from the shielding screen

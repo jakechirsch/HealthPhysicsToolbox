@@ -8,12 +8,12 @@ This function is called when the Add/Remove button is hit and
 passes on the work to the individualized functions depending
 on the action.
 """
-def carry_action(root, action, category, choices, inverse, var, dropdown, module):
+def carry_action(root, action, category, choices, inverse, var, dropdown):
     root.focus()
     if action == "Add":
-        add_c(category, choices, inverse, var, dropdown, module)
+        add_c(category, choices, inverse, var, dropdown)
     elif action == "Remove":
-        remove_c(category, choices, inverse, var, dropdown, module)
+        remove_c(category, choices, inverse, var, dropdown)
 
 """
 This function adds a common element or common material
@@ -22,8 +22,8 @@ The item is appended to the common list and the user data is updated.
 The item is then removed from the non_common list.
 Finally, the non_common dropdown is updated accordingly.
 """
-def add_c(category, non_common, common, var, dropdown, module):
-    db_path = get_user_data_path(module + '/' + category)
+def add_c(category, non_common, common, var, dropdown):
+    db_path = get_user_data_path(category)
     with shelve.open(db_path) as prefs:
         # Adds item to common
         item = var.get()
@@ -47,8 +47,8 @@ The item is removed from the common list and the user data is updated.
 The common dropdown is then updated accordingly.
 Finally, the item is appended to the non_common list.
 """
-def remove_c(category, common, non_common, var, dropdown, module):
-    db_path = get_user_data_path(module + '/' + category)
+def remove_c(category, common, non_common, var, dropdown):
+    db_path = get_user_data_path(category)
     with shelve.open(db_path) as prefs:
         # Removes item from common
         item = var.get()

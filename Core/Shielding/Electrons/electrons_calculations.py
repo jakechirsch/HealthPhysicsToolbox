@@ -53,7 +53,7 @@ def handle_calculation(root, category, mode, element, energy_str,
     if mode == "Range-Energy Curve":
         result = range_energy_curve(energy_target, energy_unit, warning_label)
     elif mode == "Density":
-        result = find_density(category, element, "Shielding/Electrons")
+        result = find_density(category, element)
     else:
         result = find_data(category, mode, element, energy_target, "Electrons")
 

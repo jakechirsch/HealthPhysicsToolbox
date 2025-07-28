@@ -24,7 +24,7 @@ The material data is also stored in shelve, with the density converted to g/cm^3
 Finally, the input boxes are cleared.
 """
 def add_custom(root, name_box, density_box, weights_box, error_label, normalize,
-               d_num, d_den, particle):
+               d_num, d_den):
     root.focus()
     name = name_box.get()
 
@@ -73,7 +73,7 @@ def add_custom(root, name_box, density_box, weights_box, error_label, normalize,
     csv_file_like = io.StringIO(csv_data)
 
     reader = csv.reader(csv_file_like)
-    elements = get_choices("All Elements", particle)
+    elements = get_choices("All Elements", "Alphas")
     weights_sum = 0
 
     for row in reader:
@@ -125,7 +125,7 @@ def add_custom(root, name_box, density_box, weights_box, error_label, normalize,
     error_label.config(style="Success.TLabel", text="Material added!")
 
     # Add material name to list of Custom Materials
-    db_path = get_user_data_path('Shielding/' + particle + '/Custom Materials')
+    db_path = get_user_data_path('Custom Materials')
     with shelve.open(db_path) as prefs:
         choices = prefs.get("Custom Materials", [])
         if not name in choices:
@@ -133,7 +133,7 @@ def add_custom(root, name_box, density_box, weights_box, error_label, normalize,
         prefs["Custom Materials"] = choices
 
     # Save material data to shelve
-    db_path2 = get_user_data_path('Shielding/' + particle + '/_' + name)
+    db_path2 = get_user_data_path('Custom Materials/_' + name)
     with shelve.open(db_path2) as db:
         # Store name
         db[name] = csv_data

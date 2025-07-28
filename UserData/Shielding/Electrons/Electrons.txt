@@ -1,5 +1,0 @@
-This folder contains the following User-specific data for Electron Range:
-1. Common Elements list
-2. Common Materials list
-3. Custom Materials list
-4. Data for Custom Materials

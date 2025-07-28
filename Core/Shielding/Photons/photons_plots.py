@@ -53,7 +53,7 @@ def export_data(root, element, category, mode, interactions, num, den,
     df = pd.DataFrame(columns=cols)
     if category in element_choices:
         # Load the CSV file
-        db_path = resource_path('Data/Modules/Shielding/Photons/Elements/' + element + '.csv')
+        db_path = resource_path('Data/NIST Coefficients/Photons/Elements/' + element + '.csv')
         df2 = pd.read_csv(db_path)
 
         df[energy_col] = df2["Photon Energy"]
@@ -65,7 +65,7 @@ def export_data(root, element, category, mode, interactions, num, den,
         with open(db_path, 'r') as file:
             make_df_for_material(file, df, element, category, interactions)
     else:
-        db_path = get_user_data_path('Shielding/Photons/_' + element)
+        db_path = get_user_data_path('Custom Materials/_' + element)
         with shelve.open(db_path) as db:
             stored_data = db[element]
             stored_data = stored_data.replace('\\n', '\n')
@@ -84,7 +84,7 @@ def export_data(root, element, category, mode, interactions, num, den,
             df[interaction] *= mac_numerator[num]
             df[interaction] /= mac_denominator[den]
     else:
-        density = find_density(category, element, "Shielding/Photons")
+        density = find_density(category, element)
         for interaction in interactions:
             df[interaction] *= density
             df[interaction] *= lac_numerator[num]
@@ -158,7 +158,7 @@ def make_df_for_material(file_like, df, element, category, interactions):
     # Create the dataframe
     vals = []
     for row in reader:
-        db_path = resource_path('Data/Modules/Shielding/Photons/Elements/' + row['Element'] + '.csv')
+        db_path = resource_path('Data/NIST Coefficients/Photons/Elements/' + row['Element'] + '.csv')
         if len(vals) == 0:
             with open(db_path, 'r') as file:
                 # Reads in file

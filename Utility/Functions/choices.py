@@ -37,7 +37,7 @@ def get_choices(category, particle):
         return choices
 
     # Obtains list of items from shelve
-    db_path = get_user_data_path('Shielding/' + particle + '/' + category)
+    db_path = get_user_data_path(category)
     with shelve.open(db_path) as prefs:
         default = []
         if category != "Custom Materials":

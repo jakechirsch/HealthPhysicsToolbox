@@ -1,5 +1,5 @@
 ##### IMPORTS #####
-from App.Shielding.Photons.photons_add_custom import *
+from App.add_custom_menu import *
 from App.Shielding.Photons.photons_export import *
 
 # For global access to nodes on photon attenuation advanced screen
@@ -94,7 +94,7 @@ def photons_advanced(root, category, mode, interactions_start, common_el, common
         return make_vertical_frame(root, inner_a_r_frame, action_dropdown.get(),
                                    category_dropdown.get(), non_common, common,
                                    non_common_m, common_m, custom, a_r_button,
-                                   to_custom, "Shielding/Photons")
+                                   to_custom)
 
     # Logic for when an action or category is selected
     def on_select_options(event):
@@ -408,9 +408,10 @@ def to_custom_menu(root, category, mode, interactions, common_el, common_mat,
                    element, material, custom_mat, mac_num, d_num, lac_num,
                    mac_den, d_den, lac_den, energy_unit):
     clear_advanced()
-    photons_add_custom(root, category, mode, interactions, common_el, common_mat,
-                       element, material, custom_mat, mac_num, d_num, lac_num,
-                       mac_den, d_den, lac_den, energy_unit)
+    back = lambda: photons_advanced(root, category, mode, interactions, common_el, common_mat,
+                                    element, material, custom_mat, mac_num, d_num, lac_num,
+                                    mac_den, d_den, lac_den, energy_unit)
+    add_custom_menu(root, d_num, d_den, back)
 
 """
 This function transitions from the photon attenuation advanced screen

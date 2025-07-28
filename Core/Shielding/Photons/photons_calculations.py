@@ -64,14 +64,14 @@ def handle_calculation(root, category, mode, interactions, element,
                 break
             result += mac
     elif mode == "Density":
-        result = find_density(category, element, "Shielding/Photons")
+        result = find_density(category, element)
     else:
         for interaction in interactions:
             mac = find_data(category, interaction, element, energy_target, "Photons")
             if mac in errors:
                 result = mac
                 break
-            result += (mac * find_density(category, element, "Shielding/Photons"))
+            result += (mac * find_density(category, element))
 
     # Displays result label
     if not result in errors:

@@ -1,0 +1,2 @@
+This folder contains the following User-specific data:
+1. Data for Custom Materials

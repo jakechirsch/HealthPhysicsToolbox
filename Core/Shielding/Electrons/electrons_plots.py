@@ -49,7 +49,7 @@ def export_data(root, element, category, mode, num, den,
     df = pd.DataFrame(columns=cols)
     if category in element_choices:
         # Load the CSV file
-        db_path = resource_path('Data/Modules/Shielding/Electrons/Elements/' + element + '.csv')
+        db_path = resource_path('Data/NIST Coefficients/Electrons/Elements/' + element + '.csv')
         df2 = pd.read_csv(db_path)
 
         df[energy_col] = df2["Kinetic Energy"]
@@ -70,7 +70,7 @@ def export_data(root, element, category, mode, num, den,
         with open(db_path, 'r') as file:
             make_df_for_material(file, df, element, category, mode, energy_unit)
     else:
-        db_path = get_user_data_path('Shielding/Electrons/_' + element)
+        db_path = get_user_data_path('Custom Materials/_' + element)
         with shelve.open(db_path) as db:
             stored_data = db[element]
             stored_data = stored_data.replace('\\n', '\n')
@@ -147,7 +147,7 @@ def make_df_for_material(file_like, df, element, category, mode, energy_unit):
     # Create the dataframe
     vals = []
     for row in reader:
-        db_path = resource_path('Data/Modules/Shielding/Electrons/Elements/' + row['Element'] + '.csv')
+        db_path = resource_path('Data/NIST Coefficients/Electrons/Elements/' + row['Element'] + '.csv')
         if len(vals) == 0:
             with open(db_path, 'r') as file:
                 # Reads in file

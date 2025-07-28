@@ -51,7 +51,7 @@ def handle_calculation(root, category, mode, element, energy_str,
     energy_target *= energy_units[energy_unit]
 
     if mode == "Density":
-        result = find_density(category, element, "Shielding/Alphas")
+        result = find_density(category, element)
     else:
         result = find_data(category, mode, element, energy_target, "Alphas")
 

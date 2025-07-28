@@ -166,7 +166,7 @@ and a button to carry out the action.
 """
 def make_vertical_frame(root, top_frame, action, category_ar,
                         non_common, common, non_common_m, common_m, custom,
-                        button, to_custom, module):
+                        button, to_custom):
     from App.style import AutocompleteCombobox
     from Utility.Functions.customize import carry_action
 
@@ -243,7 +243,7 @@ def make_vertical_frame(root, top_frame, action, category_ar,
                            style="Maize.TButton", padding=(0,0),
                            command=lambda: carry_action(root, action, category_ar,
                                                         choices, inverse, var,
-                                                        item_dropdown, module))
+                                                        item_dropdown))
     button[0].config(width=get_width([action]))
     button[0].pack(pady=(10,0))
 

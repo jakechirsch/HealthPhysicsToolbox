@@ -44,9 +44,9 @@ If the category is Custom Materials, the density is retrieved
 from shelve, where the user-inputted density is stored.
 Otherwise, the density is retrieved from the data.
 """
-def find_density(category, item, module):
+def find_density(category, item):
     if category == "Custom Materials":
-        db_path = get_user_data_path(module + '/_' + item)
+        db_path = get_user_data_path('Custom Materials/_' + item)
         with shelve.open(db_path) as db:
             return float(db[item + '_Density'])
 
@@ -73,7 +73,7 @@ def find_data(category, column, element, energy_target, particle):
         with open(db_path, 'r') as file:
             result = find_data_for_material(file, column, energy_target, particle)
     else:
-        db_path = get_user_data_path('Shielding/' + particle + '/_' + element)
+        db_path = get_user_data_path('Custom Materials/_' + element)
         with shelve.open(db_path) as db:
             stored_data = db[element]
             stored_data = stored_data.replace('\\n', '\n')

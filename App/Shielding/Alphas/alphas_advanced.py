@@ -1,5 +1,5 @@
 ##### IMPORTS #####
-from App.Shielding.Alphas.alphas_add_custom import *
+from App.add_custom_menu import *
 from App.Shielding.Alphas.alphas_export import *
 
 # For global access to nodes on alpha range advanced screen
@@ -68,7 +68,7 @@ def alphas_advanced(root, category, mode, common_el, common_mat, element,
         return make_vertical_frame(root, inner_a_r_frame, action_dropdown.get(),
                                    category_dropdown.get(), non_common, common,
                                    non_common_m, common_m, custom, a_r_button,
-                                   to_custom, "Shielding/Alphas")
+                                   to_custom)
 
     # Logic for when an action or category is selected
     def on_select_options(event):
@@ -288,9 +288,10 @@ def to_custom_menu(root, category, mode, common_el, common_mat, element,
                    material, custom_mat, csda_num, d_num, csda_den, d_den,
                    energy_unit):
     clear_advanced()
-    alphas_add_custom(root, category, mode, common_el, common_mat, element,
-                      material, custom_mat, csda_num, d_num, csda_den, d_den,
-                      energy_unit)
+    back = lambda: alphas_advanced(root, category, mode, common_el, common_mat, element,
+                                   material, custom_mat, csda_num, d_num, csda_den, d_den,
+                                   energy_unit)
+    add_custom_menu(root, d_num, d_den, back)
 
 """
 This function transitions from the alpha range advanced screen

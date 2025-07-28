@@ -28,12 +28,12 @@ the result is converted to the desired units, and then
 displayed in the result label.
 """
 def handle_calculation(root, category, mode, element, energy_str,
-                       result_label, num, den, energy_unit):
+                       result_box, num, den, energy_unit):
     root.focus()
 
     # Error-check for no selected item
     if element == "":
-        edit_result(no_selection, result_label)
+        edit_result(no_selection, result_box)
         return
 
     # Energy input in float format
@@ -44,7 +44,7 @@ def handle_calculation(root, category, mode, element, energy_str,
         try:
             energy_target = float(energy_str)
         except ValueError:
-            edit_result(non_number, result_label)
+            edit_result(non_number, result_box)
             return
 
     # Converts energy_target to MeV to comply with the raw data
@@ -64,6 +64,6 @@ def handle_calculation(root, category, mode, element, energy_str,
         else:
             result *= density_numerator[num]
             result /= density_denominator[den]
-        edit_result(f"{result:.4g}", result_label, num=num, den=den)
+        edit_result(f"{result:.4g}", result_box, num=num, den=den)
     else:
-        edit_result(result, result_label)
+        edit_result(result, result_box)

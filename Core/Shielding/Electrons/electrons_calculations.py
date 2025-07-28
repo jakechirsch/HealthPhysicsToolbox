@@ -28,12 +28,12 @@ the result is converted to the desired units, and then
 displayed in the result label.
 """
 def handle_calculation(root, category, mode, element, energy_str,
-                       result_label, warning_label, num, den, energy_unit):
+                       result_box, warning_label, num, den, energy_unit, range_result):
     root.focus()
 
     # Error-check for no selected item
     if element == "":
-        edit_result(no_selection, result_label)
+        edit_result(no_selection, result_box)
         return
 
     # Energy input in float format
@@ -44,7 +44,7 @@ def handle_calculation(root, category, mode, element, energy_str,
         try:
             energy_target = float(energy_str)
         except ValueError:
-            edit_result(non_number, result_label)
+            edit_result(non_number, result_box)
             return
 
     # Converts energy_target to MeV to comply with the raw data
@@ -52,10 +52,13 @@ def handle_calculation(root, category, mode, element, energy_str,
 
     if mode == "Range-Energy Curve":
         result = range_energy_curve(energy_target, energy_unit, warning_label)
+        result2 = find_density(category, element)
     elif mode == "Density":
         result = find_density(category, element)
+        result2 = 0
     else:
         result = find_data(category, mode, element, energy_target, "Electrons")
+        result2 = 0
 
     # Displays result label
     if not result in errors:
@@ -66,9 +69,13 @@ def handle_calculation(root, category, mode, element, energy_str,
         elif mode == "Density":
             result *= density_numerator[num]
             result /= density_denominator[den]
-        edit_result(f"{result:.4g}", result_label, num=num, den=den)
+        if mode == "Range-Energy Curve":
+            result2 *= density_numerator[num]
+            result2 /= density_denominator[den.split("\u00B2", 1)[0] + "\u00B3"]
+            edit_result(f"{(result/result2):.4g} {den[0:2]}", range_result)
+        edit_result(f"{result:.4g}", result_box, num=num, den=den)
     else:
-        edit_result(result, result_label)
+        edit_result(result, result_box)
 
 """
 This function calculates the range-energy curve value

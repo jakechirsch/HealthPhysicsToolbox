@@ -55,12 +55,12 @@ def photons_main(root, category_start="Common Elements",
     entry_width = 28 if platform.system() == "Windows" else 32
 
     # Displays the result of calculation
-    result = ttk.Label(inner_result_frame, text="Result:",
-                       style="Black.TLabel")
-    result_label = Text(inner_result_frame, height=1, borderwidth=3, bd=3,
-                        highlightthickness=0, relief='solid')
-    result_label.config(bg='white', fg='black', state="disabled", width=entry_width,
-                        font=monospace_font)
+    result_label = ttk.Label(inner_result_frame, text="Result:",
+                             style="Black.TLabel")
+    result_box = Text(inner_result_frame, height=1, borderwidth=3, bd=3,
+                      highlightthickness=0, relief='solid')
+    result_box.config(bg='white', fg='black', state="disabled", width=entry_width,
+                      font=monospace_font)
 
     # Gets the item options
     choices = get_choices(category_start, "Photons")
@@ -112,19 +112,12 @@ def photons_main(root, category_start="Common Elements",
             # Reset in preparation to re-add input energy section in correct place
             main_list.remove(empty_frame3)
             energy_frame.pack_forget()
-            energy_label.pack_forget()
-            energy_entry.pack_forget()
             result_frame.pack_forget()
-            calc_button.pack_forget()
-            result.pack_forget()
-            result_label.pack_forget()
             advanced_button.pack_forget()
             exit_button.pack_forget()
 
             # Creates input energy section when switching away from density mode
             energy_frame.pack()
-            energy_label.pack(pady=(15,1))
-            energy_entry.pack(pady=(1,20))
 
             # Spacer
             empty_frame3 = make_spacer(root)
@@ -132,9 +125,6 @@ def photons_main(root, category_start="Common Elements",
 
             # Re-adds everything below input energy section
             result_frame.pack()
-            calc_button.pack(pady=(20,5))
-            result.pack(pady=(5,1))
-            result_label.pack(pady=(1,20))
             advanced_button.pack(pady=5)
             exit_button.pack(pady=5)
 
@@ -143,9 +133,9 @@ def photons_main(root, category_start="Common Elements",
         result_frame.change_title(mode)
 
         # Clear result label
-        result_label.config(state="normal")
-        result_label.delete("1.0", END)
-        result_label.config(state="disabled")
+        result_box.config(state="normal")
+        result_box.delete("1.0", END)
+        result_box.config(state="disabled")
 
         root.focus()
 
@@ -282,7 +272,7 @@ def photons_main(root, category_start="Common Elements",
                              command=lambda: handle_calculation(root,
                                                         var_category.get(), mode,
                                                         interactions, var.get(),
-                                                        energy_entry.get(), result_label,
+                                                        energy_entry.get(), result_box,
                                       get_unit(num_units, mode_choices, mode),
                                       get_unit(den_units, mode_choices, mode),
                                                         energy_unit))
@@ -290,8 +280,8 @@ def photons_main(root, category_start="Common Elements",
     calc_button.pack(pady=(20,5))
 
     # Puts result display under Calculate button
-    result.pack(pady=(5,1))
-    result_label.pack(pady=(1,20))
+    result_label.pack(pady=(5,1))
+    result_box.pack(pady=(1,20))
 
     # Creates Advanced Settings button
     advanced_button = ttk.Button(root, text="Advanced Settings",

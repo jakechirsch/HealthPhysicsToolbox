@@ -64,11 +64,62 @@ def electrons_main(root, category_start="Common Elements",
     mode_frame.pack()
     inner_mode_frame = mode_frame.get_inner_frame()
 
+    # Logic to remove main frame
+    def add_main_frame():
+        nonlocal empty_frame2, empty_frame3
+
+        # Fixes mode dropdown padding
+        mode_dropdown.pack(pady=20)
+
+        # Reset in preparation to re-add main frame in correct place
+        main_list.remove(empty_frame2)
+        main_list.remove(empty_frame3)
+        empty_frame2.pack_forget()
+        energy_frame.pack_forget()
+        empty_frame3.pack_forget()
+        result_frame.pack_forget()
+        advanced_button.pack_forget()
+        exit_button.pack_forget()
+
+        # Creates main frame
+        main_frame.pack()
+
+        # Spacer
+        empty_frame2 = make_spacer(root)
+        main_list.append(empty_frame2)
+
+        # Re-adds everything below input energy section
+        energy_frame.pack()
+        empty_frame3 = make_spacer(root)
+        main_list.append(empty_frame3)
+        result_frame.pack()
+        advanced_button.pack(pady=5)
+        exit_button.pack(pady=5)
+
     # Logic for when a Calculation Mode is selected
     def select_mode(event):
-        nonlocal mode, empty_frame3
+        nonlocal mode, empty_frame2, empty_frame3
         event.widget.selection_clear()
         warning_label.config(text="")
+
+        if event.widget.get() != "Range-Energy Curve" \
+                and mode == "Range-Energy Curve":
+            # Gets rid of result label when switching off Range-Energy Curve mode
+            range_label.pack_forget()
+            range_result.pack_forget()
+            range_check.pack_forget()
+
+            add_main_frame()
+        elif mode != "Range-Energy Curve" \
+             and event.widget.get() == "Range-Energy Curve":
+            # Creates range label
+            mode_dropdown.pack(pady=(20,10))
+            range_check.pack(pady=(0,20))
+            var_range.set(0)
+
+            # Forgets select interacting medium frame
+            main_frame.pack_forget()
+            empty_frame2.pack_forget()
 
         if event.widget.get() == "Density" \
                 and mode != "Density":
@@ -80,20 +131,12 @@ def electrons_main(root, category_start="Common Elements",
             # Reset in preparation to re-add input energy section in correct place
             main_list.remove(empty_frame3)
             energy_frame.pack_forget()
-            energy_label.pack_forget()
-            energy_entry.pack_forget()
             result_frame.pack_forget()
-            calc_button.pack_forget()
-            result.pack_forget()
-            result_label.pack_forget()
-            warning_label.pack_forget()
             advanced_button.pack_forget()
             exit_button.pack_forget()
 
             # Creates input energy section when switching away from density mode
             energy_frame.pack()
-            energy_label.pack(pady=(15,1))
-            energy_entry.pack(pady=(1,20))
 
             # Spacer
             empty_frame3 = make_spacer(root)
@@ -101,10 +144,6 @@ def electrons_main(root, category_start="Common Elements",
 
             # Re-adds everything below input energy section
             result_frame.pack()
-            calc_button.pack(pady=(20,5))
-            result.pack(pady=(5,1))
-            result_label.pack(pady=(1,0))
-            warning_label.pack(pady=(1,5))
             advanced_button.pack(pady=5)
             exit_button.pack(pady=5)
 
@@ -113,9 +152,14 @@ def electrons_main(root, category_start="Common Elements",
         result_frame.change_title(mode)
 
         # Clear result label
-        result_label.config(state="normal")
-        result_label.delete("1.0", END)
-        result_label.config(state="disabled")
+        result_box.config(state="normal")
+        result_box.delete("1.0", END)
+        result_box.config(state="disabled")
+
+        # Clear range label
+        range_result.config(state="normal")
+        range_result.delete("1.0", END)
+        range_result.config(state="disabled")
 
         root.focus()
 
@@ -132,6 +176,44 @@ def electrons_main(root, category_start="Common Elements",
     mode_dropdown.pack(pady=20)
     mode_dropdown.bind("<<ComboboxSelected>>", select_mode)
 
+    # Stores whether to find linear range for Range-Energy Curve mode
+    var_range = IntVar()
+    var_range.set(0)
+
+    def range_hit():
+        root.focus()
+        if var_range.get() == 1:
+            # Reset in preparation to re-add range box in correct place
+            warning_label.pack_forget()
+
+            # Adds frame to select interacting medium
+            add_main_frame()
+
+            # Adds range box
+            range_label.pack(pady=(5,1))
+            range_result.pack(pady=(1,0))
+
+            # Re-adds warning label below range box
+            warning_label.pack(pady=(1,5))
+        else:
+            # Forgets range box
+            range_label.pack_forget()
+            range_result.pack_forget()
+
+            # Forgets select interacting medium frame
+            main_frame.pack_forget()
+            empty_frame2.pack_forget()
+
+    # Creates checkbox for finding range
+    range_check = ttk.Checkbutton(inner_mode_frame, text="Find Linear Range?",
+                                  variable=var_range, style="Maize.TCheckbutton",
+                                  command=lambda: range_hit())
+
+    if mode == "Range-Energy Curve":
+        # Displays the range option
+        mode_dropdown.pack(pady=(20,10))
+        range_check.pack(pady=(0,20))
+
     # Spacer
     empty_frame1 = make_spacer(root)
 
@@ -145,7 +227,8 @@ def electrons_main(root, category_start="Common Elements",
 
     # Frame for interacting medium category and item
     main_frame = SectionFrame(root, title="Select Interacting Medium")
-    main_frame.pack()
+    if mode != "Range-Energy Curve":
+        main_frame.pack()
     inner_main_frame = main_frame.get_inner_frame()
 
     # Logic for when an interacting medium category is selected
@@ -228,7 +311,9 @@ def electrons_main(root, category_start="Common Elements",
     item_dropdown.bind("<FocusOut>", on_enter)
 
     # Spacer
-    empty_frame2 = make_spacer(root)
+    empty_frame2 = Frame()
+    if mode != "Range-Energy Curve":
+        empty_frame2 = make_spacer(root)
 
     # Frame for energy input
     energy_frame = SectionFrame(root, title="Input Energy")
@@ -270,22 +355,30 @@ def electrons_main(root, category_start="Common Elements",
                              command=lambda: handle_calculation(root, var_category.get(),
                                                                 mode, var.get(),
                                                                 energy_entry.get(),
-                                                                result_label, warning_label,
+                                                                result_box, warning_label,
                                                 get_unit(num_units, mode_choices, mode),
                                                 get_unit(den_units, mode_choices, mode),
-                                                                energy_unit))
+                                                                energy_unit, range_result))
     calc_button.config(width=get_width(["Calculate"]))
     calc_button.pack(pady=(20,5))
 
     # Displays the result of calculation
-    result = ttk.Label(inner_result_frame, text="Result:",
-                       style="Black.TLabel")
-    result_label = Text(inner_result_frame, height=1, borderwidth=3, bd=3,
+    result_label = ttk.Label(inner_result_frame, text="Result:",
+                             style="Black.TLabel")
+    result_box = Text(inner_result_frame, height=1, borderwidth=3, bd=3,
+                      highlightthickness=0, relief='solid')
+    result_box.config(bg='white', fg='black', state="disabled", width=entry_width,
+                      font=monospace_font)
+    result_label.pack(pady=(5,1))
+    result_box.pack(pady=(1,0))
+
+    # Creates range result box
+    range_label = ttk.Label(inner_result_frame, text="Linear Range:",
+                            style="Black.TLabel")
+    range_result = Text(inner_result_frame, height=1, borderwidth=3, bd=3,
                         highlightthickness=0, relief='solid')
-    result_label.config(bg='white', fg='black', state="disabled", width=entry_width,
+    range_result.config(bg='white', fg='black', state="disabled", width=entry_width,
                         font=monospace_font)
-    result.pack(pady=(5,1))
-    result_label.pack(pady=(1,0))
 
     # Creates warning label for bad input
     warning_label = ttk.Label(inner_result_frame, text="", style="Error.TLabel")

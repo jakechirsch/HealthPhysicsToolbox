@@ -34,17 +34,17 @@ def photons_advanced(root, category, mode, interactions_start, common_el, common
     title_frame = make_title_frame(root, "Photon Attenuation", "Shielding/Photons")
 
     # Gets common and non-common elements
-    elements = get_choices("All Elements", "Photons")
-    common = get_choices("Common Elements", "Photons")
+    elements = get_choices("All Elements", "Shielding", "Photons")
+    common = get_choices("Common Elements", "Shielding", "Photons")
     non_common = [element for element in elements if element not in common]
 
     # Gets common and non-common materials
-    materials = get_choices("All Materials", "Photons")
-    common_m = get_choices("Common Materials", "Photons")
+    materials = get_choices("All Materials", "Shielding", "Photons")
+    common_m = get_choices("Common Materials", "Shielding", "Photons")
     non_common_m = [material for material in materials if material not in common_m]
 
     # Gets custom materials
-    custom = get_choices("Custom Materials", "Photons")
+    custom = get_choices("Custom Materials", "Shielding", "Photons")
 
     # Frame for add/remove settings
     a_r_frame = SectionFrame(root, title="Customize Categories")

@@ -42,12 +42,12 @@ def electrons_main(root, category_start="Common Elements",
     monospace_font = font.Font(family="Menlo", size=12)
 
     # Gets the item options
-    choices = get_choices(category_start, "Electrons")
+    choices = get_choices(category_start, "Shielding", "Electrons")
 
     # Gets customizable categories
-    common_elements = get_choices("Common Elements", "Electrons")
-    common_materials = get_choices("Common Materials", "Electrons")
-    custom_materials = get_choices("Custom Materials", "Electrons")
+    common_elements = get_choices("Common Elements", "Shielding", "Electrons")
+    common_materials = get_choices("Common Materials", "Shielding", "Electrons")
+    custom_materials = get_choices("Custom Materials", "Shielding", "Electrons")
 
     # Make sure default choices are valid selections
     common_el = valid_saved(common_el, common_elements)
@@ -137,6 +137,8 @@ def electrons_main(root, category_start="Common Elements",
 
             # Creates input energy section when switching away from density mode
             energy_frame.pack()
+            energy_label.pack(pady=(15,1))
+            energy_entry.pack(pady=(1,20))
 
             # Spacer
             empty_frame3 = make_spacer(root)
@@ -239,7 +241,7 @@ def electrons_main(root, category_start="Common Elements",
         category = var_category.get()
 
         # Updates item dropdown to match category
-        choices = get_choices(category, "Electrons")
+        choices = get_choices(category, "Shielding", "Electrons")
         var.set(get_item(category, common_el, common_mat, element, material, custom_mat))
         item_dropdown.set_completion_list(choices)
         item_dropdown.config(values=choices, width=get_width(choices))

@@ -63,12 +63,12 @@ def photons_main(root, category_start="Common Elements",
                       font=monospace_font)
 
     # Gets the item options
-    choices = get_choices(category_start, "Photons")
+    choices = get_choices(category_start, "Shielding", "Photons")
 
     # Gets customizable categories
-    common_elements = get_choices("Common Elements", "Photons")
-    common_materials = get_choices("Common Materials", "Photons")
-    custom_materials = get_choices("Custom Materials", "Photons")
+    common_elements = get_choices("Common Elements", "Shielding", "Photons")
+    common_materials = get_choices("Common Materials", "Shielding", "Photons")
+    custom_materials = get_choices("Custom Materials", "Shielding", "Photons")
 
     # Make sure default choices are valid selections
     common_el = valid_saved(common_el, common_elements)
@@ -118,6 +118,8 @@ def photons_main(root, category_start="Common Elements",
 
             # Creates input energy section when switching away from density mode
             energy_frame.pack()
+            energy_label.pack(pady=(15,1))
+            energy_entry.pack(pady=(1,20))
 
             # Spacer
             empty_frame3 = make_spacer(root)
@@ -174,7 +176,7 @@ def photons_main(root, category_start="Common Elements",
         category = var_category.get()
 
         # Updates item dropdown to match category
-        choices = get_choices(category, "Photons")
+        choices = get_choices(category, "Shielding", "Photons")
         var.set(get_item(category, common_el, common_mat, element, material, custom_mat))
         item_dropdown.set_completion_list(choices)
         item_dropdown.config(values=choices, width=get_width(choices))
@@ -192,8 +194,8 @@ def photons_main(root, category_start="Common Elements",
                   "Common Materials", "All Materials",
                   "Custom Materials"]
     category_dropdown = ttk.Combobox(category_frame, textvariable=var_category,
-                                      values=categories, justify="center",
-                                      state='readonly', style="Maize.TCombobox")
+                                     values=categories, justify="center",
+                                     state='readonly', style="Maize.TCombobox")
     category_dropdown.config(width=get_width(categories))
     category_dropdown.pack()
     category_dropdown.bind("<<ComboboxSelected>>", select_category)
@@ -270,12 +272,12 @@ def photons_main(root, category_start="Common Elements",
     calc_button = ttk.Button(inner_result_frame, text="Calculate",
                              style="Maize.TButton", padding=(0,0),
                              command=lambda: handle_calculation(root,
-                                                        var_category.get(), mode,
-                                                        interactions, var.get(),
-                                                        energy_entry.get(), result_box,
-                                      get_unit(num_units, mode_choices, mode),
-                                      get_unit(den_units, mode_choices, mode),
-                                                        energy_unit))
+                                                                var_category.get(), mode,
+                                                                interactions, var.get(),
+                                                                energy_entry.get(), result_box,
+                                                get_unit(num_units, mode_choices, mode),
+                                                get_unit(den_units, mode_choices, mode),
+                                                                energy_unit))
     calc_button.config(width=get_width(["Calculate"]))
     calc_button.pack(pady=(20,5))
 

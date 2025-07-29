@@ -33,17 +33,17 @@ def electrons_advanced(root, category, mode, common_el, common_mat, element,
     title_frame = make_title_frame(root, "Electron Range", "Shielding/Electrons")
 
     # Gets common and non-common elements
-    elements = get_choices("All Elements", "Electrons")
-    common = get_choices("Common Elements", "Electrons")
+    elements = get_choices("All Elements", "Shielding", "Electrons")
+    common = get_choices("Common Elements", "Shielding", "Electrons")
     non_common = [element for element in elements if element not in common]
 
     # Gets common and non-common materials
-    materials = get_choices("All Materials", "Electrons")
-    common_m = get_choices("Common Materials", "Electrons")
+    materials = get_choices("All Materials", "Shielding", "Electrons")
+    common_m = get_choices("Common Materials", "Shielding", "Electrons")
     non_common_m = [material for material in materials if material not in common_m]
 
     # Gets custom materials
-    custom = get_choices("Custom Materials", "Electrons")
+    custom = get_choices("Custom Materials", "Shielding", "Electrons")
 
     # Frame for add/remove settings
     a_r_frame = SectionFrame(root, title="Customize Categories")

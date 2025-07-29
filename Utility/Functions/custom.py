@@ -73,7 +73,7 @@ def add_custom(root, name_box, density_box, weights_box, error_label, normalize,
     csv_file_like = io.StringIO(csv_data)
 
     reader = csv.reader(csv_file_like)
-    elements = get_choices("All Elements", "Alphas")
+    elements = get_choices("All Elements", "", "Alphas")
     weights_sum = 0
 
     for row in reader:

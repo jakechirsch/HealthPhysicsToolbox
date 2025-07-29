@@ -89,8 +89,8 @@ class SectionFrame(tk.Frame):
         self.inner_frame.pack(padx=4, pady=(title_height, 4))
 
         # Empty frame to set a consistent width for each section
-        custom = get_choices("Custom Materials", "Photons")
-        mats = get_choices("All Materials", "Photons")
+        custom = get_choices("Custom Materials", "", "Photons")
+        mats = get_choices("All Materials", "Shielding", "Photons")
         custom_width = (get_max_string_pixel_width(custom,
                         tk_font.nametofont("TkDefaultFont")) // 2 + 20) * 2
         mats_width = (get_max_string_pixel_width(mats,

@@ -145,9 +145,13 @@ def find_data_for_element(element, column, energy_target, particle):
             # Retrieves energy value of row
             energy = float(row[energy_col])
 
+            # Stops searching if we run out of data
+            if not row[column]:
+                break
+
             # If energy value matches target exactly, uses
             # the coefficient of this row
-            if energy == energy_target:
+            elif energy == energy_target:
                 return float(row[column])
 
             # If energy value is less than the target, uses

@@ -69,7 +69,7 @@ def clear_shielding():
 
 """
 This function transitions from the shielding screen
-to the home screen by first clearing the shielding main screen
+to the home screen by first clearing the shielding screen
 and then creating the home screen.
 It is called when the Exit button is hit.
 """

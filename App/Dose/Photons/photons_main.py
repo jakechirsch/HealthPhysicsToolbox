@@ -1,10 +1,11 @@
 ##### IMPORTS #####
+from App.style import AutocompleteCombobox
+from Core.Dose.Photons.photons_calculations import handle_calculation
 from Utility.Functions.gui_utility import *
 from Utility.Functions.choices import *
-from App.style import SectionFrame, AutocompleteCombobox
-from Core.Shielding.Alphas.alphas_calculations import handle_calculation
+from App.style import SectionFrame
 
-# For global access to nodes on alpha range main screen
+# For global access to nodes on photon energy absorption main screen
 main_list = []
 
 #####################################################################################
@@ -12,9 +13,9 @@ main_list = []
 #####################################################################################
 
 """
-This function sets up the alpha range main screen.
+This function sets up the photon energy absorption main screen.
 The following sections and widgets are created:
-   Module Title (Alpha Range)
+   Module Title (Photon Energy Absorption)
    Select Calculation Mode section
    Select Interacting Medium section
    Input Energy section (only when Calculation Mode is not Density)
@@ -26,27 +27,42 @@ behaviors.
 The sections and widgets are stored in main_list so they can be
 accessed later by clear_main.
 """
-def alphas_main(root, category_start="Common Elements",
-                mode_start="CSDA Range", common_el="Ag",
-                common_mat="Air (dry, near sea level)", element="Ac",
-                material="A-150 Tissue-Equivalent Plastic (A150TEP)",
-                custom_mat="", csda_num="g", d_num="g", csda_den="cm\u00B2",
-                d_den="cm\u00B3", energy_unit="MeV"):
+def photons_main(root, category_start="Common Elements",
+                 mode_start="Mass Energy-Absorption", common_el="Ag",
+                 common_mat="Air (dry, near sea level)", element="Ac",
+                 material="A-150 Tissue-Equivalent Plastic (A150TEP)",
+                 custom_mat="", mea_num="cm\u00B2", d_num="g", mea_den="g",
+                 d_den="cm\u00B3", energy_unit="MeV"):
     global main_list
 
     # Makes title frame
-    title_frame = make_title_frame(root, "Alpha Range", "Shielding/Alphas")
+    title_frame = make_title_frame(root, "Photon Energy Absorption", "Dose/Photons")
 
     # Creates font for result label and energy entry
     monospace_font = font.Font(family="Menlo", size=12)
 
+    # Frame for result
+    result_frame = SectionFrame(root, title=mode_start)
+    inner_result_frame = result_frame.get_inner_frame()
+
+    # Input/output box width
+    entry_width = 28 if platform.system() == "Windows" else 32
+
+    # Displays the result of calculation
+    result_label = ttk.Label(inner_result_frame, text="Result:",
+                             style="Black.TLabel")
+    result_box = Text(inner_result_frame, height=1, borderwidth=3, bd=3,
+                      highlightthickness=0, relief='solid')
+    result_box.config(bg='white', fg='black', state="disabled", width=entry_width,
+                      font=monospace_font)
+
     # Gets the item options
-    choices = get_choices(category_start, "Shielding", "Alphas")
+    choices = get_choices(category_start, "Dose", "Photons")
 
     # Gets customizable categories
-    common_elements = get_choices("Common Elements", "Shielding", "Alphas")
-    common_materials = get_choices("Common Materials", "Shielding", "Alphas")
-    custom_materials = get_choices("Custom Materials", "Shielding", "Alphas")
+    common_elements = get_choices("Common Elements", "Dose", "Photons")
+    common_materials = get_choices("Common Materials", "Dose", "Photons")
+    custom_materials = get_choices("Custom Materials", "Dose", "Photons")
 
     # Make sure default choices are valid selections
     common_el = valid_saved(common_el, common_elements)
@@ -62,6 +78,18 @@ def alphas_main(root, category_start="Common Elements",
     mode_frame = SectionFrame(root, title="Select Calculation Mode")
     mode_frame.pack()
     inner_mode_frame = mode_frame.get_inner_frame()
+
+    # Frame for energy input
+    energy_frame = SectionFrame(root, title="Input Energy")
+    inner_energy_frame= energy_frame.get_inner_frame()
+
+    # Energy label
+    energy_label = ttk.Label(inner_energy_frame,
+                             text="Photon Energy (" + energy_unit + "):",
+                             style="Black.TLabel")
+    energy_entry = Entry(inner_energy_frame, width=entry_width, insertbackground="black",
+                         background="white", foreground="black", borderwidth=3, bd=3,
+                         highlightthickness=0, relief='solid', font=monospace_font)
 
     # Logic for when a Calculation Mode is selected
     def select_mode(event):
@@ -108,7 +136,7 @@ def alphas_main(root, category_start="Common Elements",
         root.focus()
 
     # Creates dropdown menu for mode
-    mode_choices = ["CSDA Range",
+    mode_choices = ["Mass Energy-Absorption",
                     "Density"]
     mode_dropdown = ttk.Combobox(inner_mode_frame, textvariable=var_mode,
                                  values=mode_choices, justify="center",
@@ -141,7 +169,7 @@ def alphas_main(root, category_start="Common Elements",
         category = var_category.get()
 
         # Updates item dropdown to match category
-        choices = get_choices(category, "Shielding", "Alphas")
+        choices = get_choices(category, "Dose", "Photons")
         var.set(get_item(category, common_el, common_mat, element, material, custom_mat))
         item_dropdown.set_completion_list(choices)
         item_dropdown.config(values=choices, width=get_width(choices))
@@ -159,8 +187,8 @@ def alphas_main(root, category_start="Common Elements",
                   "Common Materials", "All Materials",
                   "Custom Materials"]
     category_dropdown = ttk.Combobox(category_frame, textvariable=var_category,
-                                      values=categories, justify="center",
-                                      state='readonly', style="Maize.TCombobox")
+                                     values=categories, justify="center",
+                                     state='readonly', style="Maize.TCombobox")
     category_dropdown.config(width=get_width(categories))
     category_dropdown.pack()
     category_dropdown.bind("<<ComboboxSelected>>", select_category)
@@ -215,20 +243,7 @@ def alphas_main(root, category_start="Common Elements",
     # Spacer
     empty_frame2 = make_spacer(root)
 
-    # Frame for energy input
-    energy_frame = SectionFrame(root, title="Input Energy")
-    inner_energy_frame = energy_frame.get_inner_frame()
-
-    # Input/output box width
-    entry_width = 28 if platform.system() == "Windows" else 32
-
-    # Energy label
-    energy_label = ttk.Label(inner_energy_frame, text="Alpha Energy (" + energy_unit + "):",
-                             style="Black.TLabel")
-    energy_entry = Entry(inner_energy_frame, width=entry_width, insertbackground="black",
-                         background="white", foreground="black", borderwidth=3, bd=3,
-                         highlightthickness=0, relief='solid', font=monospace_font)
-
+    # Spacer
     empty_frame3 = Frame()
 
     # Input Energy section is created if Calculation Mode is not Density
@@ -240,21 +255,18 @@ def alphas_main(root, category_start="Common Elements",
         # Spacer
         empty_frame3 = make_spacer(root)
 
-    # Frame for result
-    result_frame = SectionFrame(root, title=mode_start)
     result_frame.pack()
-    inner_result_frame = result_frame.get_inner_frame()
 
     # Stores units in list
-    num_units = [csda_num, d_num]
-    den_units = [csda_den, d_den]
+    num_units = [mea_num, d_num]
+    den_units = [mea_den, d_den]
 
     # Creates Calculate button
     calc_button = ttk.Button(inner_result_frame, text="Calculate",
                              style="Maize.TButton", padding=(0,0),
-                             command=lambda: handle_calculation(root, var_category.get(),
-                                                                mode, var.get(),
-                                                                energy_entry.get(),
+                             command=lambda: handle_calculation(root,
+                                                                var_category.get(), mode,
+                                                                var.get(), energy_entry.get(),
                                                                 result_box,
                                                 get_unit(num_units, mode_choices, mode),
                                                 get_unit(den_units, mode_choices, mode),
@@ -262,13 +274,7 @@ def alphas_main(root, category_start="Common Elements",
     calc_button.config(width=get_width(["Calculate"]))
     calc_button.pack(pady=(20,5))
 
-    # Displays the result of calculation
-    result_label = ttk.Label(inner_result_frame, text="Result:",
-                             style="Black.TLabel")
-    result_box = Text(inner_result_frame, height=1, borderwidth=3, bd=3,
-                      highlightthickness=0, relief='solid')
-    result_box.config(bg='white', fg='black', state="disabled", width=entry_width,
-                      font=monospace_font)
+    # Puts result display under Calculate button
     result_label.pack(pady=(5,1))
     result_box.pack(pady=(1,20))
 
@@ -278,8 +284,7 @@ def alphas_main(root, category_start="Common Elements",
                                  command=lambda: to_advanced(root, var_category.get(),
                                                              mode, common_el, common_mat,
                                                              element, material, custom_mat,
-                                                             csda_num, d_num,
-                                                             csda_den, d_den,
+                                                             mea_num, d_num, mea_den, d_den,
                                                              energy_unit))
     advanced_button.config(width=get_width(["Advanced Settings"]))
     advanced_button.pack(pady=5)
@@ -303,20 +308,20 @@ def alphas_main(root, category_start="Common Elements",
 #####################################################################################
 
 """
-This function clears the alpha range main screen
+This function clears the photon energy absorption main screen
 in preparation for opening a different screen.
 """
 def clear_main():
     global main_list
 
-    # Clears alpha range main screen
+    # Clears photon energy absorption main screen
     for node in main_list:
         node.destroy()
     main_list.clear()
 
 """
-This function transitions from the alpha range main screen
-to the home screen by first clearing the alpha range main screen
+This function transitions from the photon energy absorption main screen
+to the home screen by first clearing the photon energy absorption main screen
 and then creating the home screen.
 It is called when the Exit button is hit.
 """
@@ -327,19 +332,19 @@ def exit_to_home(root):
     return_home(root)
 
 """
-This function transitions from the alpha range main screen
-to the alpha range advanced screen by first clearing the
-alpha range main screen and then creating the
-alpha range advanced screen.
+This function transitions from the photon energy absorption main screen
+to the photon energy absorption advanced screen by first clearing the
+photon energy absorption main screen and then creating the
+photon energy absorption advanced screen.
 It is called when the Advanced Settings button is hit.
 """
 def to_advanced(root, category, mode, common_el, common_mat, element,
-                material, custom_mat, csda_num, d_num, csda_den, d_den,
+                material, custom_mat, mea_num, d_num, mea_den, d_den,
                 energy_unit):
     root.focus()
-    from App.Shielding.Alphas.alphas_advanced import alphas_advanced
+    from App.Dose.Photons.photons_advanced import photons_advanced
 
     clear_main()
-    alphas_advanced(root, category, mode, common_el, common_mat, element,
-                    material, custom_mat, csda_num, d_num, csda_den, d_den,
-                    energy_unit)
+    photons_advanced(root, category, mode, common_el, common_mat, element,
+                     material, custom_mat, mea_num, d_num, mea_den, d_den,
+                     energy_unit)

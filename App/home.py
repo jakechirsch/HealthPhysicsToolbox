@@ -1,21 +1,15 @@
 ##### IMPORTS #####
 from tkinter import ttk
 from App.Shielding.shielding import shielding_menu
+from App.Dose.dose import dose_menu
 from Utility.Functions.gui_utility import get_width
 
 # For global access to nodes on home screen
 home_list = []
 
-"""
-This function clears the home screen in preparation
-for opening a different screen.
-"""
-def clear_home():
-    global home_list
-
-    # Clears home
-    for node in home_list:
-        node.destroy()
+#####################################################################################
+# MENU SECTION
+#####################################################################################
 
 """
 This function creates the home screen.
@@ -33,8 +27,30 @@ def return_home(root):
     shielding_button.config(width=get_width(["Attenuation and Range Data"]))
     shielding_button.pack(pady=5)
 
+    # Creates button for dose menu
+    dose_button = ttk.Button(root, text="Radiation Dose Data",
+                             command=lambda: dose(root),
+                             style="Maize.TButton", padding=(0,0))
+    dose_button.config(width=get_width(["Radiation Dose Data"]))
+    dose_button.pack(pady=5)
+
     # Stores nodes into global list
-    home_list = [shielding_button, title]
+    home_list = [title, shielding_button, dose_button]
+
+#####################################################################################
+# NAVIGATION SECTION
+#####################################################################################
+
+"""
+This function clears the home screen in preparation
+for opening a different screen.
+"""
+def clear_home():
+    global home_list
+
+    # Clears home
+    for node in home_list:
+        node.destroy()
 
 """
 This function transitions from the home screen
@@ -46,3 +62,14 @@ def shielding(root):
     root.focus()
     clear_home()
     shielding_menu(root)
+
+"""
+This function transitions from the home screen
+to the dose screen by first clearing the
+home screen and then creating the dose screen.
+It is called when the Radiation Dose Data button is hit.
+"""
+def dose(root):
+    root.focus()
+    clear_home()
+    dose_menu(root)

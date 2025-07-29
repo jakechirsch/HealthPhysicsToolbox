@@ -19,8 +19,11 @@ a default list is read from a Data file which is used
 if no user shelve data is stored.
 If the category is Custom Materials, the default list is empty.
 """
-def get_choices(category, particle):
+def get_choices(category, module, particle):
     choices = []
+
+    if module == "Dose" and particle == "Photons":
+        particle = "Alphas"
 
     if category == "All Materials":
         # Obtains list of items from csv file

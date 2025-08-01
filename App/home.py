@@ -2,7 +2,7 @@
 from tkinter import ttk
 from App.Shielding.shielding import shielding_menu
 from App.Dose.dose import dose_menu
-from Utility.Functions.gui_utility import get_width
+from Utility.Functions.gui_utility import get_width, make_title_frame
 
 # For global access to nodes on home screen
 home_list = []
@@ -17,8 +17,7 @@ This function creates the home screen.
 def return_home(root):
     global home_list
 
-    title = ttk.Label(root, text="Health Physics Toolbox", style="Blue.TLabel")
-    title.pack(pady=5)
+    title = make_title_frame(root, "Health Physics Toolbox", "Home")
 
     # Creates button for shielding menu
     shielding_button = ttk.Button(root, text="Attenuation and Range Data",

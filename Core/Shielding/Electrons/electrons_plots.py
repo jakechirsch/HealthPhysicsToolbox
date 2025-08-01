@@ -88,6 +88,8 @@ def export_data(root, element, category, mode, num, den,
         df[mode_col] *= csda_numerator[num]
         df[mode_col] /= csda_denominator[den]
 
+    print(df)
+
     if choice == "Plot":
         configure_plot(df, energy_col, mode_col, element)
         if save == 1:
@@ -167,17 +169,13 @@ def make_df_for_material(file_like, df, element, category, mode, energy_unit):
                     new_vals.append(float(row2["Kinetic Energy"]))
                 max_val = max(new_vals)
                 min_val = min(new_vals)
-                for val in vals:
-                    if val > max_val or val < min_val:
-                        vals.remove(val)
+                vals = [val for val in vals if min_val <= val <= max_val]
 
     # Gets rid of bad R.E.C. energy values
     if mode == "Range-Energy Curve":
-        for val in vals:
-            min_val = 0.001 / energy_units[energy_unit]
-            max_val = 10 / energy_units[energy_unit]
-            if val > max_val or val < min_val:
-                vals.remove(val)
+        min_val = 0.001
+        max_val = 10
+        vals = [val for val in vals if min_val <= val <= max_val]
 
     # Finds the data for mode at each energy value and adds to dataframe
     for index, val in enumerate(vals):

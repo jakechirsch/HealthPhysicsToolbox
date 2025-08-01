@@ -179,9 +179,7 @@ def make_df_for_material(file_like, df, element, category, interactions):
                     new_vals.append(float(row2["Photon Energy"]))
                 max_val = max(new_vals)
                 min_val = min(new_vals)
-                for val in vals:
-                    if val > max_val or val < min_val:
-                        vals.remove(val)
+                vals = [val for val in vals if min_val <= val <= max_val]
 
     # Finds the M.A.C. at each energy value and adds to dataframe
     for index, val in enumerate(vals):

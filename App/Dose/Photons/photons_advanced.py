@@ -195,7 +195,7 @@ def photons_advanced(root, category, mode, common_el, common_mat, element,
             root.focus()
             energy_unit = event.widget.get()
 
-        # Creates dropdown menu for denominator unit
+        # Creates dropdown menu for energy unit
         energy_choices = list(energy_units.keys())
         unit_dropdown(energy_unit_side_frame, energy_choices,
                       energy_unit, on_select_energy)
@@ -282,9 +282,9 @@ def to_main(root, category, mode, common_el, common_mat, element,
 
 """
 This function transitions from the photon energy absorption advanced screen
-to the photon energy absorption add custom screen by first clearing the
+to the add custom materials menu by first clearing the
 photon energy absorption advanced screen and then creating the
-photon energy absorption add custom screen.
+add custom materials menu.
 It is called when the Add Custom Materials button is hit.
 """
 def to_custom_menu(root, category, mode, common_el, common_mat, element,

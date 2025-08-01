@@ -1,8 +1,8 @@
 ##### IMPORTS #####
 from App.add_custom_menu import *
-from App.Shielding.Alphas.alphas_export import *
+from App.Dose.Alphas.alphas_export import *
 
-# For global access to nodes on alpha range advanced screen
+# For global access to nodes on alpha stopping power advanced screen
 advanced_list = []
 
 #####################################################################################
@@ -10,9 +10,9 @@ advanced_list = []
 #####################################################################################
 
 """
-This function sets up the alpha range advanced screen.
+This function sets up the alpha stopping power advanced screen.
 The following sections and widgets are created:
-   Module Title (Alpha Range)
+   Module Title (Alpha Stopping Power)
    Customize Categories section
    Select Units section
    Export Menu button
@@ -24,26 +24,26 @@ behaviors.
 The sections and widgets are stored in advanced_list so they can be
 accessed later by clear_advanced.
 """
-def alphas_advanced(root, category, mode, common_el, common_mat, element,
-                    material, custom_mat, csda_num, d_num, csda_den, d_den,
-                    energy_unit):
+def alphas_advanced(root, category, mode, interactions_start, common_el,
+                    common_mat, element, material, custom_mat,
+                    sp_num, d_num, sp_den, d_den, energy_unit):
     global advanced_list
 
     # Makes title frame
-    title_frame = make_title_frame(root, "Alpha Range", "Shielding/Alphas")
+    title_frame = make_title_frame(root, "Alpha Stopping Power", "Dose/Alphas")
 
     # Gets common and non-common elements
-    elements = get_choices("All Elements", "Shielding", "Alphas")
-    common = get_choices("Common Elements", "Shielding", "Alphas")
+    elements = get_choices("All Elements", "Dose", "Alphas")
+    common = get_choices("Common Elements", "Dose", "Alphas")
     non_common = [element for element in elements if element not in common]
 
     # Gets common and non-common materials
-    materials = get_choices("All Materials", "Shielding", "Alphas")
-    common_m = get_choices("Common Materials", "Shielding", "Alphas")
+    materials = get_choices("All Materials", "Dose", "Alphas")
+    common_m = get_choices("Common Materials", "Dose", "Alphas")
     non_common_m = [material for material in materials if material not in common_m]
 
     # Gets custom materials
-    custom = get_choices("Custom Materials", "Shielding", "Alphas")
+    custom = get_choices("Custom Materials", "Dose", "Alphas")
 
     # Frame for add/remove settings
     a_r_frame = SectionFrame(root, title="Customize Categories")
@@ -57,13 +57,30 @@ def alphas_advanced(root, category, mode, common_el, common_mat, element,
     # Action button
     a_r_button = [ttk.Button()]
 
+    # List of interactions
+    interaction_choices = ["Total Stopping Power",
+                           "Electronic Stopping Power",
+                           "Nuclear Stopping Power"]
+
+    # Variables for each interaction type
+    var0 = IntVar()
+    var1 = IntVar()
+    var2 = IntVar()
+    interaction_vars = [var0, var1, var2]
+
+    # Selects the previously selected interactions
+    for i in range(len(interaction_choices)):
+        if interaction_choices[i] in interactions_start:
+            interaction_vars[i].set(1)
+
     # Simplifies calls to make_vertical_frame
     def make_v_frame():
         to_custom = lambda: to_custom_menu(root, category, mode,
+                            get_interactions(interaction_choices, interaction_vars),
                                            common_el, common_mat,
                                            element, material, custom_mat,
-                                           num_units[0], num_units[1],
-                                           den_units[0], den_units[1],
+                                           num_e_units[0] + " * " + num_l_units[0],
+                                           num_e_units[1], den_units[0], den_units[1],
                                            energy_unit)
         return make_vertical_frame(root, inner_a_r_frame, action_dropdown.get(),
                                    category_dropdown.get(), non_common, common,
@@ -111,14 +128,72 @@ def alphas_advanced(root, category, mode, common_el, common_mat, element,
     category_dropdown.bind("<<ComboboxSelected>>", on_select_options)
 
     # Stores updatable units
-    num_units = [csda_num, d_num]
-    den_units = [csda_den, d_den]
+    num_e_units = [sp_num.split(" ", 1)[0], d_num]
+    num_l_units = [sp_num.split(" ", 2)[2], d_num]
+    den_units = [sp_den, d_den]
 
     # Frame for specific add/remove settings
     vertical_frame = make_v_frame()
 
     # Spacer
     empty_frame1 = make_spacer(root)
+
+    # Frame for interaction type
+    interactions_frame = SectionFrame(root, title="Select Interaction Types")
+    inner_interactions_frame = interactions_frame.get_inner_frame()
+    inner_interactions_frame.config(pady=10)
+
+    # Spacer
+    empty_frame2 = Frame()
+
+    # Ensures at least one interaction type is selected
+    # If user tries to select none,
+    # Total Stopping Power
+    # is automatically selected
+    def set_default():
+        safe = False
+        for var in interaction_vars:
+            if var.get() == 1:
+                safe = True
+        if not safe:
+            var0.set(1)
+
+    # Logic for when Total Stopping Power is selected
+    def on_select_total():
+        root.focus()
+        if var0.get() == 1:
+            for var in interaction_vars:
+                if var != var0:
+                    var.set(0)
+        else:
+            set_default()
+
+    # Logic for when any other interaction is selected
+    def on_select(var):
+        root.focus()
+        if var.get() == 1:
+            var0.set(0)
+        else:
+            set_default()
+
+    # Select Interaction Types section is only created if
+    # Calculation Mode is Stopping Power
+    if mode == "Stopping Power":
+        interactions_frame.pack()
+
+        checks = Frame(inner_interactions_frame, bg="#F2F2F2")
+        checks.pack()
+
+        # Checkboxes for each interaction type
+        interaction_checkbox(checks, var0, "Total Stopping Power",
+                             on_select_total)
+        interaction_checkbox(checks, var1, "Electronic Stopping Power",
+                             lambda: on_select(var1))
+        interaction_checkbox(checks, var2, "Nuclear Stopping Power",
+                             lambda: on_select(var2))
+
+        # Spacer
+        empty_frame2 = make_spacer(root)
 
     # Frame for units
     unit_frame = SectionFrame(root, title="Select Units")
@@ -138,26 +213,38 @@ def alphas_advanced(root, category, mode, common_el, common_mat, element,
         def on_select_unit(event):
             event.widget.selection_clear()
             root.focus()
-            if mode == "CSDA Range":
+            if mode == "Stopping Power":
                 units[0] = event.widget.get()
             elif mode == "Density":
                 units[1] = event.widget.get()
         return on_select_unit
-    on_select_num = get_select_unit(num_units)
+    on_select_e_num = get_select_unit(num_e_units)
+    on_select_l_num = get_select_unit(num_l_units)
     on_select_den = get_select_unit(den_units)
 
     # Mode choices
-    mode_choices = ["CSDA Range",
+    mode_choices = ["Stopping Power",
                     "Density"]
 
     # Possible unit choices
-    num_choices = [csda_numerator, density_numerator]
-    den_choices = [csda_denominator, density_denominator]
+    num_e_choices = [sp_e_numerator, density_numerator]
+    num_l_choices = [sp_l_numerator, density_numerator]
+    den_choices = [sp_denominator, density_denominator]
 
     # Creates dropdown menu for numerator unit
-    numerator_choices = list(get_unit(num_choices, mode_choices, mode).keys())
-    unit_dropdown(unit_side_frame, numerator_choices,
-                  get_unit(num_units, mode_choices, mode), on_select_num)
+    numerator_e_choices = list(get_unit(num_e_choices, mode_choices, mode).keys())
+    unit_dropdown(unit_side_frame, numerator_e_choices,
+                  get_unit(num_e_units, mode_choices, mode), on_select_e_num)
+
+    if mode == "Stopping Power":
+        # * label
+        slash_label = ttk.Label(unit_side_frame, text="*", style="Black.TLabel")
+        slash_label.pack(side='left')
+
+        # Creates dropdown menu for numerator unit
+        numerator_l_choices = list(get_unit(num_l_choices, mode_choices, mode).keys())
+        unit_dropdown(unit_side_frame, numerator_l_choices,
+                      get_unit(num_l_units, mode_choices, mode), on_select_l_num)
 
     # / label
     slash_label = ttk.Label(unit_side_frame, text="/", style="Black.TLabel")
@@ -169,7 +256,7 @@ def alphas_advanced(root, category, mode, common_el, common_mat, element,
                   get_unit(den_units, mode_choices, mode), on_select_den)
 
     # Spacer
-    empty_frame2 = make_spacer(root)
+    empty_frame3 = make_spacer(root)
 
     # Frame for Export Menu, References, & Help
     bottom_frame = Frame(root, bg="#F2F2F2")
@@ -204,10 +291,11 @@ def alphas_advanced(root, category, mode, common_el, common_mat, element,
                                    padding=(0,0),
                                    command=lambda:
                                    to_export_menu(root, category, mode,
+                            get_interactions(interaction_choices, interaction_vars),
                                                   common_el, common_mat,
                                                   element, material, custom_mat,
-                                                  num_units[0], num_units[1],
-                                                  den_units[0], den_units[1],
+                                                  num_e_units[0] + " * " + num_l_units[0],
+                                                  num_e_units[1], den_units[0], den_units[1],
                                                   energy_unit))
         export_button.config(width=get_width(["Export Menu"]))
         export_button.pack(side='left', padx=5)
@@ -226,14 +314,16 @@ def alphas_advanced(root, category, mode, common_el, common_mat, element,
     help_button.config(width=get_width(["Help"]))
     help_button.pack(side='left', padx=5)
 
-    # Creates Back button to return to alpha range main screen
+    # Creates Back button to return to alpha stopping power main screen
     back_button = ttk.Button(root, text="Back", style="Maize.TButton",
                              padding=(0,0),
-                             command=lambda: to_main(root, category, mode, common_el,
-                                                     common_mat, element, material,
-                                                     custom_mat,
-                                                num_units[0], num_units[1],
-                                                den_units[0], den_units[1],
+                             command=lambda: to_main(root, category, mode,
+                             get_interactions(interaction_choices, interaction_vars),
+                                                     common_el, common_mat,
+                                                     element, material, custom_mat,
+                                                     num_e_units[0] + " * " + num_l_units[0],
+                                                     num_e_units[1],
+                                                     den_units[0], den_units[1],
                                                      energy_unit))
     back_button.config(width=get_width(["Back"]))
     back_button.pack(pady=5)
@@ -241,7 +331,8 @@ def alphas_advanced(root, category, mode, common_el, common_mat, element,
     # Stores nodes into global list
     advanced_list = [title_frame,
                      a_r_frame, a_r_button[0], empty_frame1,
-                     unit_frame, empty_frame2,
+                     interactions_frame, empty_frame2,
+                     unit_frame, empty_frame3,
                      bottom_frame, back_button]
 
 #####################################################################################
@@ -249,77 +340,77 @@ def alphas_advanced(root, category, mode, common_el, common_mat, element,
 #####################################################################################
 
 """
-This function clears the alpha range advanced screen
+This function clears the alpha stopping power advanced screen
 in preparation for opening a different screen.
 """
 def clear_advanced():
     global advanced_list
 
-    # Clears alpha range advanced screen
+    # Clears alpha stopping power advanced screen
     for node in advanced_list:
         node.destroy()
     advanced_list.clear()
 
 """
-This function transitions from the alpha range advanced screen
-to the alpha range main screen by first clearing the
-alpha range advanced screen and then creating the
-alpha range main screen.
+This function transitions from the alpha stopping power advanced screen
+to the alpha stopping power main screen by first clearing the
+alpha stopping power advanced screen and then creating the
+alpha stopping power main screen.
 It is called when the Back button is hit.
 """
-def to_main(root, category, mode, common_el, common_mat, element,
-            material, custom_mat, csda_num, d_num, csda_den, d_den,
-            energy_unit):
-    from App.Shielding.Alphas.alphas_main import alphas_main
+def to_main(root, category, mode, interactions, common_el, common_mat,
+            element, material, custom_mat, sp_num, d_num, sp_den,
+            d_den, energy_unit):
+    from App.Dose.Alphas.alphas_main import alphas_main
 
     clear_advanced()
-    alphas_main(root, category, mode, common_el, common_mat, element,
-                material, custom_mat, csda_num, d_num, csda_den, d_den,
-                energy_unit)
+    alphas_main(root, category, mode, interactions, common_el, common_mat,
+                element, material, custom_mat, sp_num, d_num, sp_den,
+                d_den, energy_unit)
 
 """
-This function transitions from the alpha range advanced screen
+This function transitions from the alpha stopping power advanced screen
 to the add custom materials menu by first clearing the
-alpha range advanced screen and then creating the
+alpha stopping power advanced screen and then creating the
 add custom materials menu.
 It is called when the Add Custom Materials button is hit.
 """
-def to_custom_menu(root, category, mode, common_el, common_mat, element,
-                   material, custom_mat, csda_num, d_num, csda_den, d_den,
-                   energy_unit):
+def to_custom_menu(root, category, mode, interactions, common_el, common_mat,
+                   element, material, custom_mat, sp_num, d_num, sp_den,
+                   d_den, energy_unit):
     clear_advanced()
-    back = lambda: alphas_advanced(root, category, mode, common_el, common_mat, element,
-                                   material, custom_mat, csda_num, d_num, csda_den, d_den,
-                                   energy_unit)
+    back = lambda: alphas_advanced(root, category, mode, interactions, common_el,
+                                   common_mat, element, material, custom_mat,
+                                   sp_num, d_num, sp_den, d_den, energy_unit)
     add_custom_menu(root, d_num, d_den, back)
 
 """
-This function transitions from the alpha range advanced screen
-to the alpha range export screen by first clearing the
-alpha range advanced screen and then creating the
-alpha range export screen.
+This function transitions from the alpha stopping power advanced screen
+to the alpha stopping power export screen by first clearing the
+alpha stopping power advanced screen and then creating the
+alpha stopping power export screen.
 It is called when the Export Menu button is hit.
 """
-def to_export_menu(root, category, mode, common_el, common_mat, element,
-                   material, custom_mat, csda_num, d_num, csda_den, d_den,
-                   energy_unit):
+def to_export_menu(root, category, mode, interactions, common_el, common_mat,
+                   element, material, custom_mat, sp_num, d_num, sp_den,
+                   d_den, energy_unit):
     clear_advanced()
-    alphas_export(root, category, mode, common_el, common_mat, element,
-                  material, custom_mat, csda_num, d_num, csda_den, d_den,
-                  energy_unit)
+    alphas_export(root, category, mode, interactions, common_el, common_mat,
+                  element, material, custom_mat, sp_num, d_num, sp_den,
+                  d_den, energy_unit)
 
 """
-This function opens the alpha range References.txt file.
+This function opens the alpha stopping power References.txt file.
 """
 def open_ref(root):
     root.focus()
-    db_path = resource_path('Utility/Modules/Shielding/Alphas/References.txt')
+    db_path = resource_path('Utility/Modules/Dose/Alphas/References.txt')
     open_file(db_path)
 
 """
-This function opens the alpha range Help.txt file.
+This function opens the alpha stopping power Help.txt file.
 """
 def open_help(root):
     root.focus()
-    db_path = resource_path('Utility/Modules/Shielding/Alphas/Help.txt')
+    db_path = resource_path('Utility/Modules/Dose/Alphas/Help.txt')
     open_file(db_path)

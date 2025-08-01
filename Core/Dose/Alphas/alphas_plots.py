@@ -1,7 +1,7 @@
 ##### IMPORTS #####
 import matplotlib.pyplot as plt
 import pandas as pd
-from Core.Shielding.Photons.photons_calculations import *
+from Core.Dose.Alphas.alphas_calculations import *
 
 #####################################################################################
 # EXPORT SECTION
@@ -20,9 +20,7 @@ from the raw data, converting the energy column to the
 desired energy unit. Otherwise, we pass on the work of
 filling out the dataframe to the make_df_for_material function.
 Once the dataframe is filled out, we convert the interaction
-columns to the desired unit. If L.A.C. is the selected
-calculation mode, we also need to multiply the interaction
-columns by the item's density.
+columns to the desired unit.
 Then, if the selected export type is Plot, we call
 configure_plot.
 Finally, if the file is meant to be saved, we pass on the
@@ -45,7 +43,7 @@ def export_data(root, element, category, mode, interactions, num, den,
     error_label.config(style="Error.TLabel", text="")
 
     # Sets up columns for dataframe
-    energy_col = "Photon Energy (" + energy_unit + ")"
+    energy_col = "Alpha Energy (" + energy_unit + ")"
     cols = [energy_col]
     for interaction in interactions:
         cols.append(interaction)
@@ -53,10 +51,10 @@ def export_data(root, element, category, mode, interactions, num, den,
     df = pd.DataFrame(columns=cols)
     if category in element_choices:
         # Load the CSV file
-        db_path = resource_path('Data/NIST Coefficients/Photons/Elements/' + element + '.csv')
+        db_path = resource_path('Data/NIST Coefficients/Alphas/Elements/' + element + '.csv')
         df2 = pd.read_csv(db_path)
 
-        df[energy_col] = df2["Photon Energy"]
+        df[energy_col] = df2["Alpha Energy"]
 
         for interaction in interactions:
             df[interaction] = df2[interaction]
@@ -79,33 +77,25 @@ def export_data(root, element, category, mode, interactions, num, den,
     df[energy_col] /= energy_units[energy_unit]
 
     # Convert to desired unit
-    if mode == "Mass Attenuation Coefficient":
-        for interaction in interactions:
-            df[interaction] *= mac_numerator[num]
-            df[interaction] /= mac_denominator[den]
-    else:
-        density = find_density(category, element)
-        for interaction in interactions:
-            df[interaction] *= density
-            df[interaction] *= lac_numerator[num]
-            df[interaction] /= lac_denominator[den]
+    for interaction in interactions:
+        df[interaction] *= sp_e_numerator[num.split(" ", 1)[0]]
+        df[interaction] *= sp_l_numerator[num.split(" ", 2)[2]]
+        df[interaction] /= sp_denominator[den]
 
     unit = " (" + num + "/" + den + ")"
-    if num == "1":
-        unit = " (" + den + "\u207B\u00B9)"
     mode_col = mode + unit
 
     if choice == "Plot":
         configure_plot(interactions, df, energy_col, mode_col, element)
         if save == 1:
-            save_file(plt, choice, error_label, element, "attenuation")
+            save_file(plt, choice, error_label, element, "stopping")
         else:
             error_label.config(style="Success.TLabel", text=choice + " exported!")
             plt.show()
     else:
         for interaction in interactions:
             df.rename(columns={interaction: interaction+unit}, inplace=True)
-        save_file(df, choice, error_label, element, "attenuation")
+        save_file(df, choice, error_label, element, "stopping")
 
 #####################################################################################
 # PLOT SECTION
@@ -116,7 +106,7 @@ This function configures the plot that is being exported
 using the dataframe and other information.
 First, the plot is cleared from any previous exports.
 Then, we plot each interaction column against the data column.
-The title, legend, and axis titles are all configured
+The title and axis titles are all configured
 and the axis scales are set to logarithmic.
 """
 def configure_plot(interactions, df, energy_col, mode_col, element):
@@ -146,11 +136,9 @@ exporting data for a material. First, we retrieve
 the energy values for the dataframe by taking the values
 from the raw data of the first element and then removing
 any values that are out of range for any of the remaining
-elements. Then, for each energy value, we get the M.A.C. values
-for the rest of the row by calling the find_data function
-with each interaction. If L.A.C. is the selected calculation mode,
-the export_data function will handle the conversion by multiplying
-these rows by the density.
+elements. Then, for each energy value, we get the corresponding
+interaction value for the rest of the row by calling the find_data function
+with each interaction.
 """
 def make_df_for_material(file_like, df, element, category, interactions):
     # Reads in file
@@ -159,7 +147,7 @@ def make_df_for_material(file_like, df, element, category, interactions):
     # Create the dataframe
     vals = []
     for row in reader:
-        db_path = resource_path('Data/NIST Coefficients/Photons/Elements/' + row['Element'] + '.csv')
+        db_path = resource_path('Data/NIST Coefficients/Alphas/Elements/' + row['Element'] + '.csv')
         if len(vals) == 0:
             with open(db_path, 'r') as file:
                 # Reads in file
@@ -167,7 +155,7 @@ def make_df_for_material(file_like, df, element, category, interactions):
 
                 # Gets energy values to use as dots
                 for row2 in reader2:
-                    vals.append(float(row2["Photon Energy"]))
+                    vals.append(float(row2["Alpha Energy"]))
         else:
             with open(db_path, 'r') as file:
                 # Reads in file
@@ -176,17 +164,17 @@ def make_df_for_material(file_like, df, element, category, interactions):
                 new_vals = []
                 # Gets energy values to use as dots
                 for row2 in reader2:
-                    new_vals.append(float(row2["Photon Energy"]))
+                    new_vals.append(float(row2["Alpha Energy"]))
                 max_val = max(new_vals)
                 min_val = min(new_vals)
                 for val in vals:
                     if val > max_val or val < min_val:
                         vals.remove(val)
 
-    # Finds the M.A.C. at each energy value and adds to dataframe
+    # Finds the data for mode at each energy value and adds to dataframe
     for index, val in enumerate(vals):
         row = [val]
         for interaction in interactions:
-            x = find_data(category, interaction, element, val, "Photons")
+            x = find_data(category, interaction, element, val, "Alphas")
             row.append(x)
         df.loc[index] = row

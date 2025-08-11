@@ -96,8 +96,8 @@ def export_data(root, element, category, mode, num, den,
         df[mode_col] /= density
 
     if choice == "Plot":
-        configure_plot(df, energy_col, mode_col, element, linear and
-                                                          mode == "Range-Energy Curve")
+        configure_plot(df, energy_col, mode_col, element, linear or
+                                                          mode != "Range-Energy Curve")
         if save == 1:
             save_file(plt, choice, error_label, element, "range")
         else:
@@ -118,13 +118,13 @@ Then, we plot the mode column against the data column.
 The title and axis titles are all configured
 and the axis scales are set to logarithmic.
 """
-def configure_plot(df, energy_col, mode_col, element, linear):
+def configure_plot(df, energy_col, mode_col, element, full_title):
     # Clear from past plots
     plt.clf()
 
     # Plot the data
     plt.plot(df[energy_col], df[mode_col], marker='o', label=mode_col)
-    if linear:
+    if full_title:
         plt.title(element + " - " + mode_col, fontsize=8.5)
     else:
         plt.title(mode_col, fontsize=8.5)

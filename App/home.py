@@ -2,6 +2,7 @@
 from tkinter import ttk
 from App.Shielding.shielding import shielding_menu
 from App.Dose.dose import dose_menu
+from App.Decay.decay import decay_menu
 from Utility.Functions.gui_utility import get_width, make_title_frame
 
 # For global access to nodes on home screen
@@ -33,8 +34,15 @@ def return_home(root):
     dose_button.config(width=get_width(["Radiation Dose Data"]))
     dose_button.pack(pady=5)
 
+    # Creates button for decay menu
+    decay_button = ttk.Button(root, text="Radioactive Decay Data",
+                              command=lambda: decay(root),
+                              style="Maize.TButton", padding=(0,0))
+    decay_button.config(width=get_width(["Radioactive Decay Data"]))
+    decay_button.pack(pady=5)
+
     # Stores nodes into global list
-    home_list = [title, shielding_button, dose_button]
+    home_list = [title, shielding_button, dose_button, decay_button]
 
 #####################################################################################
 # NAVIGATION SECTION
@@ -72,3 +80,14 @@ def dose(root):
     root.focus()
     clear_home()
     dose_menu(root)
+
+"""
+This function transitions from the home screen
+to the decay screen by first clearing the
+home screen and then creating the decay screen.
+It is called when the Radioactive Decay Data button is hit.
+"""
+def decay(root):
+    root.focus()
+    clear_home()
+    decay_menu(root)

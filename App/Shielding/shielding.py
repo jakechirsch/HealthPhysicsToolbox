@@ -6,7 +6,7 @@ from App.Shielding.Alphas.alphas_main import alphas_main
 from Utility.Functions.gui_utility import get_width, make_title_frame
 
 # For global access to nodes on shielding screen
-shielding_list = []
+decay_list = []
 
 #####################################################################################
 # MENU SECTION
@@ -16,7 +16,7 @@ shielding_list = []
 This function creates the shielding screen.
 """
 def shielding_menu(root):
-    global shielding_list
+    global decay_list
 
     title = make_title_frame(root, "Attenuation and Range Data", "Shielding")
 
@@ -61,7 +61,7 @@ This function clears the shielding screen in preparation
 for opening a different screen.
 """
 def clear_shielding():
-    global shielding_list
+    global decay_list
 
     # Clears home
     for node in shielding_list:

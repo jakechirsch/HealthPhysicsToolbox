@@ -142,15 +142,15 @@ def make_df_for_material(file_like, df, element, category, mode):
                 reader2 = csv.DictReader(file)
 
                 # Gets energy values to use as dots
-                value_exists = False
                 for row2 in reader2:
+                    value_exists = False
                     try:
                         _ = float(row2[mode])
                         value_exists = True
                     except ValueError:
                         pass
-                if value_exists:
-                    vals.append(float(row2["Photon Energy"]))
+                    if value_exists:
+                        vals.append(float(row2["Photon Energy"]))
         else:
             with open(db_path, 'r') as file:
                 # Reads in file
@@ -158,15 +158,15 @@ def make_df_for_material(file_like, df, element, category, mode):
 
                 new_vals = []
                 # Gets energy values to use as dots
-                value_exists = False
                 for row2 in reader2:
+                    value_exists = False
                     try:
                         _ = float(row2[mode])
                         value_exists = True
                     except ValueError:
                         pass
-                if value_exists:
-                    new_vals.append(float(row2["Photon Energy"]))
+                    if value_exists:
+                        new_vals.append(float(row2["Photon Energy"]))
                 max_val = max(new_vals)
                 min_val = min(new_vals)
                 vals = [val for val in vals if min_val <= val <= max_val]

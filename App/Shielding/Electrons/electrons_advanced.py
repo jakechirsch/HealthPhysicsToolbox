@@ -26,7 +26,7 @@ accessed later by clear_advanced.
 """
 def electrons_advanced(root, category, mode, common_el, common_mat, element,
                        material, custom_mat, csda_num, d_num, rec_num, csda_den, d_den,
-                       rec_den, energy_unit):
+                       rec_den, energy_unit, linear):
     global advanced_list
 
     # Makes title frame
@@ -64,7 +64,7 @@ def electrons_advanced(root, category, mode, common_el, common_mat, element,
                                            element, material, custom_mat,
                                            num_units[0], num_units[4], num_units[1],
                                            den_units[0], den_units[4], den_units[1],
-                                           energy_unit)
+                                           energy_unit, linear)
         return make_vertical_frame(root, inner_a_r_frame, action_dropdown.get(),
                                    category_dropdown.get(), non_common, common,
                                    non_common_m, common_m, custom, a_r_button,
@@ -214,7 +214,7 @@ def electrons_advanced(root, category, mode, common_el, common_mat, element,
                                                   element, material, custom_mat,
                                                   num_units[0], num_units[4], num_units[1],
                                                   den_units[0], den_units[4], den_units[1],
-                                                  energy_unit))
+                                                  energy_unit, linear))
         export_button.config(width=get_width(["Export Menu"]))
         export_button.pack(side='left', padx=5)
 
@@ -240,7 +240,7 @@ def electrons_advanced(root, category, mode, common_el, common_mat, element,
                                                      custom_mat,
                                                 num_units[0], num_units[4], num_units[1],
                                                 den_units[0], den_units[4], den_units[1],
-                                                     energy_unit))
+                                                     energy_unit, linear))
     back_button.config(width=get_width(["Back"]))
     back_button.pack(pady=5)
 
@@ -275,13 +275,13 @@ It is called when the Back button is hit.
 """
 def to_main(root, category, mode, common_el, common_mat, element,
             material, custom_mat, csda_num, d_num, rec_num, csda_den, d_den, rec_den,
-            energy_unit):
+            energy_unit, linear):
     from App.Shielding.Electrons.electrons_main import electrons_main
 
     clear_advanced()
     electrons_main(root, category, mode, common_el, common_mat, element,
                    material, custom_mat, csda_num, d_num, rec_num, csda_den, d_den,
-                   rec_den, energy_unit)
+                   rec_den, energy_unit, linear)
 
 """
 This function transitions from the electron range advanced screen
@@ -292,11 +292,11 @@ It is called when the Add Custom Materials button is hit.
 """
 def to_custom_menu(root, category, mode, common_el, common_mat, element,
                    material, custom_mat, csda_num, d_num, rec_num, csda_den, d_den,
-                   rec_den, energy_unit):
+                   rec_den, energy_unit, linear):
     clear_advanced()
     back = lambda: electrons_advanced(root, category, mode, common_el, common_mat, element,
                                       material, custom_mat, csda_num, d_num, rec_num, csda_den,
-                                      d_den, rec_den, energy_unit)
+                                      d_den, rec_den, energy_unit, linear)
     add_custom_menu(root, d_num, d_den, back)
 
 """
@@ -308,11 +308,11 @@ It is called when the Export Menu button is hit.
 """
 def to_export_menu(root, category, mode, common_el, common_mat, element,
                    material, custom_mat, csda_num, d_num, rec_num, csda_den, d_den,
-                   rec_den, energy_unit):
+                   rec_den, energy_unit, linear):
     clear_advanced()
     electrons_export(root, category, mode, common_el, common_mat, element,
                      material, custom_mat, csda_num, d_num, rec_num, csda_den, d_den,
-                     rec_den, energy_unit)
+                     rec_den, energy_unit, linear)
 
 """
 This function opens the electron range References.txt file.

@@ -28,7 +28,7 @@ Finally, if the file is meant to be saved, we pass on the
 work to the save_file function. Otherwise, we show the plot.
 """
 def export_data(root, element, category, mode, num, den,
-                energy_unit, choice, save, error_label):
+                energy_unit, choice, save, error_label, linear):
     root.focus()
 
     # Error-check for no selected item
@@ -41,6 +41,8 @@ def export_data(root, element, category, mode, num, den,
     # Sets up columns for dataframe
     energy_col = "Electron Energy (" + energy_unit + ")"
     unit = " (" + num + "/" + den + ")"
+    if mode == "Range-Energy Curve" and linear:
+        unit = " (" + den.split("\u00B2", 1)[0] + ")"
     mode_col = mode
     if mode == "CSDA Range" or mode == "Range-Energy Curve":
         mode_col += unit
@@ -87,11 +89,15 @@ def export_data(root, element, category, mode, num, den,
     if mode == "CSDA Range" or mode == "Range-Energy Curve":
         df[mode_col] *= csda_numerator[num]
         df[mode_col] /= csda_denominator[den]
-
-    print(df)
+    if mode == "Range-Energy Curve" and linear:
+        density = find_density(category, element)
+        density *= density_numerator[num]
+        density /= density_denominator[den.split("\u00B2", 1)[0] + "\u00B3"]
+        df[mode_col] /= density
 
     if choice == "Plot":
-        configure_plot(df, energy_col, mode_col, element)
+        configure_plot(df, energy_col, mode_col, element, linear and
+                                                          mode == "Range-Energy Curve")
         if save == 1:
             save_file(plt, choice, error_label, element, "range")
         else:
@@ -112,13 +118,16 @@ Then, we plot the mode column against the data column.
 The title and axis titles are all configured
 and the axis scales are set to logarithmic.
 """
-def configure_plot(df, energy_col, mode_col, element):
+def configure_plot(df, energy_col, mode_col, element, linear):
     # Clear from past plots
     plt.clf()
 
     # Plot the data
     plt.plot(df[energy_col], df[mode_col], marker='o', label=mode_col)
-    plt.title(element + " - " + mode_col, fontsize=8.5)
+    if linear:
+        plt.title(element + " - " + mode_col, fontsize=8.5)
+    else:
+        plt.title(mode_col, fontsize=8.5)
     plt.xscale('log')
     plt.yscale('log')
     plt.xlabel(energy_col)

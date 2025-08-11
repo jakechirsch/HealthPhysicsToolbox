@@ -72,7 +72,7 @@ def handle_calculation(root, category, mode, element, energy_str,
         if mode == "Range-Energy Curve":
             result2 *= density_numerator[num]
             result2 /= density_denominator[den.split("\u00B2", 1)[0] + "\u00B3"]
-            edit_result(f"{(result/result2):.4g} {den[0:2]}", range_result)
+            edit_result(f"{(result/result2):.4g} {den.split("\u00B2", 1)[0]}", range_result)
         edit_result(f"{result:.4g}", result_box, num=num, den=den)
     else:
         edit_result(result, result_box)

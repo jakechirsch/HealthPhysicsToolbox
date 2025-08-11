@@ -32,7 +32,7 @@ def electrons_main(root, category_start="Common Elements",
                    material="A-150 Tissue-Equivalent Plastic (A150TEP)",
                    custom_mat="", csda_num="g", d_num="g", rec_num="g",
                    csda_den="cm\u00B2", d_den="cm\u00B3", rec_den="cm\u00B2",
-                   energy_unit="MeV"):
+                   energy_unit="MeV", linear=False):
     global main_list
 
     # Makes title frame
@@ -115,11 +115,22 @@ def electrons_main(root, category_start="Common Elements",
             # Creates range label
             mode_dropdown.pack(pady=(20,10))
             range_check.pack(pady=(0,20))
-            var_range.set(0)
+            var_range.set(linear)
 
-            # Forgets select interacting medium frame
-            main_frame.pack_forget()
-            empty_frame2.pack_forget()
+            if not linear:
+                # Forgets select interacting medium frame
+                main_frame.pack_forget()
+                empty_frame2.pack_forget()
+            else:
+                # Reset in preparation to re-add range box in correct place
+                warning_label.pack_forget()
+
+                # Adds range box
+                range_label.pack(pady=(5, 1))
+                range_result.pack(pady=(1, 0))
+
+                # Adds warning label
+                warning_label.pack(pady=(1, 5))
 
         if event.widget.get() == "Density" \
                 and mode != "Density":
@@ -180,9 +191,11 @@ def electrons_main(root, category_start="Common Elements",
 
     # Stores whether to find linear range for Range-Energy Curve mode
     var_range = IntVar()
-    var_range.set(0)
+    var_range.set(int(linear))
 
     def range_hit():
+        nonlocal linear
+
         root.focus()
         if var_range.get() == 1:
             # Reset in preparation to re-add range box in correct place
@@ -205,6 +218,7 @@ def electrons_main(root, category_start="Common Elements",
             # Forgets select interacting medium frame
             main_frame.pack_forget()
             empty_frame2.pack_forget()
+        linear = bool(var_range.get())
 
     # Creates checkbox for finding range
     range_check = ttk.Checkbutton(inner_mode_frame, text="Find Linear Range?",
@@ -229,7 +243,7 @@ def electrons_main(root, category_start="Common Elements",
 
     # Frame for interacting medium category and item
     main_frame = SectionFrame(root, title="Select Interacting Medium")
-    if mode != "Range-Energy Curve":
+    if mode != "Range-Energy Curve" or linear:
         main_frame.pack()
     inner_main_frame = main_frame.get_inner_frame()
 
@@ -314,7 +328,7 @@ def electrons_main(root, category_start="Common Elements",
 
     # Spacer
     empty_frame2 = Frame()
-    if mode != "Range-Energy Curve":
+    if mode != "Range-Energy Curve" or linear:
         empty_frame2 = make_spacer(root)
 
     # Frame for energy input
@@ -386,6 +400,17 @@ def electrons_main(root, category_start="Common Elements",
     warning_label = ttk.Label(inner_result_frame, text="", style="Error.TLabel")
     warning_label.pack(pady=(1,5))
 
+    if mode == "Range-Energy Curve" and linear:
+        # Reset in preparation to re-add range box in correct place
+        warning_label.pack_forget()
+
+        # Adds range box
+        range_label.pack(pady=(5,1))
+        range_result.pack(pady=(1,0))
+
+        # Adds warning label
+        warning_label.pack(pady=(1,5))
+
     # Creates Advanced Settings button
     advanced_button = ttk.Button(root, text="Advanced Settings",
                                  style="Maize.TButton", padding=(0,0),
@@ -394,7 +419,7 @@ def electrons_main(root, category_start="Common Elements",
                                                              element, material, custom_mat,
                                                              csda_num, d_num, rec_num,
                                                              csda_den, d_den, rec_den,
-                                                             energy_unit))
+                                                             energy_unit, linear))
     advanced_button.config(width=get_width(["Advanced Settings"]))
     advanced_button.pack(pady=5)
 
@@ -449,11 +474,11 @@ It is called when the Advanced Settings button is hit.
 """
 def to_advanced(root, category, mode, common_el, common_mat, element,
                 material, custom_mat, csda_num, d_num, rec_num, csda_den, d_den,
-                rec_den, energy_unit):
+                rec_den, energy_unit, linear):
     root.focus()
     from App.Shielding.Electrons.electrons_advanced import electrons_advanced
 
     clear_main()
     electrons_advanced(root, category, mode, common_el, common_mat, element,
                        material, custom_mat, csda_num, d_num, rec_num, csda_den, d_den,
-                       rec_den, energy_unit)
+                       rec_den, energy_unit, linear)

@@ -22,7 +22,7 @@ accessed later by clear_export.
 """
 def electrons_export(root, category, mode, common_el, common_mat, element,
                      material, custom_mat, csda_num, d_num, rec_num, csda_den, d_den,
-                     rec_den, energy_unit):
+                     rec_den, energy_unit, linear):
     global export_list
 
     # Makes title frame
@@ -93,7 +93,7 @@ def electrons_export(root, category, mode, common_el, common_mat, element,
                                get_unit(num_units, mode_choices, mode),
                                get_unit(den_units, mode_choices, mode),
                                            energy_unit, export_dropdown.get(),
-                                           var_save.get(), error_label))
+                                           var_save.get(), error_label, linear))
     export_button.config(width=get_width(["Export"]))
     export_button.pack(pady=(10,5))
 
@@ -107,7 +107,7 @@ def electrons_export(root, category, mode, common_el, common_mat, element,
                                                            common_el, common_mat, element,
                                                            material, custom_mat, csda_num,
                                                            d_num, rec_num, csda_den, d_den,
-                                                           rec_den, energy_unit))
+                                                           rec_den, energy_unit, linear))
     back_button.config(width=get_width(["Back"]))
     back_button.pack(pady=5)
 
@@ -140,10 +140,10 @@ It is called when the Back button is hit.
 """
 def advanced_back(root, category, mode, common_el, common_mat, element,
                   material, custom_mat, csda_num, d_num, rec_num, csda_den, d_den,
-                  rec_den, energy_unit):
+                  rec_den, energy_unit, linear):
     from App.Shielding.Electrons.electrons_advanced import electrons_advanced
 
     clear_export()
     electrons_advanced(root, category, mode, common_el, common_mat, element,
                        material, custom_mat, csda_num, d_num, rec_num, csda_den, d_den,
-                       rec_den, energy_unit)
+                       rec_den, energy_unit, linear)

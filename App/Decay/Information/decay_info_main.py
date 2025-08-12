@@ -11,7 +11,7 @@ info_list = []
 # MENU SECTION
 #####################################################################################
 
-def decay_info_main(root, mode_start="Plot", element="Ac", isotope="Ac-223"):
+def decay_info_main(root, mode_start="Decay Scheme", element="Ac", isotope="Ac-223"):
     global info_list
 
     # Makes title frame
@@ -50,7 +50,7 @@ def decay_info_main(root, mode_start="Plot", element="Ac", isotope="Ac-223"):
         root.focus()
 
     # Creates dropdown menu for mode
-    mode_choices = ["Plot",
+    mode_choices = ["Decay Scheme",
                     "Half Life",
                     "Progeny",
                     "Branching Fractions",

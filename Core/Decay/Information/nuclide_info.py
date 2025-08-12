@@ -5,8 +5,8 @@ from Utility.Functions.gui_utility import edit_result
 
 def handle_calculation(mode, isotope, result_box):
     match mode:
-        case "Plot":
-            nuclide_plot(isotope, result_box)
+        case "Decay Scheme":
+            nuclide_decay_scheme(isotope, result_box)
         case "Half Life":
             nuclide_half_life(isotope, result_box)
         case "Progeny":
@@ -22,7 +22,7 @@ def handle_calculation(mode, isotope, result_box):
         case "Atomic Mass":
             nuclide_atomic_mass(isotope, result_box)
 
-def nuclide_plot(isotope, result_box):
+def nuclide_decay_scheme(isotope, result_box):
     nuc = rd.Nuclide(isotope)
     edit_result("Plotted!", result_box)
     nuc.plot()  # Generates the plot

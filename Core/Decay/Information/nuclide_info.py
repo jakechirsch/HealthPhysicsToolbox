@@ -52,14 +52,14 @@ def nuclide_decay_modes(isotope, result_box):
 def nuclide_proton_number(isotope, result_box):
     nuc = rd.Nuclide(isotope)
     result = nuc.Z
-    edit_result(str(result), result_box)
+    edit_result(result, result_box)
 
 def nuclide_nucleon_number(isotope, result_box):
     nuc = rd.Nuclide(isotope)
     result = nuc.A
-    edit_result(str(result), result_box)
+    edit_result(result, result_box)
 
 def nuclide_atomic_mass(isotope, result_box):
     nuc = rd.Nuclide(isotope)
     result = nuc.atomic_mass
-    edit_result(str(result), result_box)
+    edit_result(result, result_box, num="g", den="mol")

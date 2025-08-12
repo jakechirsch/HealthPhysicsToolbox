@@ -1,11 +1,16 @@
 ##### IMPORTS #####
 import csv
+import json
 import shelve
 from Utility.Functions.files import *
 
 # Choices using an element or a material
 element_choices = ["Common Elements", "All Elements"]
 material_choices = ["Common Materials", "All Materials"]
+
+#####################################################################################
+# INTERACTING MEDIUM SECTION
+#####################################################################################
 
 """
 This function returns the list of items (elements/materials)
@@ -36,6 +41,8 @@ def get_choices(category, module, particle):
     if category == "All Elements":
         # Obtains list of items from csv file
         db_path = resource_path('Data/NIST Coefficients/' + particle + '/Elements.csv')
+        if module == "Decay":
+            db_path = resource_path('Data/Radioactive Decay/Elements.csv')
         read_choices(choices, db_path)
         return choices
 
@@ -61,3 +68,12 @@ def read_choices(choices, path):
         for row in reader:
             if row and row[0] != 'Name':
                 choices.append(row[0])
+
+#####################################################################################
+# ISOTOPE SECTION
+#####################################################################################
+
+def get_isotopes(element):
+    with open("Data/Radioactive Decay/Isotopes.json", "r") as f:
+        isotopes = json.load(f)
+    return isotopes[element]

@@ -1,6 +1,18 @@
 ##### IMPORTS #####
-from App.add_custom_menu import *
-from App.Dose.Photons.photons_export import *
+import tkinter as tk
+from tkinter import ttk
+from App.style import SectionFrame
+from App.add_custom_menu import add_custom_menu
+from Utility.Functions.choices import get_choices
+from Utility.Functions.math_utility import energy_units
+from App.Dose.Photons.photons_export import photons_export
+from Utility.Functions.files import resource_path, open_file
+from Utility.Functions.gui_utility import make_vertical_frame
+from Utility.Functions.gui_utility import make_spacer, get_width
+from Utility.Functions.gui_utility import unit_dropdown, get_unit
+from Utility.Functions.gui_utility import make_title_frame, basic_label
+from Utility.Functions.math_utility import density_numerator, density_denominator
+from Core.Dose.Photons.photons_calculations import mea_numerator, mea_denominator
 
 # For global access to nodes on photon energy absorption advanced screen
 advanced_list = []
@@ -52,7 +64,7 @@ def photons_advanced(root, category, mode, common_el, common_mat, element,
     inner_a_r_frame = a_r_frame.get_inner_frame()
 
     # Horizontal frame for add/remove settings
-    side_frame = Frame(inner_a_r_frame, bg="#F2F2F2")
+    side_frame = tk.Frame(inner_a_r_frame, bg="#F2F2F2")
     side_frame.pack(pady=(15,5))
 
     # Action button
@@ -80,7 +92,7 @@ def photons_advanced(root, category, mode, common_el, common_mat, element,
         vertical_frame = make_v_frame()
 
     # Frame for action selection
-    action_frame = Frame(side_frame, bg="#F2F2F2")
+    action_frame = tk.Frame(side_frame, bg="#F2F2F2")
     action_frame.pack(side="left", padx=5)
 
     # Action label
@@ -96,7 +108,7 @@ def photons_advanced(root, category, mode, common_el, common_mat, element,
     action_dropdown.bind("<<ComboboxSelected>>", on_select_options)
 
     # Frame for category selection
-    category_frame = Frame(side_frame, bg="#F2F2F2")
+    category_frame = tk.Frame(side_frame, bg="#F2F2F2")
     category_frame.pack(side="left", padx=5)
 
     # Category label
@@ -127,7 +139,7 @@ def photons_advanced(root, category, mode, common_el, common_mat, element,
     inner_unit_frame = unit_frame.get_inner_frame()
 
     # Horizontal frame for unit settings
-    unit_side_frame = Frame(inner_unit_frame, bg="#F2F2F2")
+    unit_side_frame = tk.Frame(inner_unit_frame, bg="#F2F2F2")
     unit_side_frame.pack(pady=20)
 
     # Units label
@@ -173,14 +185,14 @@ def photons_advanced(root, category, mode, common_el, common_mat, element,
     empty_frame2 = make_spacer(root)
 
     # Frame for Export Menu, References, & Help
-    bottom_frame = Frame(root, bg="#F2F2F2")
+    bottom_frame = tk.Frame(root, bg="#F2F2F2")
     bottom_frame.pack(pady=5)
 
     # Energy Unit options are only created if
     # Calculation Mode is not Density
     if mode != "Density":
         # Horizontal frame for energy unit settings
-        energy_unit_side_frame = Frame(inner_unit_frame, bg="#F2F2F2")
+        energy_unit_side_frame = tk.Frame(inner_unit_frame, bg="#F2F2F2")
         energy_unit_side_frame.pack(pady=(0,20))
 
         # Energy unit label
@@ -230,11 +242,9 @@ def photons_advanced(root, category, mode, common_el, common_mat, element,
     # Creates Back button to return to photon energy absorption main screen
     back_button = ttk.Button(root, text="Back", style="Maize.TButton",
                              padding=(0,0),
-                             command=lambda: to_main(root, category, mode,
-                                                     valid_saved(common_el, common),
-                                                     valid_saved(common_mat, common_m),
-                                                     element, material,
-                                                     valid_saved(custom_mat, custom),
+                             command=lambda: to_main(root, category, mode, common_el,
+                                                     common_mat, element, material,
+                                                     custom_mat,
                                                      num_units[0], num_units[1],
                                                      den_units[0], den_units[1],
                                                      energy_unit))

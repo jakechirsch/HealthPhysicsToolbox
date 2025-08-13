@@ -1,9 +1,10 @@
 ##### IMPORTS #####
-from Utility.Functions.custom import *
-from Utility.Functions.gui_utility import *
-from tkinter import *
+import tkinter as tk
 from tkinter import ttk
 from App.style import SectionFrame
+from Utility.Functions.custom import add_custom
+from Utility.Functions.gui_utility import make_spacer, get_width
+from Utility.Functions.gui_utility import make_title_frame, make_entry_line, make_weights_line
 
 # For global access to nodes on add custom menu
 add_custom_list = []
@@ -36,7 +37,7 @@ def add_custom_menu(root, d_num, d_den, back):
     material_frame = SectionFrame(root, title="Enter Material Name")
     material_frame.pack()
     inner_material_frame = material_frame.get_inner_frame()
-    mat_frame = Frame(inner_material_frame, bg="#F2F2F2")
+    mat_frame = tk.Frame(inner_material_frame, bg="#F2F2F2")
     mat_frame.pack()
     entry = make_entry_line(mat_frame, "Material Name:")
 
@@ -47,7 +48,7 @@ def add_custom_menu(root, d_num, d_den, back):
     density_frame = SectionFrame(root, title="Enter Density")
     density_frame.pack()
     inner_density_frame = density_frame.get_inner_frame()
-    den_frame = Frame(inner_density_frame, bg="#F2F2F2")
+    den_frame = tk.Frame(inner_density_frame, bg="#F2F2F2")
     den_frame.pack()
     entry2 = make_entry_line(den_frame, f"Density ({d_num}/{d_den}):")
 
@@ -58,7 +59,7 @@ def add_custom_menu(root, d_num, d_den, back):
     weights_frame = SectionFrame(root, title="Enter Element Weights")
     weights_frame.pack()
     inner_weights_frame = weights_frame.get_inner_frame()
-    w_frame = Frame(inner_weights_frame, bg="#F2F2F2")
+    w_frame = tk.Frame(inner_weights_frame, bg="#F2F2F2")
     w_frame.pack()
     entry3 = make_weights_line(w_frame)
 
@@ -71,7 +72,7 @@ def add_custom_menu(root, d_num, d_den, back):
     inner_options_frame = options_frame.get_inner_frame()
 
     # Variable to hold normalize option
-    var_normalize = IntVar()
+    var_normalize = tk.IntVar()
 
     # Creates checkbox for normalizing weights
     normalize = ttk.Checkbutton(inner_options_frame, text="Normalize", variable=var_normalize,

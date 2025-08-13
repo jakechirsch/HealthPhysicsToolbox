@@ -1,6 +1,20 @@
 ##### IMPORTS #####
-from App.add_custom_menu import *
-from App.Dose.Alphas.alphas_export import *
+import tkinter as tk
+from tkinter import ttk
+from App.style import SectionFrame
+from App.add_custom_menu import add_custom_menu
+from Utility.Functions.choices import get_choices
+from App.Dose.Alphas.alphas_export import alphas_export
+from Utility.Functions.math_utility import energy_units
+from Utility.Functions.files import resource_path, open_file
+from Utility.Functions.gui_utility import make_vertical_frame
+from Core.Dose.Alphas.alphas_calculations import sp_denominator
+from Utility.Functions.gui_utility import make_spacer, get_width
+from Utility.Functions.gui_utility import unit_dropdown, get_unit
+from Utility.Functions.gui_utility import make_title_frame, basic_label
+from Core.Dose.Alphas.alphas_calculations import sp_e_numerator, sp_l_numerator
+from Utility.Functions.gui_utility import interaction_checkbox, get_interactions
+from Utility.Functions.math_utility import density_numerator, density_denominator
 
 # For global access to nodes on alpha stopping power advanced screen
 advanced_list = []
@@ -51,7 +65,7 @@ def alphas_advanced(root, category, mode, interactions_start, common_el,
     inner_a_r_frame = a_r_frame.get_inner_frame()
 
     # Horizontal frame for add/remove settings
-    side_frame = Frame(inner_a_r_frame, bg="#F2F2F2")
+    side_frame = tk.Frame(inner_a_r_frame, bg="#F2F2F2")
     side_frame.pack(pady=(15, 5))
 
     # Action button
@@ -63,9 +77,9 @@ def alphas_advanced(root, category, mode, interactions_start, common_el,
                            "Nuclear Stopping Power"]
 
     # Variables for each interaction type
-    var0 = IntVar()
-    var1 = IntVar()
-    var2 = IntVar()
+    var0 = tk.IntVar()
+    var1 = tk.IntVar()
+    var2 = tk.IntVar()
     interaction_vars = [var0, var1, var2]
 
     # Selects the previously selected interactions
@@ -96,7 +110,7 @@ def alphas_advanced(root, category, mode, interactions_start, common_el,
         vertical_frame = make_v_frame()
 
     # Frame for action selection
-    action_frame = Frame(side_frame, bg="#F2F2F2")
+    action_frame = tk.Frame(side_frame, bg="#F2F2F2")
     action_frame.pack(side="left", padx=5)
 
     # Action label
@@ -112,7 +126,7 @@ def alphas_advanced(root, category, mode, interactions_start, common_el,
     action_dropdown.bind("<<ComboboxSelected>>", on_select_options)
 
     # Frame for category selection
-    category_frame = Frame(side_frame, bg="#F2F2F2")
+    category_frame = tk.Frame(side_frame, bg="#F2F2F2")
     category_frame.pack(side="left", padx=5)
 
     # Category label
@@ -144,7 +158,7 @@ def alphas_advanced(root, category, mode, interactions_start, common_el,
     inner_interactions_frame.config(pady=10)
 
     # Spacer
-    empty_frame2 = Frame()
+    empty_frame2 = tk.Frame()
 
     # Ensures at least one interaction type is selected
     # If user tries to select none,
@@ -181,7 +195,7 @@ def alphas_advanced(root, category, mode, interactions_start, common_el,
     if mode == "Stopping Power":
         interactions_frame.pack()
 
-        checks = Frame(inner_interactions_frame, bg="#F2F2F2")
+        checks = tk.Frame(inner_interactions_frame, bg="#F2F2F2")
         checks.pack()
 
         # Checkboxes for each interaction type
@@ -201,7 +215,7 @@ def alphas_advanced(root, category, mode, interactions_start, common_el,
     inner_unit_frame = unit_frame.get_inner_frame()
 
     # Horizontal frame for unit settings
-    unit_side_frame = Frame(inner_unit_frame, bg="#F2F2F2")
+    unit_side_frame = tk.Frame(inner_unit_frame, bg="#F2F2F2")
     unit_side_frame.pack(pady=(20,0) if mode != "Density" else 20)
 
     # Units label
@@ -259,14 +273,14 @@ def alphas_advanced(root, category, mode, interactions_start, common_el,
     empty_frame3 = make_spacer(root)
 
     # Frame for Export Menu, References, & Help
-    bottom_frame = Frame(root, bg="#F2F2F2")
+    bottom_frame = tk.Frame(root, bg="#F2F2F2")
     bottom_frame.pack(pady=5)
 
     # Energy Unit options are only created if
     # Calculation Mode is not Density
     if mode != "Density":
         # Horizontal frame for energy unit settings
-        energy_unit_side_frame = Frame(inner_unit_frame, bg="#F2F2F2")
+        energy_unit_side_frame = tk.Frame(inner_unit_frame, bg="#F2F2F2")
         energy_unit_side_frame.pack(pady=20)
 
         # Energy unit label

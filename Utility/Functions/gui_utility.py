@@ -1,7 +1,7 @@
 ##### IMPORTS #####
-from tkinter import *
-from tkinter import ttk
 import platform
+import tkinter as tk
+from tkinter import ttk
 import tkinter.font as font
 
 #####################################################################################
@@ -31,14 +31,14 @@ an error, the unit is assed to the end.
 def edit_result(result, result_label, num="", den=""):
     # Clears result label and inserts new result
     result_label.config(state="normal")
-    result_label.delete("1.0", END)
-    result_label.insert(END, result)
+    result_label.delete("1.0", tk.END)
+    result_label.insert(tk.END, result)
     unit = num + "/" + den
     if num == "1":
         unit = den + "\u207B\u00B9"
     if not result in errors and num != "":
-        result_label.insert(END, " ")
-        result_label.insert(END, unit)
+        result_label.insert(tk.END, " ")
+        result_label.insert(tk.END, unit)
     result_label.config(state="disabled")
 
 """
@@ -46,7 +46,7 @@ This function makes an empty "spacer" frame with y-padding.
 This is used to control the space between sections.
 """
 def make_spacer(root):
-    spacer = Frame(root, bg="#F2F2F2")
+    spacer = tk.Frame(root, bg="#F2F2F2")
     spacer.pack(pady=6)
     return spacer
 
@@ -80,7 +80,7 @@ The title label and tooltip are packed into a frame and returned.
 def make_title_frame(root, title, module):
     from App.style import Tooltip
 
-    title_frame = Frame(root, bg="#F2F2F2")
+    title_frame = tk.Frame(root, bg="#F2F2F2")
     title_frame.pack()
 
     title = ttk.Label(title_frame, text=title, style="Blue.TLabel")
@@ -112,10 +112,10 @@ def make_entry_line(frame, text):
     entry_width = 22 if platform.system() == "Windows" else 32
 
     label = ttk.Label(frame, text=text, style="Black.TLabel")
-    entry = Entry(frame, width=entry_width, insertbackground="black",
-                  background="white", foreground="black",
-                  borderwidth=3, bd=3, highlightthickness=0, relief='solid',
-                  font=monospace_font)
+    entry = tk.Entry(frame, width=entry_width, insertbackground="black",
+                     background="white", foreground="black",
+                     borderwidth=3, bd=3, highlightthickness=0, relief='solid',
+                     font=monospace_font)
     label.pack(side="left", padx=(0,5))
     entry.pack(side="left", padx=(5,0), pady=20)
     return entry
@@ -128,16 +128,16 @@ def make_weights_line(frame):
     entry_width = 16 if platform.system() == "Windows" else 20
 
     # Frame for element weights example
-    ex_frame = Frame(frame, bg="#F2F2F2")
+    ex_frame = tk.Frame(frame, bg="#F2F2F2")
     ex_frame.pack(side="left", padx=(0,30))
 
     # Element weights label
     basic_label(ex_frame, "Element Weights:")
 
     # Element weights entry
-    entry = Text(frame, width=entry_width, height=10, bg='white', fg='black',
-                 insertbackground="black", borderwidth=3, bd=3,
-                 highlightthickness=0, relief='solid', font=monospace_font)
+    entry = tk.Text(frame, width=entry_width, height=10, bg='white', fg='black',
+                    insertbackground="black", borderwidth=3, bd=3,
+                    highlightthickness=0, relief='solid', font=monospace_font)
     entry.pack(side="left", padx=(30,0), pady=20)
 
     # Make element weights example
@@ -174,7 +174,7 @@ def make_vertical_frame(root, top_frame, action, category_ar,
     button[0].destroy()
 
     # Make vertical frame
-    vertical_frame = Frame(top_frame, bg="#F2F2F2")
+    vertical_frame = tk.Frame(top_frame, bg="#F2F2F2")
     vertical_frame.pack(pady=(5,20))
 
     if action == "Add" and category_ar == "Custom Materials":
@@ -187,7 +187,7 @@ def make_vertical_frame(root, top_frame, action, category_ar,
         return vertical_frame
 
     # Stores item
-    var = StringVar(root)
+    var = tk.StringVar(root)
     choices = []
     inverse = []
     if action == "Add" and category_ar == "Common Elements":
@@ -224,7 +224,7 @@ def make_vertical_frame(root, top_frame, action, category_ar,
         value = valid_saved(value, choices)
         var.set(value)
         item_dropdown.selection_clear()
-        item_dropdown.icursor(END)
+        item_dropdown.icursor(tk.END)
 
     # Creates dropdown menu for interacting medium item selection
     # to be added or removed

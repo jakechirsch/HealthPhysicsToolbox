@@ -1,7 +1,15 @@
 ##### IMPORTS #####
-import matplotlib.pyplot as plt
+import io
+import csv
+import shelve
 import pandas as pd
-from Core.Dose.Electrons.electrons_calculations import *
+import matplotlib.pyplot as plt
+from Utility.Functions.gui_utility import no_selection
+from Utility.Functions.math_utility import find_data, energy_units
+from Core.Dose.Electrons.electrons_calculations import sp_denominator
+from Utility.Functions.choices import element_choices, material_choices
+from Utility.Functions.files import save_file, resource_path, get_user_data_path
+from Core.Dose.Electrons.electrons_calculations import sp_e_numerator, sp_l_numerator
 
 #####################################################################################
 # EXPORT SECTION

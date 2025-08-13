@@ -1,8 +1,8 @@
 ##### IMPORTS #####
 from tkinter import ttk
+from App.Shielding.Alphas.alphas_main import alphas_main
 from App.Shielding.Photons.photons_main import photons_main
 from App.Shielding.Electrons.electrons_main import electrons_main
-from App.Shielding.Alphas.alphas_main import alphas_main
 from Utility.Functions.gui_utility import get_width, make_title_frame
 
 # For global access to nodes on shielding screen

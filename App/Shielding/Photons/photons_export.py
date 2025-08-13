@@ -1,6 +1,11 @@
 ##### IMPORTS #####
-from Core.Shielding.Photons.photons_plots import *
+import tkinter as tk
+from tkinter import ttk
 from App.style import SectionFrame
+from Core.Shielding.Photons.photons_plots import export_data
+from Utility.Functions.gui_utility import make_title_frame, basic_label
+from Utility.Functions.gui_utility import interaction_checkbox, get_interactions
+from Utility.Functions.gui_utility import make_spacer, get_width, get_unit, get_item
 
 # For global access to nodes on photon attenuation export screen
 export_list = []
@@ -48,16 +53,16 @@ def photons_export(root, category, mode, interactions, common_el, common_mat,
                            "Photo-Electric Absorption"]
 
     # Variables for each interaction type
-    var0 = IntVar()
-    var1 = IntVar()
-    var2 = IntVar()
-    var3 = IntVar()
-    var4 = IntVar()
-    var5 = IntVar()
-    var6 = IntVar()
+    var0 = tk.IntVar()
+    var1 = tk.IntVar()
+    var2 = tk.IntVar()
+    var3 = tk.IntVar()
+    var4 = tk.IntVar()
+    var5 = tk.IntVar()
+    var6 = tk.IntVar()
     interaction_vars = [var0, var1, var2, var3, var4, var5, var6]
 
-    checks = Frame(inner_interactions_frame, bg="#F2F2F2")
+    checks = tk.Frame(inner_interactions_frame, bg="#F2F2F2")
     checks.pack()
 
     # Checkboxes for each interaction type
@@ -80,7 +85,7 @@ def photons_export(root, category, mode, interactions, common_el, common_mat,
     empty_frame1 = make_spacer(root)
 
     # Stores whether file is saved and sets default
-    var_save = IntVar()
+    var_save = tk.IntVar()
     var_save.set(1)
 
     # Frame for options
@@ -94,7 +99,7 @@ def photons_export(root, category, mode, interactions, common_el, common_mat,
     save.pack(pady=(10,5))
 
     # Frame for export type
-    export_type_frame = Frame(inner_options_frame, bg="#F2F2F2")
+    export_type_frame = tk.Frame(inner_options_frame, bg="#F2F2F2")
     export_type_frame.pack(pady=5)
 
     # Export label

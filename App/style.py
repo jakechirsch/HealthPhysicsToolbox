@@ -1,10 +1,11 @@
 ##### IMPORTS #####
-import tkinter as tk
-import tkinter.font as tk_font
-from tkinter import ttk, Frame, END, INSERT
-from Utility.Functions.gui_utility import get_max_string_pixel_width
-from Utility.Functions.choices import *
 import platform
+import tkinter as tk
+from tkinter import ttk
+import tkinter.font as font
+from Utility.Functions.files import resource_path
+from Utility.Functions.choices import get_choices
+from Utility.Functions.gui_utility import get_max_string_pixel_width
 
 #####################################################################################
 # COLORS SECTION
@@ -79,9 +80,9 @@ class SectionFrame(tk.Frame):
         self.border_frame.pack(padx=1, pady=10)
 
         # Sets the height of the title bar
-        font = tk_font.Font(family="Verdana",
+        tk_font = font.Font(family="Verdana",
                             size=13 if platform.system() == "Windows" else 16)
-        font_height = font.metrics("linespace")
+        font_height = tk_font.metrics("linespace")
         title_height = max(24, font_height + 5)
 
         # Inner frame (blends with background)
@@ -92,15 +93,15 @@ class SectionFrame(tk.Frame):
         custom = get_choices("Custom Materials", "", "Photons")
         mats = get_choices("All Materials", "Shielding", "Photons")
         custom_width = (get_max_string_pixel_width(custom,
-                        tk_font.nametofont("TkDefaultFont")) // 2 + 20) * 2
+                                                   font.nametofont("TkDefaultFont")) // 2 + 20) * 2
         mats_width = (get_max_string_pixel_width(mats,
-                      tk_font.nametofont("TkDefaultFont")) // 2 + 20) * 2
+                                                 font.nametofont("TkDefaultFont")) // 2 + 20) * 2
         width = max(400, custom_width, mats_width)
 
         if platform.system() == 'Windows':
             width += 60
 
-        width_frame = Frame(self.inner_frame, bg="#F2F2F2", width=width)
+        width_frame = tk.Frame(self.inner_frame, bg="#F2F2F2", width=width)
         width_frame.pack()
         width_frame.pack_propagate(False)
 
@@ -204,7 +205,7 @@ class AutocompleteCombobox(ttk.Combobox):
     def autocomplete(self, delta=0):
         """autocomplete the Combobox, delta may be 0/1/-1 to cycle through possible hits"""
         if delta:  # need to delete selection otherwise we would fix the current position
-            self.delete(self.position, END)
+            self.delete(self.position, tk.END)
         else:  # set position to end so selection starts where text entry ended
             self.position = len(self.get())
         # collect hits
@@ -221,23 +222,23 @@ class AutocompleteCombobox(ttk.Combobox):
             self._hit_index = (self._hit_index + delta) % len(self._hits)
         # now finally perform the autocompletion
         if self._hits:
-            self.delete(0, END)
+            self.delete(0, tk.END)
             self.insert(0, self._hits[self._hit_index])
-            self.select_range(self.position, END)
+            self.select_range(self.position, tk.END)
 
     def handle_keyrelease(self, event):
         """event handler for the keyrelease event on this widget"""
         if event.keysym == "BackSpace":
-            self.delete(self.index(INSERT), END)
-            self.position = self.index(END)
+            self.delete(self.index(tk.INSERT), tk.END)
+            self.position = self.index(tk.END)
         if event.keysym == "Left":
-            if self.position < self.index(END):  # delete the selection
-                self.delete(self.position, END)
+            if self.position < self.index(tk.END):  # delete the selection
+                self.delete(self.position, tk.END)
             else:
                 self.position = self.position - 1  # delete one character
-                self.delete(self.position, END)
+                self.delete(self.position, tk.END)
         if event.keysym == "Right":
-            self.position = self.index(END)  # go to end (no selection)
+            self.position = self.index(tk.END)  # go to end (no selection)
         if len(event.keysym) == 1:
             self.autocomplete()
         # No need for up/down, we'll jump to the popup

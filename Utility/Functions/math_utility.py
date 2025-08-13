@@ -1,13 +1,11 @@
 ##### IMPORTS #####
+import io
+import sys
 import csv
 import shelve
-import io
-from Utility.Functions.gui_utility import *
-from Utility.Functions.files import *
-
-# Choices using an element or a material
-element_choices = ["Common Elements", "All Elements"]
-material_choices = ["Common Materials", "All Materials"]
+from Utility.Functions.gui_utility import errors, too_low, too_high
+from Utility.Functions.files import resource_path, get_user_data_path
+from Utility.Functions.choices import element_choices, material_choices
 
 #####################################################################################
 # UNITS SECTION

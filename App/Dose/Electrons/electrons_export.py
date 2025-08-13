@@ -1,6 +1,11 @@
 ##### IMPORTS #####
-from Core.Dose.Electrons.electrons_plots import *
+import tkinter as tk
+from tkinter import ttk
 from App.style import SectionFrame
+from Core.Dose.Electrons.electrons_plots import export_data
+from Utility.Functions.gui_utility import make_title_frame, basic_label
+from Utility.Functions.gui_utility import interaction_checkbox, get_interactions
+from Utility.Functions.gui_utility import make_spacer, get_width, get_unit, get_item
 
 # For global access to nodes on electron stopping power export screen
 export_list = []
@@ -30,10 +35,10 @@ def electrons_export(root, category, mode, interactions, common_el, common_mat,
     title_frame = make_title_frame(root, "Electron Stopping Power", "Dose/Electrons")
 
     # Select Interaction Types frame
-    interactions_frame = Frame()
+    interactions_frame = tk.Frame()
 
     # Spacer
-    empty_frame1 = Frame()
+    empty_frame1 = tk.Frame()
 
     # List of interactions
     interaction_choices = ["Stopping Power - Total",
@@ -41,9 +46,9 @@ def electrons_export(root, category, mode, interactions, common_el, common_mat,
                            "Stopping Power - Radiative"]
 
     # Variables for each interaction type
-    var0 = IntVar()
-    var1 = IntVar()
-    var2 = IntVar()
+    var0 = tk.IntVar()
+    var1 = tk.IntVar()
+    var2 = tk.IntVar()
     interaction_vars = [var0, var1, var2]
 
     if mode == "Stopping Power":
@@ -56,7 +61,7 @@ def electrons_export(root, category, mode, interactions, common_el, common_mat,
         # Logic for when an interaction type is selected
         on_select = lambda: root.focus()
 
-        checks = Frame(inner_interactions_frame, bg="#F2F2F2")
+        checks = tk.Frame(inner_interactions_frame, bg="#F2F2F2")
         checks.pack()
 
         # Checkboxes for each interaction type
@@ -68,7 +73,7 @@ def electrons_export(root, category, mode, interactions, common_el, common_mat,
         empty_frame1 = make_spacer(root)
 
     # Stores whether file is saved and sets default
-    var_save = IntVar()
+    var_save = tk.IntVar()
     var_save.set(1)
 
     # Frame for options
@@ -82,7 +87,7 @@ def electrons_export(root, category, mode, interactions, common_el, common_mat,
     save.pack(pady=(10,5))
 
     # Frame for export type
-    export_type_frame = Frame(inner_options_frame, bg="#F2F2F2")
+    export_type_frame = tk.Frame(inner_options_frame, bg="#F2F2F2")
     export_type_frame.pack(pady=5)
 
     # Export label

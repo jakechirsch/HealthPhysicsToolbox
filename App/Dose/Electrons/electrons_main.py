@@ -1,7 +1,13 @@
 ##### IMPORTS #####
-from Utility.Functions.gui_utility import *
-from Utility.Functions.choices import *
-from App.style import SectionFrame, AutocompleteCombobox
+import platform
+import tkinter as tk
+from tkinter import ttk
+import tkinter.font as font
+from Utility.Functions.choices import get_choices
+from App.style import AutocompleteCombobox, SectionFrame
+from Utility.Functions.gui_utility import make_spacer, get_width
+from Utility.Functions.gui_utility import basic_label, make_title_frame
+from Utility.Functions.gui_utility import get_item, get_unit, valid_saved
 from Core.Dose.Electrons.electrons_calculations import handle_calculation
 
 # For global access to nodes on electron stopping power main screen
@@ -58,7 +64,7 @@ def electrons_main(root, category_start="Common Elements",
     custom_mat = valid_saved(custom_mat, custom_materials)
 
     # Stores mode and sets default
-    var_mode = StringVar(root)
+    var_mode = tk.StringVar(root)
     var_mode.set(mode_start)
     mode = mode_start
 
@@ -106,7 +112,7 @@ def electrons_main(root, category_start="Common Elements",
 
         # Clear result label
         result_box.config(state="normal")
-        result_box.delete("1.0", END)
+        result_box.delete("1.0", tk.END)
         result_box.config(state="disabled")
 
         root.focus()
@@ -127,11 +133,11 @@ def electrons_main(root, category_start="Common Elements",
     empty_frame1 = make_spacer(root)
 
     # Stores category selection and sets default
-    var_category = StringVar(root)
+    var_category = tk.StringVar(root)
     var_category.set(category_start)
 
     # Stores item selection and sets default
-    var = StringVar(root)
+    var = tk.StringVar(root)
     var.set(get_item(category_start, common_el, common_mat, element, material, custom_mat))
 
     # Frame for interacting medium category and item
@@ -154,7 +160,7 @@ def electrons_main(root, category_start="Common Elements",
         root.focus()
 
     # Frame for interacting medium category selection
-    category_frame = Frame(inner_main_frame, bg="#F2F2F2")
+    category_frame = tk.Frame(inner_main_frame, bg="#F2F2F2")
     category_frame.pack(pady=(15,5))
 
     # Category label
@@ -194,7 +200,7 @@ def electrons_main(root, category_start="Common Elements",
                 custom_mat = var.get()
 
         item_dropdown.selection_clear()
-        item_dropdown.icursor(END)
+        item_dropdown.icursor(tk.END)
 
     # Logic for when an interacting medium item is selected
     def on_select(event):
@@ -202,7 +208,7 @@ def electrons_main(root, category_start="Common Elements",
         root.focus()
 
     # Frame for interacting medium item selection
-    item_frame = Frame(inner_main_frame, bg="#F2F2F2")
+    item_frame = tk.Frame(inner_main_frame, bg="#F2F2F2")
     item_frame.pack(pady=(5,20))
 
     # Item label
@@ -231,11 +237,11 @@ def electrons_main(root, category_start="Common Elements",
     # Energy label
     energy_label = ttk.Label(inner_energy_frame, text="Electron Energy (" + energy_unit + "):",
                              style="Black.TLabel")
-    energy_entry = Entry(inner_energy_frame, width=entry_width, insertbackground="black",
-                         background="white", foreground="black", borderwidth=3, bd=3,
-                         highlightthickness=0, relief='solid', font=monospace_font)
+    energy_entry = tk.Entry(inner_energy_frame, width=entry_width, insertbackground="black",
+                            background="white", foreground="black", borderwidth=3, bd=3,
+                            highlightthickness=0, relief='solid', font=monospace_font)
 
-    empty_frame3 = Frame()
+    empty_frame3 = tk.Frame()
 
     # Input Energy section is created if Calculation Mode is not Density
     if mode != "Density":
@@ -271,8 +277,8 @@ def electrons_main(root, category_start="Common Elements",
     # Displays the result of calculation
     result_label = ttk.Label(inner_result_frame, text="Result:",
                              style="Black.TLabel")
-    result_box = Text(inner_result_frame, height=1, borderwidth=3, bd=3,
-                      highlightthickness=0, relief='solid')
+    result_box = tk.Text(inner_result_frame, height=1, borderwidth=3, bd=3,
+                         highlightthickness=0, relief='solid')
     result_box.config(bg='white', fg='black', state="disabled", width=entry_width,
                       font=monospace_font)
     result_label.pack(pady=(5,1))

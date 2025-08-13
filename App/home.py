@@ -1,8 +1,8 @@
 ##### IMPORTS #####
 from tkinter import ttk
-from App.Shielding.shielding import shielding_menu
 from App.Dose.dose import dose_menu
 from App.Decay.decay import decay_menu
+from App.Shielding.shielding import shielding_menu
 from Utility.Functions.gui_utility import get_width, make_title_frame
 
 # For global access to nodes on home screen

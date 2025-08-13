@@ -2,7 +2,7 @@
 import csv
 import json
 import shelve
-from Utility.Functions.files import *
+from Utility.Functions.files import resource_path, get_user_data_path
 
 # Choices using an element or a material
 element_choices = ["Common Elements", "All Elements"]

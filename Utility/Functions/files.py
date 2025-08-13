@@ -1,10 +1,10 @@
 ##### IMPORTS #####
-from tkinter.filedialog import asksaveasfilename
 import os
-import subprocess
 import sys
 import platform
+import subprocess
 from pathlib import Path
+from tkinter.filedialog import asksaveasfilename
 
 #####################################################################################
 # OPEN SECTION

@@ -1,6 +1,10 @@
 ##### IMPORTS #####
-from Core.Shielding.Electrons.electrons_plots import *
+import tkinter as tk
+from tkinter import ttk
 from App.style import SectionFrame
+from Core.Shielding.Electrons.electrons_plots import export_data
+from Utility.Functions.gui_utility import make_title_frame, basic_label
+from Utility.Functions.gui_utility import get_width, get_unit, get_item
 
 # For global access to nodes on electron range export screen
 export_list = []
@@ -29,7 +33,7 @@ def electrons_export(root, category, mode, common_el, common_mat, element,
     title_frame = make_title_frame(root, "Electron Range", "Shielding/Electrons")
 
     # Stores whether file is saved and sets default
-    var_save = IntVar()
+    var_save = tk.IntVar()
     var_save.set(1)
 
     # Frame for options
@@ -43,7 +47,7 @@ def electrons_export(root, category, mode, common_el, common_mat, element,
     save.pack(pady=(10,5))
 
     # Frame for export type
-    export_type_frame = Frame(inner_options_frame, bg="#F2F2F2")
+    export_type_frame = tk.Frame(inner_options_frame, bg="#F2F2F2")
     export_type_frame.pack(pady=5)
 
     # Export label

@@ -1,8 +1,13 @@
 ##### IMPORTS #####
+import platform
+import tkinter as tk
+from tkinter import ttk
+import tkinter.font as font
 from App.style import AutocompleteCombobox, SectionFrame
-from Utility.Functions.gui_utility import *
-from Utility.Functions.choices import *
-from Core.Decay.Information.nuclide_info import *
+from Utility.Functions.choices import get_choices, get_isotopes
+from Utility.Functions.gui_utility import make_spacer, get_width
+from Core.Decay.Information.nuclide_info import handle_calculation
+from Utility.Functions.gui_utility import basic_label, make_title_frame
 
 # For global access to nodes on photon attenuation main screen
 info_list = []
@@ -24,7 +29,7 @@ def decay_info_main(root, mode_start="Decay Scheme", element="Ac", isotope="Ac-2
     element_list = get_choices("All Elements", "Decay", "")
 
     # Stores mode and sets default
-    var_mode = StringVar(root)
+    var_mode = tk.StringVar(root)
     var_mode.set(mode_start)
     mode = mode_start
 
@@ -44,7 +49,7 @@ def decay_info_main(root, mode_start="Decay Scheme", element="Ac", isotope="Ac-2
 
         # Clear result label
         result_box.config(state="normal")
-        result_box.delete("1.0", END)
+        result_box.delete("1.0", tk.END)
         result_box.config(state="disabled")
 
         root.focus()
@@ -74,7 +79,7 @@ def decay_info_main(root, mode_start="Decay Scheme", element="Ac", isotope="Ac-2
     inner_nuclide_frame = nuclide_frame.get_inner_frame()
 
     # Horizontal frame for nuclide selection
-    nuclide_side_frame = Frame(inner_nuclide_frame, bg="#F2F2F2")
+    nuclide_side_frame = tk.Frame(inner_nuclide_frame, bg="#F2F2F2")
     nuclide_side_frame.pack(pady=(20,30))
 
     # Logic for when enter is hit when using the element autocomplete combobox
@@ -89,7 +94,7 @@ def decay_info_main(root, mode_start="Decay Scheme", element="Ac", isotope="Ac-2
             element = var_element.get()
 
         element_dropdown.selection_clear()
-        element_dropdown.icursor(END)
+        element_dropdown.icursor(tk.END)
 
     # Logic for when an element is selected
     def on_select_element(event):
@@ -108,14 +113,14 @@ def decay_info_main(root, mode_start="Decay Scheme", element="Ac", isotope="Ac-2
         root.focus()
 
     # Frame for element selection
-    element_frame = Frame(nuclide_side_frame, bg="#F2F2F2")
+    element_frame = tk.Frame(nuclide_side_frame, bg="#F2F2F2")
     element_frame.pack(side="left", padx=5)
 
     # Element label
     basic_label(element_frame, "Element:")
 
     # Stores element selection and sets default
-    var_element = StringVar(root)
+    var_element = tk.StringVar(root)
     var_element.set(element)
 
     # Creates dropdown menu for element
@@ -139,7 +144,7 @@ def decay_info_main(root, mode_start="Decay Scheme", element="Ac", isotope="Ac-2
         root.focus()
 
     # Frame for isotope selection
-    category_frame = Frame(nuclide_side_frame, bg="#F2F2F2")
+    category_frame = tk.Frame(nuclide_side_frame, bg="#F2F2F2")
     category_frame.pack(side="left", padx=5)
 
     # Isotope label
@@ -178,8 +183,8 @@ def decay_info_main(root, mode_start="Decay Scheme", element="Ac", isotope="Ac-2
     result_label.pack(pady=(5,1))
 
     # Displays the result of calculation
-    result_box = Text(inner_result_frame, height=1, borderwidth=3, bd=3,
-                      highlightthickness=0, relief='solid')
+    result_box = tk.Text(inner_result_frame, height=1, borderwidth=3, bd=3,
+                         highlightthickness=0, relief='solid')
     result_box.config(bg='white', fg='black', state="disabled", width=entry_width,
                       font=monospace_font)
     result_box.pack(pady=(1,20))

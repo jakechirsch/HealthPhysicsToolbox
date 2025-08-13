@@ -1,6 +1,18 @@
 ##### IMPORTS #####
-from App.add_custom_menu import *
-from App.Shielding.Alphas.alphas_export import *
+import tkinter as tk
+from tkinter import ttk
+from App.style import SectionFrame
+from App.add_custom_menu import add_custom_menu
+from Utility.Functions.choices import get_choices
+from Utility.Functions.math_utility import energy_units
+from Utility.Functions.files import resource_path, open_file
+from App.Shielding.Alphas.alphas_export import alphas_export
+from Utility.Functions.gui_utility import make_vertical_frame
+from Utility.Functions.gui_utility import make_spacer, get_width
+from Utility.Functions.gui_utility import unit_dropdown, get_unit
+from Utility.Functions.gui_utility import make_title_frame, basic_label
+from Utility.Functions.math_utility import density_numerator, density_denominator
+from Core.Shielding.Alphas.alphas_calculations import csda_numerator, csda_denominator
 
 # For global access to nodes on alpha range advanced screen
 advanced_list = []
@@ -51,7 +63,7 @@ def alphas_advanced(root, category, mode, common_el, common_mat, element,
     inner_a_r_frame = a_r_frame.get_inner_frame()
 
     # Horizontal frame for add/remove settings
-    side_frame = Frame(inner_a_r_frame, bg="#F2F2F2")
+    side_frame = tk.Frame(inner_a_r_frame, bg="#F2F2F2")
     side_frame.pack(pady=(15, 5))
 
     # Action button
@@ -79,7 +91,7 @@ def alphas_advanced(root, category, mode, common_el, common_mat, element,
         vertical_frame = make_v_frame()
 
     # Frame for action selection
-    action_frame = Frame(side_frame, bg="#F2F2F2")
+    action_frame = tk.Frame(side_frame, bg="#F2F2F2")
     action_frame.pack(side="left", padx=5)
 
     # Action label
@@ -95,7 +107,7 @@ def alphas_advanced(root, category, mode, common_el, common_mat, element,
     action_dropdown.bind("<<ComboboxSelected>>", on_select_options)
 
     # Frame for category selection
-    category_frame = Frame(side_frame, bg="#F2F2F2")
+    category_frame = tk.Frame(side_frame, bg="#F2F2F2")
     category_frame.pack(side="left", padx=5)
 
     # Category label
@@ -126,7 +138,7 @@ def alphas_advanced(root, category, mode, common_el, common_mat, element,
     inner_unit_frame = unit_frame.get_inner_frame()
 
     # Horizontal frame for unit settings
-    unit_side_frame = Frame(inner_unit_frame, bg="#F2F2F2")
+    unit_side_frame = tk.Frame(inner_unit_frame, bg="#F2F2F2")
     unit_side_frame.pack(pady=(20,0) if mode != "Density" else 20)
 
     # Units label
@@ -172,14 +184,14 @@ def alphas_advanced(root, category, mode, common_el, common_mat, element,
     empty_frame2 = make_spacer(root)
 
     # Frame for Export Menu, References, & Help
-    bottom_frame = Frame(root, bg="#F2F2F2")
+    bottom_frame = tk.Frame(root, bg="#F2F2F2")
     bottom_frame.pack(pady=5)
 
     # Energy Unit options are only created if
     # Calculation Mode is not Density
     if mode != "Density":
         # Horizontal frame for energy unit settings
-        energy_unit_side_frame = Frame(inner_unit_frame, bg="#F2F2F2")
+        energy_unit_side_frame = tk.Frame(inner_unit_frame, bg="#F2F2F2")
         energy_unit_side_frame.pack(pady=20)
 
         # Energy unit label

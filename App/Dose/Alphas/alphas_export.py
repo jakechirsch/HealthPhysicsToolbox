@@ -1,6 +1,11 @@
 ##### IMPORTS #####
-from Core.Dose.Alphas.alphas_plots import *
+import tkinter as tk
+from tkinter import ttk
 from App.style import SectionFrame
+from Core.Dose.Alphas.alphas_plots import export_data
+from Utility.Functions.gui_utility import make_title_frame, basic_label
+from Utility.Functions.gui_utility import interaction_checkbox, get_interactions
+from Utility.Functions.gui_utility import make_spacer, get_width, get_unit, get_item
 
 # For global access to nodes on alpha stopping power export screen
 export_list = []
@@ -35,9 +40,9 @@ def alphas_export(root, category, mode, interactions, common_el, common_mat,
                            "Nuclear Stopping Power"]
 
     # Variables for each interaction type
-    var0 = IntVar()
-    var1 = IntVar()
-    var2 = IntVar()
+    var0 = tk.IntVar()
+    var1 = tk.IntVar()
+    var2 = tk.IntVar()
     interaction_vars = [var0, var1, var2]
 
     # Frame for interactions
@@ -49,7 +54,7 @@ def alphas_export(root, category, mode, interactions, common_el, common_mat,
     # Logic for when an interaction type is selected
     on_select = lambda: root.focus()
 
-    checks = Frame(inner_interactions_frame, bg="#F2F2F2")
+    checks = tk.Frame(inner_interactions_frame, bg="#F2F2F2")
     checks.pack()
 
     # Checkboxes for each interaction type
@@ -61,7 +66,7 @@ def alphas_export(root, category, mode, interactions, common_el, common_mat,
     empty_frame1 = make_spacer(root)
 
     # Stores whether file is saved and sets default
-    var_save = IntVar()
+    var_save = tk.IntVar()
     var_save.set(1)
 
     # Frame for options
@@ -75,7 +80,7 @@ def alphas_export(root, category, mode, interactions, common_el, common_mat,
     save.pack(pady=(10,5))
 
     # Frame for export type
-    export_type_frame = Frame(inner_options_frame, bg="#F2F2F2")
+    export_type_frame = tk.Frame(inner_options_frame, bg="#F2F2F2")
     export_type_frame.pack(pady=5)
 
     # Export label

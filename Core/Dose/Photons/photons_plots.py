@@ -1,8 +1,15 @@
 ##### IMPORTS #####
-import matplotlib.pyplot as plt
-import pandas as pd
+import io
+import csv
 import math
-from Core.Dose.Photons.photons_calculations import *
+import shelve
+import pandas as pd
+import matplotlib.pyplot as plt
+from Utility.Functions.gui_utility import no_selection
+from Utility.Functions.math_utility import find_data, energy_units
+from Utility.Functions.choices import element_choices, material_choices
+from Utility.Functions.files import save_file, resource_path, get_user_data_path
+from Core.Dose.Photons.photons_calculations import mea_numerator, mea_denominator
 
 #####################################################################################
 # EXPORT SECTION

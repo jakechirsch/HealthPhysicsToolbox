@@ -1,8 +1,11 @@
 ##### IMPORTS #####
-from Utility.Functions.math_utility import density_numerator, density_denominator
 import io
-from tkinter import END
-from Utility.Functions.choices import *
+import csv
+import shelve
+import tkinter as tk
+from Utility.Functions.choices import get_choices
+from Utility.Functions.files import get_user_data_path
+from Utility.Functions.math_utility import density_numerator, density_denominator
 
 """
 This function is called when the Add Material button is hit.
@@ -142,6 +145,6 @@ def add_custom(root, name_box, density_box, weights_box, error_label, normalize,
         db[name + '_Density'] = str(float(density) * density_denominator[d_den] / density_numerator[d_num])
 
     # Clear input boxes
-    name_box.delete(0, END)
+    name_box.delete(0, tk.END)
     weights_box.delete("1.0", "end")
-    density_box.delete(0, END)
+    density_box.delete(0, tk.END)

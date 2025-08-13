@@ -1,6 +1,20 @@
 ##### IMPORTS #####
-from App.add_custom_menu import *
-from App.Shielding.Photons.photons_export import *
+import tkinter as tk
+from tkinter import ttk
+from App.style import SectionFrame
+from App.add_custom_menu import add_custom_menu
+from Utility.Functions.choices import get_choices
+from Utility.Functions.math_utility import energy_units
+from Utility.Functions.files import resource_path, open_file
+from Utility.Functions.gui_utility import make_vertical_frame
+from App.Shielding.Photons.photons_export import photons_export
+from Utility.Functions.gui_utility import make_spacer, get_width
+from Utility.Functions.gui_utility import unit_dropdown, get_unit
+from Utility.Functions.gui_utility import make_title_frame, basic_label
+from Utility.Functions.gui_utility import interaction_checkbox, get_interactions
+from Utility.Functions.math_utility import density_numerator, density_denominator
+from Core.Shielding.Photons.photons_calculations import mac_numerator, mac_denominator
+from Core.Shielding.Photons.photons_calculations import lac_numerator, lac_denominator
 
 # For global access to nodes on photon attenuation advanced screen
 advanced_list = []
@@ -52,7 +66,7 @@ def photons_advanced(root, category, mode, interactions_start, common_el, common
     inner_a_r_frame = a_r_frame.get_inner_frame()
 
     # Horizontal frame for add/remove settings
-    side_frame = Frame(inner_a_r_frame, bg="#F2F2F2")
+    side_frame = tk.Frame(inner_a_r_frame, bg="#F2F2F2")
     side_frame.pack(pady=(15,5))
 
     # Action button
@@ -68,13 +82,13 @@ def photons_advanced(root, category, mode, interactions_start, common_el, common
                            "Photo-Electric Absorption"]
 
     # Variables for each interaction type
-    var0 = IntVar()
-    var1 = IntVar()
-    var2 = IntVar()
-    var3 = IntVar()
-    var4 = IntVar()
-    var5 = IntVar()
-    var6 = IntVar()
+    var0 = tk.IntVar()
+    var1 = tk.IntVar()
+    var2 = tk.IntVar()
+    var3 = tk.IntVar()
+    var4 = tk.IntVar()
+    var5 = tk.IntVar()
+    var6 = tk.IntVar()
     interaction_vars = [var0, var1, var2, var3, var4, var5, var6]
 
     # Selects the previously selected interactions
@@ -105,7 +119,7 @@ def photons_advanced(root, category, mode, interactions_start, common_el, common
         vertical_frame = make_v_frame()
 
     # Frame for action selection
-    action_frame = Frame(side_frame, bg="#F2F2F2")
+    action_frame = tk.Frame(side_frame, bg="#F2F2F2")
     action_frame.pack(side="left", padx=5)
 
     # Action label
@@ -121,7 +135,7 @@ def photons_advanced(root, category, mode, interactions_start, common_el, common
     action_dropdown.bind("<<ComboboxSelected>>", on_select_options)
 
     # Frame for category selection
-    category_frame = Frame(side_frame, bg="#F2F2F2")
+    category_frame = tk.Frame(side_frame, bg="#F2F2F2")
     category_frame.pack(side="left", padx=5)
 
     # Category label
@@ -152,7 +166,7 @@ def photons_advanced(root, category, mode, interactions_start, common_el, common
     inner_interactions_frame.config(pady=10)
 
     # Spacer
-    empty_frame2 = Frame()
+    empty_frame2 = tk.Frame()
 
     # Ensures at least one interaction type is selected
     # If user tries to select none,
@@ -208,7 +222,7 @@ def photons_advanced(root, category, mode, interactions_start, common_el, common
     if mode != "Density":
         interactions_frame.pack()
 
-        checks = Frame(inner_interactions_frame, bg="#F2F2F2")
+        checks = tk.Frame(inner_interactions_frame, bg="#F2F2F2")
         checks.pack()
 
         # Checkboxes for each interaction type
@@ -238,7 +252,7 @@ def photons_advanced(root, category, mode, interactions_start, common_el, common
     inner_unit_frame = unit_frame.get_inner_frame()
 
     # Horizontal frame for unit settings
-    unit_side_frame = Frame(inner_unit_frame, bg="#F2F2F2")
+    unit_side_frame = tk.Frame(inner_unit_frame, bg="#F2F2F2")
     unit_side_frame.pack(pady=20)
 
     # Units label
@@ -287,14 +301,14 @@ def photons_advanced(root, category, mode, interactions_start, common_el, common
     empty_frame3 = make_spacer(root)
 
     # Frame for Export Menu, References, & Help
-    bottom_frame = Frame(root, bg="#F2F2F2")
+    bottom_frame = tk.Frame(root, bg="#F2F2F2")
     bottom_frame.pack(pady=5)
 
     # Energy Unit options are only created if
     # Calculation Mode is not Density
     if mode != "Density":
         # Horizontal frame for energy unit settings
-        energy_unit_side_frame = Frame(inner_unit_frame, bg="#F2F2F2")
+        energy_unit_side_frame = tk.Frame(inner_unit_frame, bg="#F2F2F2")
         energy_unit_side_frame.pack(pady=(0, 20))
 
         # Energy unit label
@@ -347,10 +361,8 @@ def photons_advanced(root, category, mode, interactions_start, common_el, common
                              padding=(0,0),
                              command=lambda: to_main(root, category, mode,
                             get_interactions(interaction_choices, interaction_vars),
-                                                     valid_saved(common_el, common),
-                                                     valid_saved(common_mat, common_m),
-                                                     element, material,
-                                                     valid_saved(custom_mat, custom),
+                                                     common_el, common_mat,
+                                                     element, material, custom_mat,
                                                 num_units[0], num_units[1], num_units[2],
                                                 den_units[0], den_units[1], den_units[2],
                                                      energy_unit))

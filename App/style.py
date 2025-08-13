@@ -209,9 +209,9 @@ class AutocompleteCombobox(ttk.Combobox):
             self.position = len(self.get())
         # collect hits
         _hits = []
-        for element in self._completion_list:
-            if element.lower().startswith(self.get().lower()):  # Match case insensitively
-                _hits.append(element)
+        for item in self._completion_list:
+            if item.lower().startswith(self.get().lower()):  # Match case insensitively
+                _hits.append(item)
         # if we have a new hit list, keep this in mind
         if _hits != self._hits:
             self._hit_index = 0

@@ -26,12 +26,12 @@ configure_plot.
 Finally, if the file is meant to be saved, we pass on the
 work to the save_file function. Otherwise, we show the plot.
 """
-def export_data(root, element, category, mode, interactions, num, den,
+def export_data(root, item, category, mode, interactions, num, den,
                 energy_unit, choice, save, error_label):
     root.focus()
 
     # Error-check for no selected item
-    if element == "":
+    if item == "":
         error_label.config(style="Error.TLabel", text=no_selection)
         return
 
@@ -54,7 +54,7 @@ def export_data(root, element, category, mode, interactions, num, den,
     df = pd.DataFrame(columns=cols)
     if category in element_choices:
         # Load the CSV file
-        db_path = resource_path('Data/NIST Coefficients/Electrons/Elements/' + element + '.csv')
+        db_path = resource_path('Data/NIST Coefficients/Electrons/Elements/' + item + '.csv')
         df2 = pd.read_csv(db_path)
 
         df[energy_col] = df2["Kinetic Energy"]
@@ -65,19 +65,19 @@ def export_data(root, element, category, mode, interactions, num, den,
         else:
             df[mode] = df2[mode]
     elif category in material_choices:
-        db_path = resource_path('Data/General Data/Material Composition/' + element + '.csv')
+        db_path = resource_path('Data/General Data/Material Composition/' + item + '.csv')
         with open(db_path, 'r') as file:
-            make_df_for_material(file, df, element, category, mode, interactions)
+            make_df_for_material(file, df, item, category, mode, interactions)
     else:
-        db_path = get_user_data_path('Custom Materials/_' + element)
+        db_path = get_user_data_path('Custom Materials/_' + item)
         with shelve.open(db_path) as db:
-            stored_data = db[element]
+            stored_data = db[item]
             stored_data = stored_data.replace('\\n', '\n')
 
         # Create file-like object from the stored string
         csv_file_like = io.StringIO(stored_data)
 
-        make_df_for_material(csv_file_like, df, element, category, mode, interactions)
+        make_df_for_material(csv_file_like, df, item, category, mode, interactions)
 
     # Converts energy column to desired energy unit
     df[energy_col] /= energy_units[energy_unit]
@@ -95,9 +95,9 @@ def export_data(root, element, category, mode, interactions, num, den,
         mode_col += unit
 
     if choice == "Plot":
-        configure_plot(interactions, df, energy_col, mode_col, element)
+        configure_plot(interactions, df, energy_col, mode_col, item)
         if save == 1:
-            save_file(plt, choice, error_label, element, "stopping")
+            save_file(plt, choice, error_label, item, "stopping")
         else:
             error_label.config(style="Success.TLabel", text=choice + " exported!")
             plt.show()
@@ -105,7 +105,7 @@ def export_data(root, element, category, mode, interactions, num, den,
         if mode == "Stopping Power":
             for interaction in interactions:
                 df.rename(columns={interaction: interaction+unit}, inplace=True)
-        save_file(df, choice, error_label, element, "stopping")
+        save_file(df, choice, error_label, item, "stopping")
 
 #####################################################################################
 # PLOT SECTION
@@ -119,7 +119,7 @@ Then, we plot each interaction column against the data column.
 The title and axis titles are all configured
 and the axis scales are set to logarithmic.
 """
-def configure_plot(interactions, df, energy_col, mode_col, element):
+def configure_plot(interactions, df, energy_col, mode_col, item):
     # Clear from past plots
     plt.clf()
 
@@ -129,7 +129,7 @@ def configure_plot(interactions, df, energy_col, mode_col, element):
             plt.plot(df[energy_col], df[interaction], marker='o', label=interaction)
     else:
         plt.plot(df[energy_col], df[mode_col], marker='o', label=mode_col)
-    plt.title(element + " - " + mode_col, fontsize=8.5)
+    plt.title(item + " - " + mode_col, fontsize=8.5)
     plt.xscale('log')
     plt.yscale('log')
     if mode_col.split(" ", 1)[0] == "Stopping":
@@ -154,7 +154,7 @@ elements. Then, for each energy value, we get the corresponding
 interaction value for the rest of the row by calling the find_data function
 with each interaction.
 """
-def make_df_for_material(file_like, df, element, category, mode, interactions):
+def make_df_for_material(file_like, df, material, category, mode, interactions):
     # Reads in file
     reader = csv.DictReader(file_like)
 
@@ -188,9 +188,9 @@ def make_df_for_material(file_like, df, element, category, mode, interactions):
         row = [val]
         if mode == "Stopping Power":
             for interaction in interactions:
-                x = find_data(category, interaction, element, val, "Electrons")
+                x = find_data(category, interaction, material, val, "Electrons")
                 row.append(x)
         else:
-            x = find_data(category, mode, element, val, "Electrons")
+            x = find_data(category, mode, material, val, "Electrons")
             row.append(x)
         df.loc[index] = row

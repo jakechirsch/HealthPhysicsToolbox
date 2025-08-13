@@ -84,7 +84,7 @@ the user canceling the export. If the export is not
 canceled, the file is saved with the selected name
 and location and then opened.
 """
-def save_file(obj, choice, error_label, element, name):
+def save_file(obj, choice, error_label, item, name):
     file_format = ".csv"
     if choice == "Plot":
         file_format = ".png"
@@ -94,7 +94,7 @@ def save_file(obj, choice, error_label, element, name):
         defaultextension=file_format,
         filetypes=[(file_format[1:].upper() + " files", "*" + file_format)],
         title="Save " + file_format[1:].upper() + " As...",
-        initialfile=element.lower().replace(" ", "_") + "_" + name + "_" + choice.lower()
+        initialfile=item.lower().replace(" ", "_") + "_" + name + "_" + choice.lower()
     )
 
     # If the user selected a path, save the file

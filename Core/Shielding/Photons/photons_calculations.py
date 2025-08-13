@@ -32,12 +32,12 @@ Finally, if the calculation did not cause an error,
 the result is converted to the desired units, and then
 displayed in the result label.
 """
-def handle_calculation(root, category, mode, interactions, element,
+def handle_calculation(root, category, mode, interactions, item,
                        energy_str, result_box, num, den, energy_unit):
     root.focus()
 
     # Error-check for no selected item
-    if element == "":
+    if item == "":
         edit_result(no_selection, result_box)
         return
 
@@ -58,20 +58,20 @@ def handle_calculation(root, category, mode, interactions, element,
 
     if mode == "Mass Attenuation Coefficient":
         for interaction in interactions:
-            mac = find_data(category, interaction, element, energy_target, "Photons")
+            mac = find_data(category, interaction, item, energy_target, "Photons")
             if mac in errors:
                 result = mac
                 break
             result += mac
     elif mode == "Density":
-        result = find_density(category, element)
+        result = find_density(category, item)
     else:
         for interaction in interactions:
-            mac = find_data(category, interaction, element, energy_target, "Photons")
+            mac = find_data(category, interaction, item, energy_target, "Photons")
             if mac in errors:
                 result = mac
                 break
-            result += (mac * find_density(category, element))
+            result += (mac * find_density(category, item))
 
     # Displays result label
     if not result in errors:

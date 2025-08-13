@@ -27,12 +27,12 @@ Finally, if the calculation did not cause an error,
 the result is converted to the desired units, and then
 displayed in the result label.
 """
-def handle_calculation(root, category, mode, element, energy_str,
+def handle_calculation(root, category, mode, item, energy_str,
                        result_box, warning_label, num, den, energy_unit, range_result):
     root.focus()
 
     # Error-check for no selected item
-    if element == "":
+    if item == "":
         edit_result(no_selection, result_box)
         return
 
@@ -52,12 +52,12 @@ def handle_calculation(root, category, mode, element, energy_str,
 
     if mode == "Range-Energy Curve":
         result = range_energy_curve(energy_target, energy_unit, warning_label)
-        result2 = find_density(category, element)
+        result2 = find_density(category, item)
     elif mode == "Density":
-        result = find_density(category, element)
+        result = find_density(category, item)
         result2 = 0
     else:
-        result = find_data(category, mode, element, energy_target, "Electrons")
+        result = find_data(category, mode, item, energy_target, "Electrons")
         result2 = 0
 
     # Displays result label

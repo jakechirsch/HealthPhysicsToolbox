@@ -159,7 +159,7 @@ def photons_main(root, category_start="Common Elements",
     var_category = StringVar(root)
     var_category.set(category_start)
 
-    # Stores element/material selection and sets default
+    # Stores item selection and sets default
     var = StringVar(root)
     var.set(get_item(category_start, common_el, common_mat, element, material, custom_mat))
 

@@ -186,7 +186,7 @@ def make_vertical_frame(root, top_frame, action, category_ar,
         button[0].pack(pady=(10,0))
         return vertical_frame
 
-    # Stores element and sets default
+    # Stores item
     var = StringVar(root)
     choices = []
     inverse = []

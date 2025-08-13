@@ -65,17 +65,17 @@ This function handles finding a value from the raw data for the selected item.
 Based on the selected category, it passes on the calculation to either
 find_data_for_element or find_data_for_material, and then returns the result.
 """
-def find_data(category, column, element, energy_target, particle):
+def find_data(category, column, item, energy_target, particle):
     if category in element_choices:
-        result = find_data_for_element(element, column, energy_target, particle)
+        result = find_data_for_element(item, column, energy_target, particle)
     elif category in material_choices:
-        db_path = resource_path('Data/General Data/Material Composition/' + element + '.csv')
+        db_path = resource_path('Data/General Data/Material Composition/' + item + '.csv')
         with open(db_path, 'r') as file:
             result = find_data_for_material(file, column, energy_target, particle)
     else:
-        db_path = get_user_data_path('Custom Materials/_' + element)
+        db_path = get_user_data_path('Custom Materials/_' + item)
         with shelve.open(db_path) as db:
-            stored_data = db[element]
+            stored_data = db[item]
             stored_data = stored_data.replace('\\n', '\n')
 
         # Create file-like object from the stored string

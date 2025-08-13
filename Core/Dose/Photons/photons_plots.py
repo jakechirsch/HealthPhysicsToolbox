@@ -25,12 +25,12 @@ configure_plot.
 Finally, if the file is meant to be saved, we pass on the
 work to the save_file function. Otherwise, we show the plot.
 """
-def export_data(root, element, category, mode, num, den,
+def export_data(root, item, category, mode, num, den,
                 energy_unit, choice, save, error_label):
     root.focus()
 
     # Error-check for no selected item
-    if element == "":
+    if item == "":
         error_label.config(style="Error.TLabel", text=no_selection)
         return
 
@@ -45,7 +45,7 @@ def export_data(root, element, category, mode, num, den,
     df = pd.DataFrame(columns=cols)
     if category in element_choices:
         # Load the CSV file
-        db_path = resource_path('Data/NIST Coefficients/Photons/Elements/' + element + '.csv')
+        db_path = resource_path('Data/NIST Coefficients/Photons/Elements/' + item + '.csv')
         df2 = pd.read_csv(db_path)
 
         df[energy_col] = df2["Photon Energy"]
@@ -56,19 +56,19 @@ def export_data(root, element, category, mode, num, den,
             if math.isnan(row[mode_col]):
                 df.drop(index=index, inplace=True)
     elif category in material_choices:
-        db_path = resource_path('Data/General Data/Material Composition/' + element + '.csv')
+        db_path = resource_path('Data/General Data/Material Composition/' + item + '.csv')
         with open(db_path, 'r') as file:
-            make_df_for_material(file, df, element, category, mode)
+            make_df_for_material(file, df, item, category, mode)
     else:
-        db_path = get_user_data_path('Custom Materials/_' + element)
+        db_path = get_user_data_path('Custom Materials/_' + item)
         with shelve.open(db_path) as db:
-            stored_data = db[element]
+            stored_data = db[item]
             stored_data = stored_data.replace('\\n', '\n')
 
         # Create file-like object from the stored string
         csv_file_like = io.StringIO(stored_data)
 
-        make_df_for_material(csv_file_like, df, element, category, mode)
+        make_df_for_material(csv_file_like, df, item, category, mode)
 
     # Converts energy column to desired energy unit
     df[energy_col] /= energy_units[energy_unit]
@@ -78,14 +78,14 @@ def export_data(root, element, category, mode, num, den,
     df[mode_col] /= mea_denominator[den]
 
     if choice == "Plot":
-        configure_plot(df, energy_col, mode_col, element)
+        configure_plot(df, energy_col, mode_col, item)
         if save == 1:
-            save_file(plt, choice, error_label, element, "absorption")
+            save_file(plt, choice, error_label, item, "absorption")
         else:
             error_label.config(style="Success.TLabel", text=choice + " exported!")
             plt.show()
     else:
-        save_file(df, choice, error_label, element, "absorption")
+        save_file(df, choice, error_label, item, "absorption")
 
 #####################################################################################
 # PLOT SECTION
@@ -99,13 +99,13 @@ Then, we plot the mode column against the data column.
 The title, legend, and axis titles are all configured
 and the axis scales are set to logarithmic.
 """
-def configure_plot(df, energy_col, mode_col, element):
+def configure_plot(df, energy_col, mode_col, item):
     # Clear from past plots
     plt.clf()
 
     # Plot the data
     plt.plot(df[energy_col], df[mode_col], marker='o', label=mode_col)
-    plt.title(element + " - " + mode_col, fontsize=8.5)
+    plt.title(item + " - " + mode_col, fontsize=8.5)
     plt.xscale('log')
     plt.yscale('log')
     plt.xlabel(energy_col)
@@ -128,7 +128,7 @@ elements. Then, for each energy value, we get the corresponding
 calculation mode value by calling the find_data function
 with the mode.
 """
-def make_df_for_material(file_like, df, element, category, mode):
+def make_df_for_material(file_like, df, material, category, mode):
     # Reads in file
     reader = csv.DictReader(file_like)
 
@@ -142,15 +142,13 @@ def make_df_for_material(file_like, df, element, category, mode):
                 reader2 = csv.DictReader(file)
 
                 # Gets energy values to use as dots
+                row2: dict[str, str]
                 for row2 in reader2:
-                    value_exists = False
                     try:
                         _ = float(row2[mode])
-                        value_exists = True
+                        vals.append(float(row2["Photon Energy"]))
                     except ValueError:
                         pass
-                    if value_exists:
-                        vals.append(float(row2["Photon Energy"]))
         else:
             with open(db_path, 'r') as file:
                 # Reads in file
@@ -159,20 +157,17 @@ def make_df_for_material(file_like, df, element, category, mode):
                 new_vals = []
                 # Gets energy values to use as dots
                 for row2 in reader2:
-                    value_exists = False
                     try:
                         _ = float(row2[mode])
-                        value_exists = True
+                        new_vals.append(float(row2["Photon Energy"]))
                     except ValueError:
                         pass
-                    if value_exists:
-                        new_vals.append(float(row2["Photon Energy"]))
                 max_val = max(new_vals)
                 min_val = min(new_vals)
                 vals = [val for val in vals if min_val <= val <= max_val]
 
     # Finds the data for mode at each energy value and adds to dataframe
     for index, val in enumerate(vals):
-        x = find_data(category, mode, element, val, "Photons")
+        x = find_data(category, mode, material, val, "Photons")
         row = [val, x]
         df.loc[index] = row

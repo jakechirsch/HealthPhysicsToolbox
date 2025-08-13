@@ -27,12 +27,12 @@ configure_plot.
 Finally, if the file is meant to be saved, we pass on the
 work to the save_file function. Otherwise, we show the plot.
 """
-def export_data(root, element, category, mode, num, den,
+def export_data(root, item, category, mode, num, den,
                 energy_unit, choice, save, error_label, linear):
     root.focus()
 
     # Error-check for no selected item
-    if element == "":
+    if item == "":
         error_label.config(style="Error.TLabel", text=no_selection)
         return
 
@@ -51,7 +51,7 @@ def export_data(root, element, category, mode, num, den,
     df = pd.DataFrame(columns=cols)
     if category in element_choices:
         # Load the CSV file
-        db_path = resource_path('Data/NIST Coefficients/Electrons/Elements/' + element + '.csv')
+        db_path = resource_path('Data/NIST Coefficients/Electrons/Elements/' + item + '.csv')
         df2 = pd.read_csv(db_path)
 
         df[energy_col] = df2["Kinetic Energy"]
@@ -68,19 +68,19 @@ def export_data(root, element, category, mode, num, den,
                                                    energy_unit, None)
                 df.loc[index] = [row[energy_col], row[mode_col]]
     elif category in material_choices:
-        db_path = resource_path('Data/General Data/Material Composition/' + element + '.csv')
+        db_path = resource_path('Data/General Data/Material Composition/' + item + '.csv')
         with open(db_path, 'r') as file:
-            make_df_for_material(file, df, element, category, mode, energy_unit)
+            make_df_for_material(file, df, item, category, mode, energy_unit)
     else:
-        db_path = get_user_data_path('Custom Materials/_' + element)
+        db_path = get_user_data_path('Custom Materials/_' + item)
         with shelve.open(db_path) as db:
-            stored_data = db[element]
+            stored_data = db[item]
             stored_data = stored_data.replace('\\n', '\n')
 
         # Create file-like object from the stored string
         csv_file_like = io.StringIO(stored_data)
 
-        make_df_for_material(csv_file_like, df, element, category, mode, energy_unit)
+        make_df_for_material(csv_file_like, df, item, category, mode, energy_unit)
 
     # Converts energy column to desired energy unit
     df[energy_col] /= energy_units[energy_unit]
@@ -90,21 +90,21 @@ def export_data(root, element, category, mode, num, den,
         df[mode_col] *= csda_numerator[num]
         df[mode_col] /= csda_denominator[den]
     if mode == "Range-Energy Curve" and linear:
-        density = find_density(category, element)
+        density = find_density(category, item)
         density *= density_numerator[num]
         density /= density_denominator[den.split("\u00B2", 1)[0] + "\u00B3"]
         df[mode_col] /= density
 
     if choice == "Plot":
-        configure_plot(df, energy_col, mode_col, element, linear or
-                                                          mode != "Range-Energy Curve")
+        configure_plot(df, energy_col, mode_col, item, linear or
+                       mode != "Range-Energy Curve")
         if save == 1:
-            save_file(plt, choice, error_label, element, "range")
+            save_file(plt, choice, error_label, item, "range")
         else:
             error_label.config(style="Success.TLabel", text=choice + " exported!")
             plt.show()
     else:
-        save_file(df, choice, error_label, element, "range")
+        save_file(df, choice, error_label, item, "range")
 
 #####################################################################################
 # PLOT SECTION
@@ -118,14 +118,14 @@ Then, we plot the mode column against the data column.
 The title and axis titles are all configured
 and the axis scales are set to logarithmic.
 """
-def configure_plot(df, energy_col, mode_col, element, full_title):
+def configure_plot(df, energy_col, mode_col, item, full_title):
     # Clear from past plots
     plt.clf()
 
     # Plot the data
     plt.plot(df[energy_col], df[mode_col], marker='o', label=mode_col)
     if full_title:
-        plt.title(element + " - " + mode_col, fontsize=8.5)
+        plt.title(item + " - " + mode_col, fontsize=8.5)
     else:
         plt.title(mode_col, fontsize=8.5)
     plt.xscale('log')
@@ -151,7 +151,7 @@ calculation mode value by calling the find_data function
 with the mode. If Range-Energy Curve is the selected calculation mode,
 then instead of finding the values in the data, we calculate them.
 """
-def make_df_for_material(file_like, df, element, category, mode, energy_unit):
+def make_df_for_material(file_like, df, material, category, mode, energy_unit):
     # Reads in file
     reader = csv.DictReader(file_like)
 
@@ -191,6 +191,6 @@ def make_df_for_material(file_like, df, element, category, mode, energy_unit):
         if mode == "Range-Energy Curve":
             x = range_energy_curve(val, energy_unit, None)
         else:
-            x = find_data(category, mode, element, val, "Electrons")
+            x = find_data(category, mode, material, val, "Electrons")
         row = [val, x]
         df.loc[index] = row

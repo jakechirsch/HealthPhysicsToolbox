@@ -29,12 +29,12 @@ Finally, if the calculation did not cause an error,
 the result is converted to the desired units, and then
 displayed in the result label.
 """
-def handle_calculation(root, category, mode, interactions, element,
+def handle_calculation(root, category, mode, interactions, item,
                        energy_str, result_box, num, den, energy_unit):
     root.focus()
 
     # Error-check for no selected item
-    if element == "":
+    if item == "":
         edit_result(no_selection, result_box)
         return
 
@@ -54,10 +54,10 @@ def handle_calculation(root, category, mode, interactions, element,
     result = 0
 
     if mode == "Density":
-        result = find_density(category, element)
+        result = find_density(category, item)
     else:
         for interaction in interactions:
-            datum = find_data(category, interaction, element, energy_target, "Alphas")
+            datum = find_data(category, interaction, item, energy_target, "Alphas")
             if datum in errors:
                 result = datum
                 break

@@ -1,5 +1,6 @@
 ##### IMPORTS #####
 from tkinter import ttk
+from App.Decay.Calculator.decay_calc_main import decay_calc_main
 from App.Decay.Information.decay_info_main import decay_info_main
 from Utility.Functions.gui_utility import get_width, make_title_frame
 
@@ -25,7 +26,7 @@ def decay_menu(root):
     info_button.config(width=get_width(["Decay Information"]))
     info_button.pack(pady=5)
 
-    # Creates decay information button
+    # Creates decay calculator button
     calc_button = ttk.Button(root, text="Decay Calculator",
                              command=lambda: to_calc(root),
                              style="Maize.TButton", padding=(0,0))
@@ -91,5 +92,5 @@ It is called when the Decay Calculator button is hit.
 """
 def to_calc(root):
     root.focus()
-    #clear_decay()
-    #photons_main(root)
+    clear_decay()
+    decay_calc_main(root)

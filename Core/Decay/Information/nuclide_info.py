@@ -3,7 +3,8 @@ import radioactivedecay as rd
 import matplotlib.pyplot as plt
 from Utility.Functions.gui_utility import edit_result
 
-def handle_calculation(mode, isotope, result_box):
+def handle_calculation(root, mode, isotope, result_box):
+    root.focus()
     match mode:
         case "Decay Scheme":
             nuclide_decay_scheme(isotope, result_box)
@@ -30,7 +31,7 @@ def nuclide_decay_scheme(isotope, result_box):
 
 def nuclide_half_life(isotope, result_box):
     nuc = rd.Nuclide(isotope)
-    result = nuc.half_life('s')
+    result = nuc.half_life('s') # Time unit : seconds
     edit_result(f"{result} s", result_box)
 
 def nuclide_progeny(isotope, result_box):
@@ -62,4 +63,4 @@ def nuclide_nucleon_number(isotope, result_box):
 def nuclide_atomic_mass(isotope, result_box):
     nuc = rd.Nuclide(isotope)
     result = nuc.atomic_mass
-    edit_result(result, result_box, num="g", den="mol")
+    edit_result(result, result_box, num="g", den="mol") # Atomic mass unit : g/mol

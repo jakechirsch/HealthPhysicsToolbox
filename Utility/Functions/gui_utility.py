@@ -28,18 +28,18 @@ The previous results are cleared and then the new
 results are inserted. If the text being displayed is not
 an error, the unit is assed to the end.
 """
-def edit_result(result, result_label, num="", den=""):
+def edit_result(result, result_box, num="", den=""):
     # Clears result label and inserts new result
-    result_label.config(state="normal")
-    result_label.delete("1.0", tk.END)
-    result_label.insert(tk.END, result)
+    result_box.config(state="normal")
+    result_box.delete("1.0", tk.END)
+    result_box.insert(tk.END, result)
     unit = num + "/" + den
     if num == "1":
         unit = den + "\u207B\u00B9"
     if not result in errors and num != "":
-        result_label.insert(tk.END, " ")
-        result_label.insert(tk.END, unit)
-    result_label.config(state="disabled")
+        result_box.insert(tk.END, " ")
+        result_box.insert(tk.END, unit)
+    result_box.config(state="disabled")
 
 """
 This function makes an empty "spacer" frame with y-padding.

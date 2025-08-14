@@ -84,13 +84,20 @@ def decay_info_main(root, mode_start="Decay Scheme", element="Ac", isotope="Ac-2
 
     # Logic for when enter is hit when using the element autocomplete combobox
     def on_enter(_):
-        nonlocal element
+        nonlocal element, isotope
         value = element_dropdown.get()
+
         if value not in element_list:
             # Falls back on default if invalid item is typed in
             element_dropdown.set(element)
         else:
-            # Stores element
+            # Adjusts isotopes
+            isotopes = get_isotopes(value)
+            if element != value:
+                isotope = isotopes[0]
+                element = value
+            isotope_dropdown.set(isotope)
+            isotope_dropdown.config(values=isotopes, width=get_width(isotopes))
             element = var_element.get()
 
         element_dropdown.selection_clear()
@@ -103,6 +110,7 @@ def decay_info_main(root, mode_start="Decay Scheme", element="Ac", isotope="Ac-2
         event.widget.selection_clear()
         new_element = element_dropdown.get()
 
+        # Adjusts isotopes
         isotopes = get_isotopes(new_element)
         if element != new_element:
             isotope = isotopes[0]
@@ -173,7 +181,7 @@ def decay_info_main(root, mode_start="Decay Scheme", element="Ac", isotope="Ac-2
     # Creates Calculate button
     calc_button = ttk.Button(inner_result_frame, text="Calculate",
                              style="Maize.TButton", padding=(0,0),
-                             command=lambda: handle_calculation(mode, isotope, result_box))
+                             command=lambda: handle_calculation(root, mode, isotope, result_box))
     calc_button.config(width=get_width(["Calculate"]))
     calc_button.pack(pady=(20,5))
 

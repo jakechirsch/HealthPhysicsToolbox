@@ -9,15 +9,28 @@ from Utility.Functions.gui_utility import make_spacer, get_width
 from Core.Decay.Information.nuclide_info import handle_calculation
 from Utility.Functions.gui_utility import basic_label, make_title_frame
 
-# For global access to nodes on photon attenuation main screen
-info_list = []
+# For global access to nodes on decay information main screen
+main_list = []
 
 #####################################################################################
 # MENU SECTION
 #####################################################################################
 
+"""
+This function sets up the decay information main screen.
+The following sections and widgets are created:
+   Module Title (Decay Information)
+   Select Calculation Mode section
+   Select Nuclide section
+   Result section (title dependent on Calculation Mode)
+   Exit button
+This function contains all of the logic involving these widgets'
+behaviors.
+The sections and widgets are stored in main_list so they can be
+accessed later by clear_main.
+"""
 def decay_info_main(root, mode="Decay Scheme", element="Ac", isotope="Ac-223"):
-    global info_list
+    global main_list
 
     # Makes title frame
     title_frame = make_title_frame(root, "Decay Information", "Decay/Information")
@@ -204,7 +217,7 @@ def decay_info_main(root, mode="Decay Scheme", element="Ac", isotope="Ac-223"):
     exit_button.pack(pady=5)
 
     # Stores nodes into global list
-    info_list = [title_frame,
+    main_list = [title_frame,
                  mode_frame, empty_frame1,
                  nuclide_frame, empty_frame2,
                  result_frame, exit_button]
@@ -218,12 +231,12 @@ This function clears the decay information main screen
 in preparation for opening a different screen.
 """
 def clear_main():
-    global info_list
+    global main_list
 
     # Clears decay information main screen
-    for node in info_list:
+    for node in main_list:
         node.destroy()
-    info_list.clear()
+    main_list.clear()
 
 """
 This function transitions from the decay information main screen

@@ -9,15 +9,29 @@ from Utility.Functions.gui_utility import make_spacer, get_width
 from Core.Decay.Calculator.nuclide_calc import handle_calculation
 from Utility.Functions.gui_utility import basic_label, make_title_frame, unit_dropdown
 
-# For global access to nodes on photon attenuation main screen
-calc_list = []
+# For global access to nodes on decay calculator main screen
+main_list = []
 
 #####################################################################################
 # MENU SECTION
 #####################################################################################
 
+"""
+This function sets up the decay calculator main screen.
+The following sections and widgets are created:
+   Module Title (Decay Calculator)
+   Select Calculation Mode section
+   Select Nuclide section
+   Input Details section
+   Result section (title dependent on Calculation Mode)
+   Exit button
+This function contains all of the logic involving these widgets'
+behaviors.
+The sections and widgets are stored in main_list so they can be
+accessed later by clear_main.
+"""
 def decay_calc_main(root, mode="Activities", element="Ac", isotope="Ac-223"):
-    global calc_list
+    global main_list
 
     # Makes title frame
     title_frame = make_title_frame(root, "Decay Calculator", "Decay/Calculator")
@@ -380,7 +394,7 @@ def decay_calc_main(root, mode="Activities", element="Ac", isotope="Ac-223"):
     exit_button.pack(pady=5)
 
     # Stores nodes into global list
-    calc_list = [title_frame,
+    main_list = [title_frame,
                  mode_frame, empty_frame1,
                  nuclide_frame, empty_frame2,
                  details_frame, empty_frame3,
@@ -397,12 +411,12 @@ in preparation for opening a different screen.
 """
 
 def clear_main():
-    global calc_list
+    global main_list
 
     # Clears decay calculator main screen
-    for node in calc_list:
+    for node in main_list:
         node.destroy()
-    calc_list.clear()
+    main_list.clear()
 
 """
 This function transitions from the decay calculator main screen

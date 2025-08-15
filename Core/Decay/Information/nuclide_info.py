@@ -3,6 +3,15 @@ import radioactivedecay as rd
 import matplotlib.pyplot as plt
 from Utility.Functions.gui_utility import edit_result
 
+#####################################################################################
+# CALCULATIONS SECTION
+#####################################################################################
+
+"""
+This function is called when the Calculate button is hit.
+The function decides what calculation to perform
+based on the selected calculation mode.
+"""
 def handle_calculation(root, mode, isotope, result_box):
     root.focus()
     match mode:
@@ -23,43 +32,75 @@ def handle_calculation(root, mode, isotope, result_box):
         case "Atomic Mass":
             nuclide_atomic_mass(isotope, result_box)
 
+"""
+This function retrieves the decay scheme plot
+given a particular isotope.
+"""
 def nuclide_decay_scheme(isotope, result_box):
     nuc = rd.Nuclide(isotope)
     edit_result("Plotted!", result_box)
     nuc.plot()  # Generates the plot
     plt.show()  # Displays it
 
+"""
+This function retrieves the half-life
+given a particular isotope.
+"""
 def nuclide_half_life(isotope, result_box):
     nuc = rd.Nuclide(isotope)
     result = nuc.half_life('s') # Time unit : seconds
     edit_result(f"{result} s", result_box)
 
+"""
+This function retrieves the progeny
+given a particular isotope.
+"""
 def nuclide_progeny(isotope, result_box):
     nuc = rd.Nuclide(isotope)
     result = nuc.progeny()
     edit_result(", ".join(result), result_box)
 
+"""
+This function retrieves the branching fractions
+given a particular isotope.
+"""
 def nuclide_branching_fractions(isotope, result_box):
     nuc = rd.Nuclide(isotope)
     result = nuc.branching_fractions()
     result = [str(x) for x in result]
     edit_result(", ".join(result), result_box)
 
+"""
+This function retrieves the decay modes
+given a particular isotope.
+"""
 def nuclide_decay_modes(isotope, result_box):
     nuc = rd.Nuclide(isotope)
     result = nuc.decay_modes()
     edit_result(", ".join(result), result_box)
 
+"""
+This function retrieves the proton number
+given a particular isotope.
+"""
 def nuclide_proton_number(isotope, result_box):
     nuc = rd.Nuclide(isotope)
     result = nuc.Z
     edit_result(result, result_box)
 
+"""
+This function retrieves the nucleon number
+given a particular isotope.
+"""
 def nuclide_nucleon_number(isotope, result_box):
     nuc = rd.Nuclide(isotope)
     result = nuc.A
     edit_result(result, result_box)
 
+"""
+This function retrieves the atomic mass
+given a particular isotope.
+"""
 def nuclide_atomic_mass(isotope, result_box):
     nuc = rd.Nuclide(isotope)
     result = nuc.atomic_mass

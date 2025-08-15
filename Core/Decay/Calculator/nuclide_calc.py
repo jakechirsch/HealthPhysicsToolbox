@@ -4,6 +4,15 @@ import tkinter as tk
 import radioactivedecay as rd
 import matplotlib.pyplot as plt
 
+#####################################################################################
+# CALCULATIONS SECTION
+#####################################################################################
+
+"""
+This function is called when the Calculate button is hit.
+The function decides what calculation to perform
+based on the selected calculation mode.
+"""
 def handle_calculation(root, mode, isotope, initial, initial_unit, time, time_unit,
                        activity_unit, result_box):
     root.focus()
@@ -15,6 +24,10 @@ def handle_calculation(root, mode, isotope, initial, initial_unit, time, time_un
             nuclide_plot(isotope, initial, initial_unit, time, time_unit,
                          activity_unit, result_box)
 
+"""
+This function retrieves the activities
+given a particular isotope, initial amount, and time.
+"""
 def nuclide_activities(isotope, initial, initial_unit, time, time_unit,
                        activity_unit, result_box):
     # Clears result box
@@ -38,6 +51,10 @@ def nuclide_activities(isotope, initial, initial_unit, time, time_unit,
         result_box.insert(tk.END, f"{activity}, {activities[activity]}\n")
     result_box.config(state="disabled", height=len(activities))
 
+"""
+This function retrieves the activities plot
+given a particular isotope, initial amount, and time.
+"""
 def nuclide_plot(isotope, initial, initial_unit, time, time_unit,
                  activity_unit, result_box):
     # Clears result box
@@ -63,6 +80,17 @@ def nuclide_plot(isotope, initial, initial_unit, time, time_unit,
     plt.title(isotope, fontsize=12)
     plt.show()
 
+"""
+This function handles the error-checking for activities.
+The function handles the following errors:
+   Non-number time input
+   Time cannot be negative
+   Non-number initial input
+   Initial cannot be negative
+   Isotope is stable
+The function returns a bool indicating whether or not
+an error occurred.
+"""
 def is_error(isotope, time, initial, result_box):
     # Error check for a non-number time input
     try:

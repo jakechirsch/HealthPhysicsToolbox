@@ -72,6 +72,46 @@ def unit_dropdown(frame, choices, unit, on_select_u):
     dropdown.pack(side='left', padx=5)
     dropdown.bind("<<ComboboxSelected>>", on_select_u)
 
+def make_dropdown(frame, var, choices, on_select, pady=0):
+    dropdown = ttk.Combobox(frame, textvariable=var, values=choices,
+                            justify="center", style="Maize.TCombobox",
+                            state='readonly')
+    dropdown.config(width=get_width(choices))
+    dropdown.pack(pady=pady)
+    dropdown.bind("<<ComboboxSelected>>", on_select)
+    return dropdown
+
+def make_category_dropdown(frame, var, select_category):
+    # Category choices
+    choices = ["Common Elements", "All Elements",
+               "Common Materials", "All Materials",
+               "Custom Materials"]
+
+    # Creates dropdown menu for category selection
+    _ = make_dropdown(frame, var, choices, select_category)
+
+def make_item_dropdown(root, frame, var, choices, on_enter, on_select=None):
+    from App.style import AutocompleteCombobox
+
+    # Logic for when an interacting medium item is selected
+    def on_select_default(event):
+        event.widget.selection_clear()
+        root.focus()
+
+    if not on_select:
+        on_select = on_select_default
+
+    # Creates dropdown menu for interacting medium item selection
+    item_dropdown = AutocompleteCombobox(frame, textvariable=var, values=choices,
+                                         justify="center", style="Maize.TCombobox")
+    item_dropdown.set_completion_list(choices)
+    item_dropdown.config(width=get_width(choices))
+    item_dropdown.pack()
+    item_dropdown.bind("<Return>", on_enter)
+    item_dropdown.bind("<<ComboboxSelected>>", on_select)
+    item_dropdown.bind("<FocusOut>", on_enter)
+    return item_dropdown
+
 """
 This function is used to make an overall module title.
 The titles also have a tooltip for more info.
@@ -95,9 +135,45 @@ def make_title_frame(root, title, module):
 """
 This function makes a basic label and packs it in the provided frame.
 """
-def basic_label(frame, text):
+def basic_label(frame, text, pady=(0,0)):
     label = ttk.Label(frame, text=text, style="Black.TLabel")
-    label.pack()
+    label.pack(pady=pady)
+
+"""
+This function makes a result label and packs it in the provided frame.
+"""
+def result_label(frame):
+    basic_label(frame, "Result:", (5,1))
+
+"""
+This function makes a result box to display the result
+and packs it in the provided frame.
+"""
+def make_result_box(frame, pady=(1,20)):
+    # Creates font for result label and energy entry
+    monospace_font = font.Font(family="Menlo", size=12)
+
+    # Output box width
+    entry_width = 28 if platform.system() == "Windows" else 32
+
+    # Displays the result of calculation
+    result_box = tk.Text(frame, height=1, borderwidth=3, bd=3,
+                         highlightthickness=0, relief='solid')
+    result_box.config(bg='white', fg='black', state="disabled", width=entry_width,
+                      font=monospace_font)
+    result_box.pack(pady=pady)
+    return result_box
+
+"""
+This function creates an exit button to return to the home screen.
+"""
+def make_exit_button(root, command):
+    # Creates Exit button to return to home screen
+    exit_button = ttk.Button(root, text="Exit", style="Maize.TButton",
+                             padding=(0,0), command=command)
+    exit_button.config(width=get_width(["Exit"]))
+    exit_button.pack(pady=5)
+    return exit_button
 
 """
 This function makes a horizontal frame with a label and an entry.
@@ -111,13 +187,17 @@ def make_entry_line(frame, text):
     # Input/output box width
     entry_width = 22 if platform.system() == "Windows" else 32
 
+    # Label
     label = ttk.Label(frame, text=text, style="Black.TLabel")
+    label.pack(side="left", padx=(0,5))
+
+    # Entry
     entry = tk.Entry(frame, width=entry_width, insertbackground="black",
                      background="white", foreground="black",
                      borderwidth=3, bd=3, highlightthickness=0, relief='solid',
                      font=monospace_font)
-    label.pack(side="left", padx=(0,5))
     entry.pack(side="left", padx=(5,0), pady=20)
+
     return entry
 
 def make_weights_line(frame):
@@ -151,7 +231,7 @@ def make_weights_line(frame):
     return entry
 
 #####################################################################################
-# FULL FRAME SECTION
+# VERTICAL FRAME SECTION
 #####################################################################################
 
 """
@@ -167,7 +247,6 @@ and a button to carry out the action.
 def make_vertical_frame(root, top_frame, action, category_ar,
                         non_common, common, non_common_m, common_m, custom,
                         button, to_custom):
-    from App.style import AutocompleteCombobox
     from Utility.Functions.customize import carry_action
 
     # Clear previous button
@@ -213,11 +292,6 @@ def make_vertical_frame(root, top_frame, action, category_ar,
     # Item label
     basic_label(vertical_frame, "Item:")
 
-    # Logic for when an interacting medium item is selected
-    def on_select(event):
-        event.widget.selection_clear()
-        root.focus()
-
     # Logic for when enter is hit when using the item autocomplete combobox
     def on_enter(_):
         value = var.get()
@@ -228,15 +302,7 @@ def make_vertical_frame(root, top_frame, action, category_ar,
 
     # Creates dropdown menu for interacting medium item selection
     # to be added or removed
-    item_dropdown = AutocompleteCombobox(vertical_frame, textvariable=var,
-                                         values=choices, justify="center",
-                                         style="Maize.TCombobox")
-    item_dropdown.set_completion_list(choices)
-    item_dropdown.config(width=get_width(choices))
-    item_dropdown.pack()
-    item_dropdown.bind('<Return>', on_enter)
-    item_dropdown.bind("<<ComboboxSelected>>", on_select)
-    item_dropdown.bind("<FocusOut>", on_enter)
+    item_dropdown = make_item_dropdown(root, vertical_frame, var, choices, on_enter)
 
     # Creates button
     button[0] = ttk.Button(vertical_frame, text=action,

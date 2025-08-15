@@ -1,13 +1,14 @@
 ##### IMPORTS #####
-import platform
 import tkinter as tk
 from tkinter import ttk
-import tkinter.font as font
-from App.style import AutocompleteCombobox, SectionFrame
+from App.style import SectionFrame
+from Utility.Functions.gui_utility import make_exit_button
+from Utility.Functions.gui_utility import make_item_dropdown
 from Utility.Functions.choices import get_choices, get_isotopes
 from Utility.Functions.gui_utility import make_spacer, get_width
 from Core.Decay.Information.nuclide_info import handle_calculation
-from Utility.Functions.gui_utility import basic_label, make_title_frame
+from Utility.Functions.gui_utility import make_dropdown, make_result_box
+from Utility.Functions.gui_utility import basic_label, result_label, make_title_frame
 
 # For global access to nodes on decay information main screen
 main_list = []
@@ -34,9 +35,6 @@ def decay_info_main(root, mode="Decay Scheme", element="Ac", isotope="Ac-223"):
 
     # Makes title frame
     title_frame = make_title_frame(root, "Decay Information", "Decay/Information")
-
-    # Creates font for result label and energy entry
-    monospace_font = font.Font(family="Menlo", size=12)
 
     # Gets the item options
     element_list = get_choices("All Elements", "Decay", "")
@@ -75,12 +73,7 @@ def decay_info_main(root, mode="Decay Scheme", element="Ac", isotope="Ac-223"):
                     "Proton Number",
                     "Nucleon Number",
                     "Atomic Mass"]
-    mode_dropdown = ttk.Combobox(inner_mode_frame, textvariable=var_mode,
-                                 values=mode_choices, justify="center",
-                                 state='readonly', style="Maize.TCombobox")
-    mode_dropdown.config(width=get_width(mode_choices))
-    mode_dropdown.pack(pady=20)
-    mode_dropdown.bind("<<ComboboxSelected>>", select_mode)
+    _ = make_dropdown(inner_mode_frame, var_mode, mode_choices, select_mode, pady=20)
 
     # Spacer
     empty_frame1 = make_spacer(root)
@@ -144,16 +137,8 @@ def decay_info_main(root, mode="Decay Scheme", element="Ac", isotope="Ac-223"):
     var_element.set(element)
 
     # Creates dropdown menu for element
-    element_dropdown = AutocompleteCombobox(element_frame, textvariable=var_element,
-                                            values=element_list, justify="center",
-                                            style="Maize.TCombobox")
-    element_dropdown.set_completion_list(element_list)
-    element_dropdown.config(width=get_width(element_list))
-    element_dropdown.set(element_list[0])
-    element_dropdown.pack()
-    element_dropdown.bind('<Return>', on_enter)
-    element_dropdown.bind("<<ComboboxSelected>>", on_select_element)
-    element_dropdown.bind("<FocusOut>", on_enter)
+    element_dropdown = make_item_dropdown(root, element_frame, var_element,
+                                          element_list, on_enter, on_select_element)
 
     # Logic for when an isotope is selected
     def on_select_isotope(event):
@@ -164,15 +149,15 @@ def decay_info_main(root, mode="Decay Scheme", element="Ac", isotope="Ac-223"):
         root.focus()
 
     # Frame for isotope selection
-    category_frame = tk.Frame(nuclide_side_frame, bg="#F2F2F2")
-    category_frame.pack(side="left", padx=5)
+    isotope_frame = tk.Frame(nuclide_side_frame, bg="#F2F2F2")
+    isotope_frame.pack(side="left", padx=5)
 
     # Isotope label
-    basic_label(category_frame, "Isotope:")
+    basic_label(isotope_frame, "Isotope:")
 
     # Creates dropdown menu for isotope
     isotope_choices = get_isotopes(element)
-    isotope_dropdown = ttk.Combobox(category_frame, values=isotope_choices, justify="center",
+    isotope_dropdown = ttk.Combobox(isotope_frame, values=isotope_choices, justify="center",
                                     state='readonly', style="Maize.TCombobox")
     isotope_dropdown.config(width=get_width(isotope_choices))
     isotope_dropdown.set(isotope_choices[0])
@@ -181,9 +166,6 @@ def decay_info_main(root, mode="Decay Scheme", element="Ac", isotope="Ac-223"):
 
     # Spacer
     empty_frame2 = make_spacer(root)
-
-    # Input/output box width
-    entry_width = 28 if platform.system() == "Windows" else 32
 
     # Frame for result
     result_frame = SectionFrame(root, title=mode)
@@ -198,23 +180,13 @@ def decay_info_main(root, mode="Decay Scheme", element="Ac", isotope="Ac-223"):
     calc_button.pack(pady=(20,5))
 
     # Result label
-    result_label = ttk.Label(inner_result_frame, text="Result:",
-                             style="Black.TLabel")
-    result_label.pack(pady=(5,1))
+    result_label(inner_result_frame)
 
     # Displays the result of calculation
-    result_box = tk.Text(inner_result_frame, height=1, borderwidth=3, bd=3,
-                         highlightthickness=0, relief='solid')
-    result_box.config(bg='white', fg='black', state="disabled", width=entry_width,
-                      font=monospace_font)
-    result_box.pack(pady=(1,20))
+    result_box = make_result_box(inner_result_frame)
 
     # Creates Exit button to return to home screen
-    exit_button = ttk.Button(root, text="Exit", style="Maize.TButton",
-                             padding=(0,0),
-                             command=lambda: exit_to_home(root))
-    exit_button.config(width=get_width(["Exit"]))
-    exit_button.pack(pady=5)
+    exit_button = make_exit_button(root, lambda: exit_to_home(root))
 
     # Stores nodes into global list
     main_list = [title_frame,

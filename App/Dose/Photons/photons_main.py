@@ -3,12 +3,15 @@ import platform
 import tkinter as tk
 from tkinter import ttk
 import tkinter.font as font
+from App.style import SectionFrame
 from Utility.Functions.choices import get_choices
-from App.style import AutocompleteCombobox, SectionFrame
+from Utility.Functions.gui_utility import make_exit_button
 from Utility.Functions.gui_utility import make_spacer, get_width
 from Core.Dose.Photons.photons_calculations import handle_calculation
-from Utility.Functions.gui_utility import basic_label, make_title_frame
+from Utility.Functions.gui_utility import make_dropdown, make_result_box
 from Utility.Functions.gui_utility import get_item, get_unit, valid_saved
+from Utility.Functions.gui_utility import make_category_dropdown, make_item_dropdown
+from Utility.Functions.gui_utility import basic_label, result_label, make_title_frame
 
 # For global access to nodes on photon energy absorption main screen
 main_list = []
@@ -52,14 +55,6 @@ def photons_main(root, category="Common Elements",
 
     # Input/output box width
     entry_width = 28 if platform.system() == "Windows" else 32
-
-    # Displays the result of calculation
-    result_label = ttk.Label(inner_result_frame, text="Result:",
-                             style="Black.TLabel")
-    result_box = tk.Text(inner_result_frame, height=1, borderwidth=3, bd=3,
-                         highlightthickness=0, relief='solid')
-    result_box.config(bg='white', fg='black', state="disabled", width=entry_width,
-                      font=monospace_font)
 
     # Gets the item options
     choices = get_choices(category, "Dose", "Photons")
@@ -142,12 +137,7 @@ def photons_main(root, category="Common Elements",
     # Creates dropdown menu for mode
     mode_choices = ["Mass Energy-Absorption",
                     "Density"]
-    mode_dropdown = ttk.Combobox(inner_mode_frame, textvariable=var_mode,
-                                 values=mode_choices, justify="center",
-                                 state='readonly', style="Maize.TCombobox")
-    mode_dropdown.config(width=get_width(mode_choices))
-    mode_dropdown.pack(pady=20)
-    mode_dropdown.bind("<<ComboboxSelected>>", select_mode)
+    _ = make_dropdown(inner_mode_frame, var_mode, mode_choices, select_mode, pady=20)
 
     # Spacer
     empty_frame1 = make_spacer(root)
@@ -186,16 +176,8 @@ def photons_main(root, category="Common Elements",
     # Category label
     basic_label(category_frame, "Category:")
 
-    # Creates dropdown menu for interacting medium category selection
-    categories = ["Common Elements", "All Elements",
-                  "Common Materials", "All Materials",
-                  "Custom Materials"]
-    category_dropdown = ttk.Combobox(category_frame, textvariable=var_category,
-                                     values=categories, justify="center",
-                                     state='readonly', style="Maize.TCombobox")
-    category_dropdown.config(width=get_width(categories))
-    category_dropdown.pack()
-    category_dropdown.bind("<<ComboboxSelected>>", select_category)
+    # Creates dropdown menu for category selection
+    make_category_dropdown(category_frame, var_category, select_category)
 
     # Logic for when enter is hit when using the item autocomplete combobox
     def on_enter(_):
@@ -221,11 +203,6 @@ def photons_main(root, category="Common Elements",
         item_dropdown.selection_clear()
         item_dropdown.icursor(tk.END)
 
-    # Logic for when an interacting medium item is selected
-    def on_select(event):
-        event.widget.selection_clear()
-        root.focus()
-
     # Frame for interacting medium item selection
     item_frame = tk.Frame(inner_main_frame, bg="#F2F2F2")
     item_frame.pack(pady=(5,20))
@@ -234,14 +211,7 @@ def photons_main(root, category="Common Elements",
     basic_label(item_frame, "Item:")
 
     # Creates dropdown menu for interacting medium item selection
-    item_dropdown = AutocompleteCombobox(item_frame, textvariable=var, values=choices,
-                                         justify="center", style="Maize.TCombobox")
-    item_dropdown.set_completion_list(choices)
-    item_dropdown.config(width=get_width(choices))
-    item_dropdown.pack()
-    item_dropdown.bind('<Return>', on_enter)
-    item_dropdown.bind("<<ComboboxSelected>>", on_select)
-    item_dropdown.bind("<FocusOut>", on_enter)
+    item_dropdown = make_item_dropdown(root, item_frame, var, choices, on_enter)
 
     # Spacer
     empty_frame2 = make_spacer(root)
@@ -276,9 +246,11 @@ def photons_main(root, category="Common Elements",
     calc_button.config(width=get_width(["Calculate"]))
     calc_button.pack(pady=(20,5))
 
-    # Puts result display under Calculate button
-    result_label.pack(pady=(5,1))
-    result_box.pack(pady=(1,20))
+    # Result label
+    result_label(inner_result_frame)
+
+    # Displays the result of calculation
+    result_box = make_result_box(inner_result_frame)
 
     # Creates Advanced Settings button
     advanced_button = ttk.Button(root, text="Advanced Settings",
@@ -292,11 +264,7 @@ def photons_main(root, category="Common Elements",
     advanced_button.pack(pady=5)
 
     # Creates Exit button to return to home screen
-    exit_button = ttk.Button(root, text="Exit", style="Maize.TButton",
-                             padding=(0,0),
-                             command=lambda: exit_to_home(root))
-    exit_button.config(width=get_width(["Exit"]))
-    exit_button.pack(pady=5)
+    exit_button = make_exit_button(root, lambda: exit_to_home(root))
 
     # Stores nodes into global list
     main_list = [title_frame,

@@ -16,7 +16,7 @@ info_list = []
 # MENU SECTION
 #####################################################################################
 
-def decay_info_main(root, mode_start="Decay Scheme", element="Ac", isotope="Ac-223"):
+def decay_info_main(root, mode="Decay Scheme", element="Ac", isotope="Ac-223"):
     global info_list
 
     # Makes title frame
@@ -30,8 +30,7 @@ def decay_info_main(root, mode_start="Decay Scheme", element="Ac", isotope="Ac-2
 
     # Stores mode and sets default
     var_mode = tk.StringVar(root)
-    var_mode.set(mode_start)
-    mode = mode_start
+    var_mode.set(mode)
 
     # Frame for mode input
     mode_frame = SectionFrame(root, title="Select Calculation Mode")
@@ -174,7 +173,7 @@ def decay_info_main(root, mode_start="Decay Scheme", element="Ac", isotope="Ac-2
     entry_width = 28 if platform.system() == "Windows" else 32
 
     # Frame for result
-    result_frame = SectionFrame(root, title=mode_start)
+    result_frame = SectionFrame(root, title=mode)
     result_frame.pack()
     inner_result_frame = result_frame.get_inner_frame()
 

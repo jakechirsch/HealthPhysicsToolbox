@@ -38,7 +38,7 @@ behaviors.
 The sections and widgets are stored in advanced_list so they can be
 accessed later by clear_advanced.
 """
-def electrons_advanced(root, category, mode, interactions_start, common_el,
+def electrons_advanced(root, category, mode, interactions, common_el,
                        common_mat, element, material, custom_mat,
                        sp_num, d_num, sp_den, d_den, energy_unit):
     global advanced_list
@@ -84,7 +84,7 @@ def electrons_advanced(root, category, mode, interactions_start, common_el,
 
     # Selects the previously selected interactions
     for i in range(len(interaction_choices)):
-        if interaction_choices[i] in interactions_start:
+        if interaction_choices[i] in interactions:
             interaction_vars[i].set(1)
 
     # Simplifies calls to make_vertical_frame

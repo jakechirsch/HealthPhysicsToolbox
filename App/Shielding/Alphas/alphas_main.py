@@ -32,8 +32,8 @@ behaviors.
 The sections and widgets are stored in main_list so they can be
 accessed later by clear_main.
 """
-def alphas_main(root, category_start="Common Elements",
-                mode_start="CSDA Range", common_el="Ag",
+def alphas_main(root, category="Common Elements",
+                mode="CSDA Range", common_el="Ag",
                 common_mat="Air (dry, near sea level)", element="Ac",
                 material="A-150 Tissue-Equivalent Plastic (A150TEP)",
                 custom_mat="", csda_num="g", d_num="g", csda_den="cm\u00B2",
@@ -47,7 +47,7 @@ def alphas_main(root, category_start="Common Elements",
     monospace_font = font.Font(family="Menlo", size=12)
 
     # Gets the item options
-    choices = get_choices(category_start, "Shielding", "Alphas")
+    choices = get_choices(category, "Shielding", "Alphas")
 
     # Gets customizable categories
     common_elements = get_choices("Common Elements", "Shielding", "Alphas")
@@ -61,8 +61,7 @@ def alphas_main(root, category_start="Common Elements",
 
     # Stores mode and sets default
     var_mode = tk.StringVar(root)
-    var_mode.set(mode_start)
-    mode = mode_start
+    var_mode.set(mode)
 
     # Frame for mode input
     mode_frame = SectionFrame(root, title="Select Calculation Mode")
@@ -128,11 +127,11 @@ def alphas_main(root, category_start="Common Elements",
 
     # Stores category selection and sets default
     var_category = tk.StringVar(root)
-    var_category.set(category_start)
+    var_category.set(category)
 
     # Stores item selection and sets default
     var = tk.StringVar(root)
-    var.set(get_item(category_start, common_el, common_mat, element, material, custom_mat))
+    var.set(get_item(category, common_el, common_mat, element, material, custom_mat))
 
     # Frame for interacting medium category and item
     main_frame = SectionFrame(root, title="Select Interacting Medium")
@@ -141,7 +140,7 @@ def alphas_main(root, category_start="Common Elements",
 
     # Logic for when an interacting medium category is selected
     def select_category(event):
-        nonlocal choices
+        nonlocal choices, category
 
         event.widget.selection_clear()
         category = var_category.get()
@@ -175,7 +174,6 @@ def alphas_main(root, category_start="Common Elements",
     def on_enter(_):
         nonlocal common_el, common_mat, element, material, custom_mat
         value = item_dropdown.get()
-        category = var_category.get()
         if value not in choices:
             # Falls back on default if invalid item is typed in
             item_dropdown.set(get_item(category, common_el, common_mat,
@@ -247,7 +245,7 @@ def alphas_main(root, category_start="Common Elements",
         empty_frame3 = make_spacer(root)
 
     # Frame for result
-    result_frame = SectionFrame(root, title=mode_start)
+    result_frame = SectionFrame(root, title=mode)
     result_frame.pack()
     inner_result_frame = result_frame.get_inner_frame()
 
@@ -258,7 +256,7 @@ def alphas_main(root, category_start="Common Elements",
     # Creates Calculate button
     calc_button = ttk.Button(inner_result_frame, text="Calculate",
                              style="Maize.TButton", padding=(0,0),
-                             command=lambda: handle_calculation(root, var_category.get(),
+                             command=lambda: handle_calculation(root, category,
                                                                 mode, var.get(),
                                                                 energy_entry.get(),
                                                                 result_box,
@@ -281,7 +279,7 @@ def alphas_main(root, category_start="Common Elements",
     # Creates Advanced Settings button
     advanced_button = ttk.Button(root, text="Advanced Settings",
                                  style="Maize.TButton", padding=(0,0),
-                                 command=lambda: to_advanced(root, var_category.get(),
+                                 command=lambda: to_advanced(root, category,
                                                              mode, common_el, common_mat,
                                                              element, material, custom_mat,
                                                              csda_num, d_num,

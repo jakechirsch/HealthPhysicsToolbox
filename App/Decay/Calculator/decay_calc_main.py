@@ -101,7 +101,7 @@ def decay_calc_main(root, mode="Activities", element="Ac", isotope="Ac-223"):
             if element != value:
                 isotope = isotopes[0]
                 element = value
-            isotope_dropdown.set(isotope)
+            var_isotope.set(isotope)
             isotope_dropdown.config(values=isotopes, width=get_width(isotopes))
             element = var_element.get()
 
@@ -120,7 +120,7 @@ def decay_calc_main(root, mode="Activities", element="Ac", isotope="Ac-223"):
         if element != new_element:
             isotope = isotopes[0]
             element = new_element
-        isotope_dropdown.set(isotope)
+        var_isotope.set(isotope)
         isotope_dropdown.config(values=isotopes, width=get_width(isotopes))
 
         root.focus()
@@ -145,7 +145,7 @@ def decay_calc_main(root, mode="Activities", element="Ac", isotope="Ac-223"):
         nonlocal isotope
 
         event.widget.selection_clear()
-        isotope = isotope_dropdown.get()
+        isotope = var_isotope.get()
         root.focus()
 
     # Frame for isotope selection
@@ -155,14 +155,16 @@ def decay_calc_main(root, mode="Activities", element="Ac", isotope="Ac-223"):
     # Isotope label
     basic_label(isotope_frame, "Isotope:")
 
-    # Creates dropdown menu for isotope
+    # Retrieves isotopes for current element
     isotope_choices = get_isotopes(element)
-    isotope_dropdown = ttk.Combobox(isotope_frame, values=isotope_choices, justify="center",
-                                    state='readonly', style="Maize.TCombobox")
-    isotope_dropdown.config(width=get_width(isotope_choices))
-    isotope_dropdown.set(isotope_choices[0])
-    isotope_dropdown.pack()
-    isotope_dropdown.bind("<<ComboboxSelected>>", on_select_isotope)
+
+    # Stores isotope and sets default
+    var_isotope = tk.StringVar(root)
+    var_isotope.set(isotope_choices[0])
+
+    # Creates dropdown menu for isotope
+    isotope_dropdown = make_dropdown(isotope_frame, var_isotope, isotope_choices,
+                                     on_select_isotope)
 
     # Spacer
     empty_frame2 = make_spacer(root)

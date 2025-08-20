@@ -67,9 +67,6 @@ def decay_info_main(root, mode="Decay Scheme", element="Ac", isotope="Ac-223"):
     # Creates dropdown menu for mode
     mode_choices = ["Decay Scheme",
                     "Half Life",
-                    "Progeny",
-                    "Branching Fractions",
-                    "Decay Modes",
                     "Proton Number",
                     "Nucleon Number",
                     "Atomic Mass"]

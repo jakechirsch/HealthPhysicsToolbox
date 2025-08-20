@@ -5,6 +5,7 @@ import platform
 import subprocess
 from pathlib import Path
 from tkinter.filedialog import asksaveasfilename
+from Utility.Functions.gui_utility import edit_result
 
 #####################################################################################
 # OPEN SECTION
@@ -84,7 +85,7 @@ the user canceling the export. If the export is not
 canceled, the file is saved with the selected name
 and location and then opened.
 """
-def save_file(obj, choice, error_label, item, name):
+def save_file(obj, choice, error_label, item, name, decay = False):
     file_format = ".csv"
     if choice == "Plot":
         file_format = ".png"
@@ -103,7 +104,13 @@ def save_file(obj, choice, error_label, item, name):
             obj.savefig(file_path)
         else:
             obj.to_csv(file_path, index=False)
-        error_label.config(style="Success.TLabel", text=choice + " exported!")
+        if decay:
+            edit_result("Plot exported!", error_label)
+        else:
+            error_label.config(style="Success.TLabel", text=choice + " exported!")
         open_file(file_path)
     else:
-        error_label.config(style="Error.TLabel", text="Export canceled.")
+        if decay:
+            edit_result("Export canceled.", error_label)
+        else:
+            error_label.config(style="Error.TLabel", text="Export canceled.")

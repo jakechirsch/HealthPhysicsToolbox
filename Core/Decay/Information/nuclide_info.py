@@ -1,6 +1,6 @@
 ##### IMPORTS #####
 import radioactivedecay as rd
-import matplotlib.pyplot as plt
+from Utility.Functions.files import save_file
 from Utility.Functions.gui_utility import edit_result
 
 #####################################################################################
@@ -19,12 +19,6 @@ def handle_calculation(root, mode, isotope, result_box):
             nuclide_decay_scheme(isotope, result_box)
         case "Half Life":
             nuclide_half_life(isotope, result_box)
-        case "Progeny":
-            nuclide_progeny(isotope, result_box)
-        case "Branching Fractions":
-            nuclide_branching_fractions(isotope, result_box)
-        case "Decay Modes":
-            nuclide_decay_modes(isotope, result_box)
         case "Proton Number":
             nuclide_proton_number(isotope, result_box)
         case "Nucleon Number":
@@ -38,9 +32,8 @@ given a particular isotope.
 """
 def nuclide_decay_scheme(isotope, result_box):
     nuc = rd.Nuclide(isotope)
-    edit_result("Plotted!", result_box)
-    nuc.plot()  # Generates the plot
-    plt.show()  # Displays it
+    fig, ax = nuc.plot()
+    save_file(fig, "Plot", result_box, isotope, "decay_scheme", True)
 
 """
 This function retrieves the half-life
@@ -50,34 +43,6 @@ def nuclide_half_life(isotope, result_box):
     nuc = rd.Nuclide(isotope)
     result = nuc.half_life('s') # Time unit : seconds
     edit_result(f"{result} s", result_box)
-
-"""
-This function retrieves the progeny
-given a particular isotope.
-"""
-def nuclide_progeny(isotope, result_box):
-    nuc = rd.Nuclide(isotope)
-    result = nuc.progeny()
-    edit_result(", ".join(result), result_box)
-
-"""
-This function retrieves the branching fractions
-given a particular isotope.
-"""
-def nuclide_branching_fractions(isotope, result_box):
-    nuc = rd.Nuclide(isotope)
-    result = nuc.branching_fractions()
-    result = [str(x) for x in result]
-    edit_result(", ".join(result), result_box)
-
-"""
-This function retrieves the decay modes
-given a particular isotope.
-"""
-def nuclide_decay_modes(isotope, result_box):
-    nuc = rd.Nuclide(isotope)
-    result = nuc.decay_modes()
-    edit_result(", ".join(result), result_box)
 
 """
 This function retrieves the proton number

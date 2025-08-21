@@ -81,11 +81,14 @@ def make_dropdown(frame, var, choices, on_select, pady=0):
     dropdown.bind("<<ComboboxSelected>>", on_select)
     return dropdown
 
-def make_category_dropdown(frame, var, select_category):
+def make_category_dropdown(frame, var, select_category, materials = True):
     # Category choices
-    choices = ["Common Elements", "All Elements",
-               "Common Materials", "All Materials",
-               "Custom Materials"]
+    if materials:
+        choices = ["Common Elements", "All Elements",
+                   "Common Materials", "All Materials",
+                   "Custom Materials"]
+    else:
+        choices = ["Common Elements", "All Elements"]
 
     # Creates dropdown menu for category selection
     _ = make_dropdown(frame, var, choices, select_category)

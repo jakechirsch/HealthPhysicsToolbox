@@ -6,6 +6,9 @@ from tkinter import ttk
 scrollbar_y_visible = True
 scrollbar_x_visible = True
 
+# Global variable for canvas
+canvas : tk.Canvas
+
 #####################################################################################
 # MAIN SECTION
 #####################################################################################
@@ -18,15 +21,16 @@ The scrollable frame is returned to be filled with
 the contents of the app.
 """
 def configure_scrolling(root):
+    global canvas
     container = make_container(root)
     left_frame = make_left_frame(container)
     right_frame = make_right_frame(container)
-    canvas = make_canvas(left_frame)
-    scrollbar_y, scrollbar_x = make_scrollbars(left_frame, right_frame, canvas)
-    scrollable_frame, canvas_window = make_scrollable_frame(canvas)
-    make_scroll_update(canvas, scrollable_frame, canvas_window, scrollbar_y, scrollbar_x)
-    make_mouse_scroll(canvas)
-    make_key_scroll(root, canvas)
+    make_canvas(left_frame)
+    scrollbar_y, scrollbar_x = make_scrollbars(left_frame, right_frame)
+    scrollable_frame, canvas_window = make_scrollable_frame()
+    make_scroll_update(scrollable_frame, canvas_window, scrollbar_y, scrollbar_x)
+    make_mouse_scroll()
+    make_key_scroll(root)
     return scrollable_frame
 
 #####################################################################################
@@ -68,17 +72,18 @@ This function makes the canvas for the app.
 This is the region excluding both scrollbars.
 """
 def make_canvas(left_frame):
+    global canvas
     # Creates canvas
     canvas = tk.Canvas(left_frame, bg="#F2F2F2", highlightthickness=0, bd=0)
     canvas.pack(side="top", fill="both", expand=True)
-    return canvas
 
 """
 This function makes both scrollbars for the app.
 The x-scrollbar is placed at the bottom of the left frame.
 The y-scrollbar is placed in the right frame.
 """
-def make_scrollbars(left_frame, right_frame, canvas):
+def make_scrollbars(left_frame, right_frame):
+    global canvas
     # Creates scrollbars
     scrollbar_y = ttk.Scrollbar(right_frame, orient="vertical", command=canvas.yview)
     scrollbar_y.pack(side="top", fill="y")
@@ -91,7 +96,8 @@ def make_scrollbars(left_frame, right_frame, canvas):
 This function makes the scrollable frame for the app.
 This is placed inside of the canvas.
 """
-def make_scrollable_frame(canvas):
+def make_scrollable_frame():
+    global canvas
     # Creates a frame inside the canvas
     scrollable_frame = tk.Frame(canvas, bg="#F2F2F2")
     canvas_window = canvas.create_window((0, 0), window=scrollable_frame, anchor="nw")
@@ -107,7 +113,8 @@ Whenever the window size is updated, the inner function
 update_scroll_visibility is ran to check whether each scrollbar
 is needed.
 """
-def make_scroll_update(canvas, scrollable_frame, canvas_window, scrollbar_y, scrollbar_x):
+def make_scroll_update(scrollable_frame, canvas_window, scrollbar_y, scrollbar_x):
+    global canvas
     # Logic to show/hide scrollbar
     def update_scroll_visibility(event):
         global scrollbar_y_visible, scrollbar_x_visible
@@ -141,7 +148,8 @@ def make_scroll_update(canvas, scrollable_frame, canvas_window, scrollbar_y, scr
 """
 This function configures mouse/pad scrolling to scroll the app.
 """
-def make_mouse_scroll(canvas):
+def make_mouse_scroll():
+    global canvas
     # Makes Canvas scrollable with mouse/pad
     def _on_mousewheel(event):
         if scrollbar_y_visible:
@@ -155,7 +163,8 @@ def make_mouse_scroll(canvas):
 """
 This function configures arrow keys to scroll the app.
 """
-def make_key_scroll(root, canvas):
+def make_key_scroll(root):
+    global canvas
     # Makes Canvas scrollable with up/down keys
     def on_up(_):
         if scrollbar_y_visible:
@@ -177,3 +186,6 @@ def make_key_scroll(root, canvas):
     root.bind_all("<KeyPress-Down>", on_down)
     root.bind_all("<KeyPress-Left>", on_left)
     root.bind_all("<KeyPress-Right>", on_right)
+
+def scroll_to_top():
+    canvas.yview_moveto(0)

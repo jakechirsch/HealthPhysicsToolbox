@@ -4,13 +4,14 @@ import tkinter as tk
 from tkinter import ttk
 import tkinter.font as font
 from App.style import SectionFrame
+from App.scroll import scroll_to_top
 from Utility.Functions.gui_utility import make_exit_button
-from Utility.Functions.gui_utility import make_item_dropdown
 from Utility.Functions.choices import get_choices, get_isotopes
-from Utility.Functions.gui_utility import make_spacer, get_width
 from Core.Decay.Calculator.nuclide_calc import handle_calculation
+from Utility.Functions.gui_utility import make_item_dropdown, make_category_dropdown
 from Utility.Functions.gui_utility import make_dropdown, result_label, make_result_box
 from Utility.Functions.gui_utility import basic_label, make_title_frame, unit_dropdown
+from Utility.Functions.gui_utility import make_spacer, get_width, get_item, valid_saved
 
 # For global access to nodes on decay calculator main screen
 main_list = []
@@ -33,7 +34,8 @@ behaviors.
 The sections and widgets are stored in main_list so they can be
 accessed later by clear_main.
 """
-def decay_calc_main(root, mode="Activities", element="Ac", isotope="Ac-223"):
+def decay_calc_main(root, category="Common Elements", mode="Activities",
+                    common_el="Ag", element="Ac"):
     global main_list
 
     # Makes title frame
@@ -42,8 +44,14 @@ def decay_calc_main(root, mode="Activities", element="Ac", isotope="Ac-223"):
     # Creates font for result label and energy entry
     monospace_font = font.Font(family="Menlo", size=12)
 
-    # Gets the item options
-    element_list = get_choices("All Elements", "Decay", "")
+    # Gets the element options
+    choices = get_choices(category, "Decay", "")
+
+    # Gets common elements
+    common_elements = get_choices("Common Elements", "Decay", "")
+
+    # Make sure common element is a valid selection
+    common_el = valid_saved(common_el, common_elements)
 
     # Stores mode and sets default
     var_mode = tk.StringVar(root)
@@ -83,43 +91,94 @@ def decay_calc_main(root, mode="Activities", element="Ac", isotope="Ac-223"):
     nuclide_frame.pack()
     inner_nuclide_frame = nuclide_frame.get_inner_frame()
 
+    # Stores category selection and sets default
+    var_category = tk.StringVar(root)
+    var_category.set(category)
+
+    # Logic for when a nuclide category is selected
+    def select_category(event):
+        nonlocal choices, category, common_el, element, isotope
+
+        event.widget.selection_clear()
+        previous_element = get_item(category, common_el, "", element, "", "")
+        category = var_category.get()
+
+        # Updates element dropdown to match category
+        choices = get_choices(category, "Decay", "")
+        selected_element = get_item(category, common_el, "", element, "", "")
+        var_element.set(selected_element)
+        element_dropdown.set_completion_list(choices)
+        element_dropdown.config(values=choices, width=get_width(choices))
+
+        # Updates isotope dropdown to match element
+        isotopes = get_isotopes(selected_element)
+        if category == "Common Elements":
+            if common_el != previous_element:
+                isotope = isotopes[0]
+        elif category == "All Elements":
+            if element != previous_element:
+                isotope = isotopes[0]
+        var_isotope.set(isotope)
+        isotope_dropdown.config(values=isotopes, width=get_width(isotopes))
+
+        root.focus()
+
+    # Frame for interacting medium category selection
+    category_frame = tk.Frame(inner_nuclide_frame, bg="#F2F2F2")
+    category_frame.pack(pady=(15, 5))
+
+    # Category label
+    basic_label(category_frame, "Category:")
+
+    # Creates dropdown menu for category selection
+    make_category_dropdown(category_frame, var_category, select_category, False)
+
     # Horizontal frame for nuclide selection
     nuclide_side_frame = tk.Frame(inner_nuclide_frame, bg="#F2F2F2")
     nuclide_side_frame.pack(pady=(20,30))
 
     # Logic for when enter is hit when using the element autocomplete combobox
     def on_enter(_):
-        nonlocal element, isotope
+        nonlocal common_el, element, isotope
         value = element_dropdown.get()
 
-        if value not in element_list:
+        if value not in choices:
             # Falls back on default if invalid item is typed in
-            element_dropdown.set(element)
+            var_element.set(get_item(category, common_el, "", element, "", ""))
         else:
             # Adjusts isotopes
             isotopes = get_isotopes(value)
-            if element != value:
-                isotope = isotopes[0]
-                element = value
+            if category == "All Elements":
+                if element != value:
+                    isotope = isotopes[0]
+                    element = value
+            else:
+                if common_el != value:
+                    isotope = isotopes[0]
+                    common_el = value
             var_isotope.set(isotope)
             isotope_dropdown.config(values=isotopes, width=get_width(isotopes))
-            element = var_element.get()
 
         element_dropdown.selection_clear()
         element_dropdown.icursor(tk.END)
 
     # Logic for when an element is selected
     def on_select_element(event):
-        nonlocal element, isotope
+        nonlocal common_el, element, isotope
 
         event.widget.selection_clear()
-        new_element = element_dropdown.get()
+        value = element_dropdown.get()
 
         # Adjusts isotopes
-        isotopes = get_isotopes(new_element)
-        if element != new_element:
-            isotope = isotopes[0]
-            element = new_element
+        isotopes = get_isotopes(value)
+        if category == "All Elements":
+            if element != value:
+                isotope = isotopes[0]
+                element = value
+        else:
+            if common_el != value:
+                isotope = isotopes[0]
+                common_el = value
         var_isotope.set(isotope)
         isotope_dropdown.config(values=isotopes, width=get_width(isotopes))
 
@@ -134,11 +193,11 @@ def decay_calc_main(root, mode="Activities", element="Ac", isotope="Ac-223"):
 
     # Stores element selection and sets default
     var_element = tk.StringVar(root)
-    var_element.set(element)
+    var_element.set(get_item(category, common_el, "", element, "", ""))
 
     # Creates dropdown menu for element
     element_dropdown = make_item_dropdown(root, element_frame, var_element,
-                                          element_list, on_enter, on_select_element)
+                                          choices, on_enter, on_select_element)
 
     # Logic for when an isotope is selected
     def on_select_isotope(event):
@@ -156,11 +215,12 @@ def decay_calc_main(root, mode="Activities", element="Ac", isotope="Ac-223"):
     basic_label(isotope_frame, "Isotope:")
 
     # Retrieves isotopes for current element
-    isotope_choices = get_isotopes(element)
+    isotope_choices = get_isotopes(get_item(category, common_el, "", element, "", ""))
+    isotope = isotope_choices[0]
 
     # Stores isotope and sets default
     var_isotope = tk.StringVar(root)
-    var_isotope.set(isotope_choices[0])
+    var_isotope.set(isotope)
 
     # Creates dropdown menu for isotope
     isotope_dropdown = make_dropdown(isotope_frame, var_isotope, isotope_choices,
@@ -369,6 +429,14 @@ def decay_calc_main(root, mode="Activities", element="Ac", isotope="Ac-223"):
     # Displays the result of calculation
     result_box = make_result_box(inner_result_frame)
 
+    # Creates Advanced Settings button
+    advanced_button = ttk.Button(root, text="Advanced Settings",
+                                 style="Maize.TButton", padding=(0,0),
+                                 command=lambda: to_advanced(root, category, mode,
+                                                             common_el, element))
+    advanced_button.config(width=get_width(["Advanced Settings"]))
+    advanced_button.pack(pady=5)
+
     # Creates Exit button to return to home screen
     exit_button = make_exit_button(root, lambda: exit_to_home(root))
 
@@ -377,7 +445,7 @@ def decay_calc_main(root, mode="Activities", element="Ac", isotope="Ac-223"):
                  mode_frame, empty_frame1,
                  nuclide_frame, empty_frame2,
                  details_frame, empty_frame3,
-                 result_frame, exit_button]
+                 result_frame, advanced_button, exit_button]
 
 
 #####################################################################################
@@ -409,3 +477,19 @@ def exit_to_home(root):
     from App.home import return_home
     clear_main()
     return_home(root)
+    scroll_to_top()
+
+"""
+This function transitions from the decay calculator main screen
+to the decay calculator advanced screen by first clearing the
+decay calculator main screen and then creating the
+decay calculator advanced screen.
+It is called when the Advanced Settings button is hit.
+"""
+def to_advanced(root, category, mode, common_el, element):
+    root.focus()
+    from App.Decay.Calculator.decay_calc_advanced import decay_calc_advanced
+
+    clear_main()
+    decay_calc_advanced(root, category, mode, common_el, element)
+    scroll_to_top()

@@ -15,6 +15,7 @@ from Utility.Functions.gui_utility import interaction_checkbox, get_interactions
 from Utility.Functions.math_utility import density_numerator, density_denominator
 from Core.Shielding.Photons.photons_calculations import mac_numerator, mac_denominator
 from Core.Shielding.Photons.photons_calculations import lac_numerator, lac_denominator
+from Utility.Functions.gui_utility import make_action_dropdown, make_customize_category_dropdown
 
 # For global access to nodes on photon attenuation advanced screen
 advanced_list = []
@@ -105,8 +106,8 @@ def photons_advanced(root, category, mode, interactions, common_el, common_mat,
                                     num_units[0], num_units[1], num_units[2],
                                     den_units[0], den_units[1], den_units[2],
                                            energy_unit)
-        return make_vertical_frame(root, inner_a_r_frame, action_dropdown.get(),
-                                   category_dropdown.get(), non_common, common,
+        return make_vertical_frame(root, inner_a_r_frame, var_action.get(),
+                                   var_customize_category.get(), non_common, common,
                                    non_common_m, common_m, custom, a_r_button,
                                    to_custom)
 
@@ -125,14 +126,12 @@ def photons_advanced(root, category, mode, interactions, common_el, common_mat,
     # Action label
     basic_label(action_frame, "Action:")
 
+    # Stores action and sets default
+    var_action = tk.StringVar(root)
+    var_action.set("Add")
+
     # Creates dropdown menu for action
-    action_choices = ["Add", "Remove"]
-    action_dropdown = ttk.Combobox(action_frame, values=action_choices, justify="center",
-                                   state='readonly', style="Maize.TCombobox")
-    action_dropdown.config(width=get_width(action_choices))
-    action_dropdown.set("Add")
-    action_dropdown.pack()
-    action_dropdown.bind("<<ComboboxSelected>>", on_select_options)
+    _ = make_action_dropdown(action_frame, var_action, on_select_options)
 
     # Frame for category selection
     category_frame = tk.Frame(side_frame, bg="#F2F2F2")
@@ -141,14 +140,12 @@ def photons_advanced(root, category, mode, interactions, common_el, common_mat,
     # Category label
     basic_label(category_frame, "Category:")
 
-    # Creates dropdown menu for category
-    category_choices = ["Common Elements", "Common Materials", "Custom Materials"]
-    category_dropdown = ttk.Combobox(category_frame, values=category_choices, justify="center",
-                                     state='readonly', style="Maize.TCombobox")
-    category_dropdown.config(width=get_width(category_choices))
-    category_dropdown.set("Common Elements")
-    category_dropdown.pack()
-    category_dropdown.bind("<<ComboboxSelected>>", on_select_options)
+    # Stores customize category and sets default
+    var_customize_category = tk.StringVar(root)
+    var_customize_category.set("Common Elements")
+
+    # Creates dropdown menu for customize category
+    _ = make_customize_category_dropdown(category_frame, var_customize_category, on_select_options)
 
     # Stores updatable units
     num_units = [mac_num, d_num, lac_num]

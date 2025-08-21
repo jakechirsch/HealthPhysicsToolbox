@@ -62,16 +62,8 @@ def interaction_checkbox(frame, variable, interaction, command):
     check.pack(anchor="w")
 
 """
-This function makes a Combobox dropdown for units selections.
+This function makes a generic Combobox dropdown.
 """
-def unit_dropdown(frame, choices, unit, on_select_u):
-    dropdown = ttk.Combobox(frame, values=choices, justify="center", state='readonly',
-                            style="Maize.TCombobox")
-    dropdown.config(width=get_width(choices))
-    dropdown.set(unit)
-    dropdown.pack(side='left', padx=5)
-    dropdown.bind("<<ComboboxSelected>>", on_select_u)
-
 def make_dropdown(frame, var, choices, on_select, pady=0):
     dropdown = ttk.Combobox(frame, textvariable=var, values=choices,
                             justify="center", style="Maize.TCombobox",
@@ -81,7 +73,21 @@ def make_dropdown(frame, var, choices, on_select, pady=0):
     dropdown.bind("<<ComboboxSelected>>", on_select)
     return dropdown
 
-def make_category_dropdown(frame, var, select_category, materials = True):
+"""
+This function makes a Combobox dropdown for unit options.
+"""
+def unit_dropdown(frame, choices, unit, on_select_u):
+    dropdown = ttk.Combobox(frame, values=choices, justify="center", state='readonly',
+                            style="Maize.TCombobox")
+    dropdown.config(width=get_width(choices))
+    dropdown.set(unit)
+    dropdown.pack(side='left', padx=5)
+    dropdown.bind("<<ComboboxSelected>>", on_select_u)
+
+"""
+This function makes a Combobox dropdown for category options.
+"""
+def make_category_dropdown(frame, var, select_category, materials=True):
     # Category choices
     if materials:
         choices = ["Common Elements", "All Elements",
@@ -93,6 +99,9 @@ def make_category_dropdown(frame, var, select_category, materials = True):
     # Creates dropdown menu for category selection
     _ = make_dropdown(frame, var, choices, select_category)
 
+"""
+This function makes an AutocompleteCombobox dropdown for item options.
+"""
 def make_item_dropdown(root, frame, var, choices, on_enter, on_select=None):
     from App.style import AutocompleteCombobox
 
@@ -114,6 +123,22 @@ def make_item_dropdown(root, frame, var, choices, on_enter, on_select=None):
     item_dropdown.bind("<<ComboboxSelected>>", on_select)
     item_dropdown.bind("<FocusOut>", on_enter)
     return item_dropdown
+
+"""
+This function makes a Combobox dropdown for action options.
+"""
+def make_action_dropdown(frame, var, on_select):
+    # Creates dropdown menu for action
+    action_choices = ["Add", "Remove"]
+    _ = make_dropdown(frame, var, action_choices, on_select)
+
+"""
+This function makes a Combobox dropdown for customize category options.
+"""
+def make_customize_category_dropdown(frame, var, on_select):
+    # Creates dropdown menu for customize category
+    category_choices = ["Common Elements", "Common Materials", "Custom Materials"]
+    _ = make_dropdown(frame, var, category_choices, on_select)
 
 """
 This function is used to make an overall module title.

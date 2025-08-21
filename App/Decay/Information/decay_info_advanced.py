@@ -5,6 +5,7 @@ from App.style import SectionFrame
 from Utility.Functions.choices import get_choices
 from Utility.Functions.files import resource_path, open_file
 from Utility.Functions.gui_utility import make_vertical_frame
+from Utility.Functions.gui_utility import make_action_dropdown
 from Utility.Functions.gui_utility import make_spacer, get_width
 from Utility.Functions.gui_utility import make_title_frame, basic_label
 
@@ -37,12 +38,12 @@ def decay_info_advanced(root, category, mode, common_el, element):
     # Simplifies calls to make_vertical_frame
     def make_v_frame():
         to_custom = lambda: root.focus()
-        return make_vertical_frame(root, inner_a_r_frame, action_dropdown.get(),
+        return make_vertical_frame(root, inner_a_r_frame, var_action.get(),
                                    "Common Elements", non_common, common,
                                    [], [], [], a_r_button, to_custom)
 
     # Logic for when an action is selected
-    def on_select_options(event):
+    def on_select_action(event):
         nonlocal vertical_frame
         event.widget.selection_clear()
         root.focus()
@@ -56,14 +57,12 @@ def decay_info_advanced(root, category, mode, common_el, element):
     # Action label
     basic_label(action_frame, "Action:")
 
+    # Stores action and sets default
+    var_action = tk.StringVar(root)
+    var_action.set("Add")
+
     # Creates dropdown menu for action
-    action_choices = ["Add", "Remove"]
-    action_dropdown = ttk.Combobox(action_frame, values=action_choices, justify="center",
-                                   state='readonly', style="Maize.TCombobox")
-    action_dropdown.config(width=get_width(action_choices))
-    action_dropdown.set("Add")
-    action_dropdown.pack()
-    action_dropdown.bind("<<ComboboxSelected>>", on_select_options)
+    _ = make_action_dropdown(action_frame, var_action, on_select_action)
 
     # Frame for specific add/remove settings
     vertical_frame = make_v_frame()

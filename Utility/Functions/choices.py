@@ -43,7 +43,11 @@ def get_choices(category, module, particle):
         db_path = resource_path('Data/NIST Coefficients/' + particle + '/Elements.csv')
         if module == "Decay":
             db_path = resource_path('Data/Radioactive Decay/Elements.csv')
-        read_choices(choices, db_path)
+        if module == "General":
+            read_pt_choices(choices)
+            choices.sort()
+        else:
+            read_choices(choices, db_path)
         return choices
 
     # Obtains list of items from shelve
@@ -69,6 +73,18 @@ def read_choices(choices, path):
             if row and row[0] != 'Name':
                 choices.append(row[0])
 
+"""
+This function reads the list of elements
+from the Periodic Table.
+"""
+def read_pt_choices(choices):
+    path = resource_path('Data/General Data/Periodic Table of Elements.csv')
+    with open(path, 'r') as file:
+        reader = csv.reader(file)
+        for row in reader:
+            if row and row[2] != 'Symbol':
+                choices.append(row[2])
+
 #####################################################################################
 # ISOTOPE SECTION
 #####################################################################################
@@ -77,3 +93,19 @@ def get_isotopes(element):
     with open("Data/Radioactive Decay/Isotopes.json", "r") as f:
         isotopes = json.load(f)
     return isotopes[element]
+
+#####################################################################################
+# COLUMNS SECTION
+#####################################################################################
+
+"""
+This function reads the list of columns
+from the Periodic Table.
+"""
+def read_pt_columns(choices):
+    path = resource_path('Data/General Data/Periodic Table Columns.csv')
+    with open(path, 'r') as file:
+        reader = csv.reader(file)
+        for row in reader:
+            if row and row[0] != 'Column' and row[0] != 'Symbol':
+                choices.append(row[0])

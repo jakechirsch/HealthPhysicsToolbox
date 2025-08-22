@@ -3,45 +3,32 @@ import tkinter as tk
 from tkinter import ttk
 from App.style import SectionFrame
 from Utility.Functions.gui_utility import make_exit_button
+from Core.General.Isotopes.isotopes import handle_calculation
 from Utility.Functions.choices import get_choices, get_isotopes
-from Core.Decay.Information.nuclide_info import handle_calculation
 from Utility.Functions.gui_utility import make_spacer, get_width, get_item
 from Utility.Functions.gui_utility import make_item_dropdown, make_category_dropdown
 from Utility.Functions.gui_utility import basic_label, result_label, make_title_frame
 from Utility.Functions.gui_utility import make_dropdown, make_result_box, valid_saved
 
-# For global access to nodes on decay information main screen
+# For global access to nodes on isotopes main screen
 main_list = []
 
 #####################################################################################
 # MENU SECTION
 #####################################################################################
 
-"""
-This function sets up the decay information main screen.
-The following sections and widgets are created:
-   Module Title (Decay Information)
-   Select Calculation Mode section
-   Select Nuclide section
-   Result section (title dependent on Calculation Mode)
-   Exit button
-This function contains all of the logic involving these widgets'
-behaviors.
-The sections and widgets are stored in main_list so they can be
-accessed later by clear_main.
-"""
-def decay_info_main(root, category="Common Elements", mode="Decay Scheme",
-                    common_el="Ag", element="Ac"):
+def isotopes_main(root, category="Common Elements", mode="Proton Number",
+                  common_el="Ag", element="Ac"):
     global main_list
 
     # Makes title frame
-    title_frame = make_title_frame(root, "Decay Information", "Decay/Information")
+    title_frame = make_title_frame(root, "Isotope Information", "General/Isotopes")
 
     # Gets the element options
-    choices = get_choices(category, "Decay", "")
+    choices = get_choices(category, "General", "")
 
     # Gets common elements
-    common_elements = get_choices("Common Elements", "Decay", "")
+    common_elements = get_choices("Common Elements", "General", "")
 
     # Make sure common element is a valid selection
     common_el = valid_saved(common_el, common_elements)
@@ -72,17 +59,18 @@ def decay_info_main(root, category="Common Elements", mode="Decay Scheme",
         root.focus()
 
     # Creates dropdown menu for mode
-    mode_choices = ["Decay Scheme",
-                    "Half Life"]
+    mode_choices = ["Proton Number",
+                    "Nucleon Number",
+                    "Atomic Mass"]
     _ = make_dropdown(inner_mode_frame, var_mode, mode_choices, select_mode, pady=20)
 
     # Spacer
     empty_frame1 = make_spacer(root)
 
-    # Frame for nuclide selection
-    nuclide_frame = SectionFrame(root, title="Select Nuclide")
-    nuclide_frame.pack()
-    inner_nuclide_frame = nuclide_frame.get_inner_frame()
+    # Frame for isotope selection
+    main_isotope_frame = SectionFrame(root, title="Select Isotope")
+    main_isotope_frame.pack()
+    inner_isotope_frame = main_isotope_frame.get_inner_frame()
 
     # Stores category selection and sets default
     var_category = tk.StringVar(root)
@@ -97,7 +85,7 @@ def decay_info_main(root, category="Common Elements", mode="Decay Scheme",
         category = var_category.get()
 
         # Updates element dropdown to match category
-        choices = get_choices(category, "Decay", "")
+        choices = get_choices(category, "General", "")
         selected_element = get_item(category, common_el, "", element, "", "")
         var_element.set(selected_element)
         element_dropdown.set_completion_list(choices)
@@ -117,7 +105,7 @@ def decay_info_main(root, category="Common Elements", mode="Decay Scheme",
         root.focus()
 
     # Frame for element category selection
-    category_frame = tk.Frame(inner_nuclide_frame, bg="#F2F2F2")
+    category_frame = tk.Frame(inner_isotope_frame, bg="#F2F2F2")
     category_frame.pack(pady=(15, 5))
 
     # Category label
@@ -126,9 +114,9 @@ def decay_info_main(root, category="Common Elements", mode="Decay Scheme",
     # Creates dropdown menu for category selection
     make_category_dropdown(category_frame, var_category, select_category, False)
 
-    # Horizontal frame for nuclide selection
-    nuclide_side_frame = tk.Frame(inner_nuclide_frame, bg="#F2F2F2")
-    nuclide_side_frame.pack(pady=(20,30))
+    # Horizontal frame for isotope selection
+    isotope_side_frame = tk.Frame(inner_isotope_frame, bg="#F2F2F2")
+    isotope_side_frame.pack(pady=(20,30))
 
     # Logic for when enter is hit when using the element autocomplete combobox
     def on_enter(_):
@@ -178,7 +166,7 @@ def decay_info_main(root, category="Common Elements", mode="Decay Scheme",
         root.focus()
 
     # Frame for element selection
-    element_frame = tk.Frame(nuclide_side_frame, bg="#F2F2F2")
+    element_frame = tk.Frame(isotope_side_frame, bg="#F2F2F2")
     element_frame.pack(side="left", padx=5)
 
     # Element label
@@ -201,7 +189,7 @@ def decay_info_main(root, category="Common Elements", mode="Decay Scheme",
         root.focus()
 
     # Frame for isotope selection
-    isotope_frame = tk.Frame(nuclide_side_frame, bg="#F2F2F2")
+    isotope_frame = tk.Frame(isotope_side_frame, bg="#F2F2F2")
     isotope_frame.pack(side="left", padx=5)
 
     # Isotope label
@@ -240,42 +228,34 @@ def decay_info_main(root, category="Common Elements", mode="Decay Scheme",
     # Displays the result of calculation
     result_box = make_result_box(inner_result_frame)
 
-    # Creates Advanced Settings button
-    advanced_button = ttk.Button(root, text="Advanced Settings",
-                                 style="Maize.TButton", padding=(0,0),
-                                 command=lambda: to_advanced(root, category, mode,
-                                                             common_el, element))
-    advanced_button.config(width=get_width(["Advanced Settings"]))
-    advanced_button.pack(pady=5)
-
     # Creates Exit button to return to home screen
     exit_button = make_exit_button(root, lambda: exit_to_home(root))
 
     # Stores nodes into global list
     main_list = [title_frame,
                  mode_frame, empty_frame1,
-                 nuclide_frame, empty_frame2,
-                 result_frame, advanced_button, exit_button]
+                 main_isotope_frame, empty_frame2,
+                 result_frame, exit_button]
 
 #####################################################################################
 # NAVIGATION SECTION
 #####################################################################################
 
 """
-This function clears the decay information main screen
+This function clears the isotopes main screen
 in preparation for opening a different screen.
 """
 def clear_main():
     global main_list
 
-    # Clears decay information main screen
+    # Clears isotopes main screen
     for node in main_list:
         node.destroy()
     main_list.clear()
 
 """
-This function transitions from the decay information main screen
-to the home screen by first clearing the decay information main screen
+This function transitions from the isotopes main screen
+to the home screen by first clearing the isotopes main screen
 and then creating the home screen.
 It is called when the Exit button is hit.
 """
@@ -284,17 +264,3 @@ def exit_to_home(root):
     from App.home import return_home
     clear_main()
     return_home(root)
-
-"""
-This function transitions from the decay information main screen
-to the decay information advanced screen by first clearing the
-decay information main screen and then creating the
-decay information advanced screen.
-It is called when the Advanced Settings button is hit.
-"""
-def to_advanced(root, category, mode, common_el, element):
-    root.focus()
-    from App.Decay.Information.decay_info_advanced import decay_info_advanced
-
-    clear_main()
-    decay_info_advanced(root, category, mode, common_el, element)

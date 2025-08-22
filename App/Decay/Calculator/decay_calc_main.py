@@ -95,7 +95,7 @@ def decay_calc_main(root, category="Common Elements", mode="Activities",
     var_category = tk.StringVar(root)
     var_category.set(category)
 
-    # Logic for when a nuclide category is selected
+    # Logic for when an element category is selected
     def select_category(event):
         nonlocal choices, category, common_el, element, isotope
 
@@ -123,7 +123,7 @@ def decay_calc_main(root, category="Common Elements", mode="Activities",
 
         root.focus()
 
-    # Frame for interacting medium category selection
+    # Frame for element category selection
     category_frame = tk.Frame(inner_nuclide_frame, bg="#F2F2F2")
     category_frame.pack(pady=(15, 5))
 

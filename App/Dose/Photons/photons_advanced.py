@@ -9,7 +9,7 @@ from App.Dose.Photons.photons_export import photons_export
 from Utility.Functions.files import resource_path, open_file
 from Utility.Functions.gui_utility import make_vertical_frame
 from Utility.Functions.gui_utility import make_spacer, get_width
-from Utility.Functions.gui_utility import unit_dropdown, get_unit
+from Utility.Functions.gui_utility import make_unit_dropdown, get_unit
 from Utility.Functions.gui_utility import make_title_frame, basic_label
 from Utility.Functions.math_utility import density_numerator, density_denominator
 from Core.Dose.Photons.photons_calculations import mea_numerator, mea_denominator
@@ -166,8 +166,8 @@ def photons_advanced(root, category, mode, common_el, common_mat, element,
 
     # Creates dropdown menu for numerator unit
     numerator_choices = list(get_unit(num_choices, mode_choices, mode).keys())
-    unit_dropdown(unit_side_frame, numerator_choices,
-                  get_unit(num_units, mode_choices, mode), on_select_num)
+    make_unit_dropdown(unit_side_frame, numerator_choices,
+                       get_unit(num_units, mode_choices, mode), on_select_num)
 
     # / label
     slash_label = ttk.Label(unit_side_frame, text="/", style="Black.TLabel")
@@ -175,8 +175,8 @@ def photons_advanced(root, category, mode, common_el, common_mat, element,
 
     # Creates dropdown menu for denominator unit
     denominator_choices = list(get_unit(den_choices, mode_choices, mode).keys())
-    unit_dropdown(unit_side_frame, denominator_choices,
-                  get_unit(den_units, mode_choices, mode), on_select_den)
+    make_unit_dropdown(unit_side_frame, denominator_choices,
+                       get_unit(den_units, mode_choices, mode), on_select_den)
 
     # Spacer
     empty_frame2 = make_spacer(root)
@@ -206,8 +206,8 @@ def photons_advanced(root, category, mode, common_el, common_mat, element,
 
         # Creates dropdown menu for energy unit
         energy_choices = list(energy_units.keys())
-        unit_dropdown(energy_unit_side_frame, energy_choices,
-                      energy_unit, on_select_energy)
+        make_unit_dropdown(energy_unit_side_frame, energy_choices,
+                           energy_unit, on_select_energy)
 
         # Creates Export Menu button
         export_button = ttk.Button(bottom_frame, text="Export Menu", style="Maize.TButton",

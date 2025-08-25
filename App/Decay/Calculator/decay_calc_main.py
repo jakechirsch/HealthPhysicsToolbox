@@ -10,7 +10,7 @@ from Utility.Functions.choices import get_choices, get_isotopes
 from Core.Decay.Calculator.nuclide_calc import handle_calculation
 from Utility.Functions.gui_utility import make_item_dropdown, make_category_dropdown
 from Utility.Functions.gui_utility import make_dropdown, result_label, make_result_box
-from Utility.Functions.gui_utility import basic_label, make_title_frame, unit_dropdown
+from Utility.Functions.gui_utility import basic_label, make_title_frame, make_unit_dropdown
 from Utility.Functions.gui_utility import make_spacer, get_width, get_item, valid_saved
 
 # For global access to nodes on decay calculator main screen
@@ -265,7 +265,7 @@ def decay_calc_main(root, category="Common Elements", mode="Activities",
         time_unit = event.widget.get()
 
     # Creates dropdown menu for time unit
-    unit_dropdown(time_side_frame, time_choices, "s", on_select_time_unit)
+    make_unit_dropdown(time_side_frame, time_choices, "s", on_select_time_unit)
 
     # Horizontal frame for initial amount
     initial_side_frame = tk.Frame(inner_details_frame, bg="#F2F2F2")
@@ -313,7 +313,7 @@ def decay_calc_main(root, category="Common Elements", mode="Activities",
         root.focus()
 
     # Creates dropdown menu for initial amount unit type
-    unit_dropdown(initial_side_frame, initial_types, "Activity (Bq)", on_select_initial_type)
+    make_unit_dropdown(initial_side_frame, initial_types, "Activity (Bq)", on_select_initial_type)
 
     # Possible unit choices
     default_choices = {
@@ -386,7 +386,7 @@ def decay_calc_main(root, category="Common Elements", mode="Activities",
         root.focus()
 
     # Creates dropdown menu for activity unit type
-    unit_dropdown(activity_side_frame, activity_types, "Activity (Bq)", on_select_activity_type)
+    make_unit_dropdown(activity_side_frame, activity_types, "Activity (Bq)", on_select_activity_type)
 
     # Logic for when an activity unit is selected
     def on_select_initial_unit(event):

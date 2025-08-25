@@ -5,9 +5,10 @@ from App.style import SectionFrame
 from Utility.Functions.choices import get_choices
 from Utility.Functions.files import resource_path, open_file
 from Utility.Functions.gui_utility import make_vertical_frame
-from Utility.Functions.gui_utility import make_action_dropdown
+from Core.Decay.Information.nuclide_info import half_life_units
 from Utility.Functions.gui_utility import make_spacer, get_width
 from Utility.Functions.gui_utility import make_title_frame, basic_label
+from Utility.Functions.gui_utility import make_unit_dropdown, make_action_dropdown
 
 # For global access to nodes on decay information advanced screen
 advanced_list = []
@@ -16,7 +17,7 @@ advanced_list = []
 # MENU SECTION
 #####################################################################################
 
-def decay_info_advanced(root, category, mode, common_el, element):
+def decay_info_advanced(root, category, mode, common_el, element, half_life_unit):
     global advanced_list
 
     # Makes title frame
@@ -70,6 +71,43 @@ def decay_info_advanced(root, category, mode, common_el, element):
     # Spacer
     empty_frame1 = make_spacer(root)
 
+    # Frame for units
+    unit_frame = tk.Frame()
+
+    # Spacer
+    empty_frame2 = tk.Frame()
+
+    # Unit options are only created if
+    # Calculation Mode is Half Life
+    if mode == "Half Life":
+        # Frame for units
+        unit_frame = SectionFrame(root, title="Select Units")
+        unit_frame.pack()
+        inner_unit_frame = unit_frame.get_inner_frame()
+
+        # Horizontal frame for unit settings
+        unit_side_frame = tk.Frame(inner_unit_frame, bg="#F2F2F2")
+        unit_side_frame.pack(pady=20)
+
+        # Unit label
+        unit_label = ttk.Label(unit_side_frame, text=mode + " Unit:",
+                               style="Black.TLabel")
+        unit_label.pack(side='left', padx=5)
+
+        # Logic for when a unit is selected
+        def on_select_unit(event):
+            nonlocal half_life_unit
+            event.widget.selection_clear()
+            root.focus()
+            half_life_unit = event.widget.get()
+
+        # Creates dropdown menu for unit
+        make_unit_dropdown(unit_side_frame, half_life_units,
+                           half_life_unit, on_select_unit)
+
+        # Spacer
+        empty_frame2 = make_spacer(root)
+
     # Frame for References, & Help
     bottom_frame = tk.Frame(root, bg="#F2F2F2")
     bottom_frame.pack(pady=5)
@@ -91,13 +129,14 @@ def decay_info_advanced(root, category, mode, common_el, element):
     # Creates Back button to return to decay information main screen
     back_button = ttk.Button(root, text="Back", style="Maize.TButton",
                              padding=(0,0),
-                             command=lambda: to_main(root, category, mode, common_el, element))
+                             command=lambda: to_main(root, category, mode, common_el, element, half_life_unit))
     back_button.config(width=get_width(["Back"]))
     back_button.pack(pady=5)
 
     # Stores nodes into global list
     advanced_list = [title_frame,
                      a_r_frame, empty_frame1,
+                     unit_frame, empty_frame2,
                      bottom_frame, back_button]
 
 #####################################################################################
@@ -123,11 +162,11 @@ decay information advanced screen and then creating the
 decay information main screen.
 It is called when the Back button is hit.
 """
-def to_main(root, category, mode, common_el, element):
+def to_main(root, category, mode, common_el, element, half_life_unit):
     from App.Decay.Information.decay_info_main import decay_info_main
 
     clear_advanced()
-    decay_info_main(root, category, mode, common_el, element)
+    decay_info_main(root, category, mode, common_el, element, half_life_unit)
 
 """
 This function opens the decay information References.txt file.

@@ -76,7 +76,7 @@ def make_dropdown(frame, var, choices, on_select, pady=0):
 """
 This function makes a Combobox dropdown for unit options.
 """
-def unit_dropdown(frame, choices, unit, on_select_u):
+def make_unit_dropdown(frame, choices, unit, on_select_u):
     dropdown = ttk.Combobox(frame, values=choices, justify="center", state='readonly',
                             style="Maize.TCombobox")
     dropdown.config(width=get_width(choices))

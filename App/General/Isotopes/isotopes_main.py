@@ -18,7 +18,7 @@ main_list = []
 #####################################################################################
 
 def isotopes_main(root, category="Common Elements", mode="Proton Number",
-                  common_el="Ag", element="Ac"):
+                  common_el="Ag", element="Ac", am_num="g", am_den="mol"):
     global main_list
 
     # Makes title frame
@@ -218,7 +218,8 @@ def isotopes_main(root, category="Common Elements", mode="Proton Number",
     # Creates Calculate button
     calc_button = ttk.Button(inner_result_frame, text="Calculate",
                              style="Maize.TButton", padding=(0,0),
-                             command=lambda: handle_calculation(root, mode, isotope, result_box))
+                             command=lambda: handle_calculation(root, mode, isotope, result_box,
+                                                                am_num, am_den))
     calc_button.config(width=get_width(["Calculate"]))
     calc_button.pack(pady=(20,5))
 
@@ -228,6 +229,15 @@ def isotopes_main(root, category="Common Elements", mode="Proton Number",
     # Displays the result of calculation
     result_box = make_result_box(inner_result_frame)
 
+    # Creates Advanced Settings button
+    advanced_button = ttk.Button(root, text="Advanced Settings",
+                                 style="Maize.TButton", padding=(0, 0),
+                                 command=lambda: to_advanced(root, category, mode,
+                                                             common_el, element,
+                                                             am_num, am_den))
+    advanced_button.config(width=get_width(["Advanced Settings"]))
+    advanced_button.pack(pady=5)
+
     # Creates Exit button to return to home screen
     exit_button = make_exit_button(root, lambda: exit_to_home(root))
 
@@ -235,7 +245,7 @@ def isotopes_main(root, category="Common Elements", mode="Proton Number",
     main_list = [title_frame,
                  mode_frame, empty_frame1,
                  main_isotope_frame, empty_frame2,
-                 result_frame, exit_button]
+                 result_frame, advanced_button, exit_button]
 
 #####################################################################################
 # NAVIGATION SECTION
@@ -264,3 +274,17 @@ def exit_to_home(root):
     from App.home import return_home
     clear_main()
     return_home(root)
+
+"""
+This function transitions from the isotopes main screen
+to the isotopes advanced screen by first clearing the
+isotopes main screen and then creating the
+isotopes advanced screen.
+It is called when the Advanced Settings button is hit.
+"""
+def to_advanced(root, category, mode, common_el, element, am_num, am_den):
+    root.focus()
+    from App.General.Isotopes.isotopes_advanced import isotopes_advanced
+
+    clear_main()
+    isotopes_advanced(root, category, mode, common_el, element, am_num, am_den)

@@ -14,6 +14,8 @@ from Utility.Functions.choices import element_choices, material_choices
 density_numerator = {"mg" : 1000, "g" : 1, "kg" : 0.001}
 density_denominator = {"mm\u00B3" : 10 ** 3, "cm\u00B3" : 1,
                        "m\u00B3" : 0.01 ** 3}
+atomic_mass_numerator = {"mg" : 1000, "g" : 1, "kg" : 0.001}
+atomic_mass_denominator = {"mmol" : 1000, "mol" : 1, "kmol" : 0.001}
 energy_units = {"eV" : 0.001 ** 2, "keV" : 0.001,
                 "MeV" : 1, "GeV" : 1000}
 

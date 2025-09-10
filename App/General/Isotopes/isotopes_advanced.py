@@ -107,17 +107,23 @@ def isotopes_advanced(root, category, mode, common_el, element, am_num, am_den):
             root.focus()
             am_den = event.widget.get()
 
+        # Stores numerator and sets default
+        var_numerator = tk.StringVar(root)
+        var_numerator.set(am_num)
+
         # Creates dropdown menu for numerator unit
-        make_unit_dropdown(unit_side_frame, list(atomic_mass_numerator.keys()),
-                           am_num, on_select_num)
+        _ = make_unit_dropdown(unit_side_frame, var_numerator, list(atomic_mass_numerator.keys()), on_select_num)
 
         # / label
         slash_label = ttk.Label(unit_side_frame, text="/", style="Black.TLabel")
         slash_label.pack(side='left')
 
+        # Stores denominator and sets default
+        var_denominator = tk.StringVar(root)
+        var_denominator.set(am_den)
+
         # Creates dropdown menu for denominator unit
-        make_unit_dropdown(unit_side_frame, list(atomic_mass_denominator.keys()),
-                           am_den, on_select_den)
+        _ = make_unit_dropdown(unit_side_frame, var_denominator, list(atomic_mass_denominator.keys()), on_select_den)
 
         # Spacer
         empty_frame2 = make_spacer(root)

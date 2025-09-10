@@ -140,7 +140,7 @@ def decay_calc_main(root, category="Common Elements", mode="Activities",
     # Logic for when enter is hit when using the element autocomplete combobox
     def on_enter(_):
         nonlocal common_el, element, isotope
-        value = element_dropdown.get()
+        value = var_element.get()
 
         if value not in choices:
             # Falls back on default if invalid item is typed in
@@ -167,7 +167,7 @@ def decay_calc_main(root, category="Common Elements", mode="Activities",
         nonlocal common_el, element, isotope
 
         event.widget.selection_clear()
-        value = element_dropdown.get()
+        value = var_element.get()
 
         # Adjusts isotopes
         isotopes = get_isotopes(value)
@@ -255,7 +255,7 @@ def decay_calc_main(root, category="Common Elements", mode="Activities",
     time_input.pack(side='left', padx=5)
 
     # Possible unit choices
-    time_choices = ['µs', 'ms', 's', 'm', 'h', 'd', 'y']
+    time_choices = ['μs', 'ms', 's', 'm', 'h', 'd', 'y']
 
     # Logic for when a time is selected
     def on_select_time_unit(event):
@@ -264,8 +264,12 @@ def decay_calc_main(root, category="Common Elements", mode="Activities",
         root.focus()
         time_unit = event.widget.get()
 
+    # Stores time unit and sets default
+    var_time = tk.StringVar(root)
+    var_time.set("s")
+
     # Creates dropdown menu for time unit
-    make_unit_dropdown(time_side_frame, time_choices, "s", on_select_time_unit)
+    _ = make_unit_dropdown(time_side_frame, var_time, time_choices, on_select_time_unit)
 
     # Horizontal frame for initial amount
     initial_side_frame = tk.Frame(inner_details_frame, bg="#F2F2F2")
@@ -312,8 +316,12 @@ def decay_calc_main(root, category="Common Elements", mode="Activities",
         initial_type = event.widget.get()
         root.focus()
 
+    # Stores initial amount type and sets default
+    var_initial_type = tk.StringVar(root)
+    var_initial_type.set("Activity (Bq)")
+
     # Creates dropdown menu for initial amount unit type
-    make_unit_dropdown(initial_side_frame, initial_types, "Activity (Bq)", on_select_initial_type)
+    _ = make_unit_dropdown(initial_side_frame, var_initial_type, initial_types, on_select_initial_type)
 
     # Possible unit choices
     default_choices = {
@@ -325,11 +333,11 @@ def decay_calc_main(root, category="Common Elements", mode="Activities",
         "Nuclei Number": "num"
     }
     initial_choices = {
-        "Activity (Bq)" : ["pBq", "nBq", "µBq", "mBq", "Bq", "kBq", "MBq", "GBq", "TBq"],
-        "Activity (Ci)" : ["pCi", "nCi", "µCi", "mCi", "Ci", "kCi", "MCi", "GCi", "TCi"],
+        "Activity (Bq)" : ["pBq", "nBq", "μBq", "mBq", "Bq", "kBq", "MBq", "GBq", "TBq"],
+        "Activity (Ci)" : ["pCi", "nCi", "μCi", "mCi", "Ci", "kCi", "MCi", "GCi", "TCi"],
         "Activity (dpm)" : ["dpm"],
-        "Mass" : ["pg", "ng", "µg", "mg", "g", "kg", "t"],
-        "Moles" : ["pmol", "nmol", "µmol", "mmol", "mol", "kmol", "Mmol"],
+        "Mass" : ["pg", "ng", "μg", "mg", "g", "kg", "t"],
+        "Moles" : ["pmol", "nmol", "μmol", "mmol", "mol", "kmol", "Mmol"],
         "Nuclei Number" : ["num"]
     }
 
@@ -340,14 +348,13 @@ def decay_calc_main(root, category="Common Elements", mode="Activities",
         root.focus()
         initial_unit = event.widget.get()
 
+    # Stores initial amount unit and sets default
+    var_initial = tk.StringVar(root)
+    var_initial.set("Bq")
+
     # Creates dropdown menu for initial amount unit
-    initial_unit_dropdown = ttk.Combobox(initial_side_frame, values=initial_choices[initial_type],
-                                         justify="center", state='readonly',
-                                         style="Maize.TCombobox")
-    initial_unit_dropdown.config(width=get_width(initial_choices[initial_type]))
-    initial_unit_dropdown.set("Bq")
-    initial_unit_dropdown.pack(side='left', padx=5)
-    initial_unit_dropdown.bind("<<ComboboxSelected>>", on_select_initial_unit)
+    initial_unit_dropdown = make_unit_dropdown(initial_side_frame, var_initial, initial_choices[initial_type],
+                                               on_select_initial_unit)
 
     # Horizontal frame for initial amount
     activity_side_frame = tk.Frame(inner_details_frame, bg="#F2F2F2")
@@ -385,24 +392,27 @@ def decay_calc_main(root, category="Common Elements", mode="Activities",
         activity_type = event.widget.get()
         root.focus()
 
+    # Stores activity type and sets default
+    var_activity_type = tk.StringVar(root)
+    var_activity_type.set("Activity (Bq)")
+
     # Creates dropdown menu for activity unit type
-    make_unit_dropdown(activity_side_frame, activity_types, "Activity (Bq)", on_select_activity_type)
+    _ = make_unit_dropdown(activity_side_frame, var_activity_type, activity_types, on_select_activity_type)
 
     # Logic for when an activity unit is selected
-    def on_select_initial_unit(event):
+    def on_select_activity_unit(event):
         nonlocal initial_unit
         event.widget.selection_clear()
         root.focus()
         initial_unit = event.widget.get()
 
+    # Stores activity unit and sets default
+    var_activity = tk.StringVar(root)
+    var_activity.set("Bq")
+
     # Creates dropdown menu for initial amount unit
-    activity_unit_dropdown = ttk.Combobox(activity_side_frame, values=initial_choices[activity_type],
-                                          justify="center", state='readonly',
-                                          style="Maize.TCombobox")
-    activity_unit_dropdown.config(width=get_width(initial_choices[activity_type]))
-    activity_unit_dropdown.set("Bq")
-    activity_unit_dropdown.pack(side='left', padx=5)
-    activity_unit_dropdown.bind("<<ComboboxSelected>>", on_select_initial_unit)
+    activity_unit_dropdown = make_unit_dropdown(activity_side_frame, var_activity, initial_choices[activity_type],
+                                                on_select_activity_unit)
 
     # Spacer
     empty_frame3 = make_spacer(root)

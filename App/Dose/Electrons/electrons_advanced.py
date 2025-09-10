@@ -245,29 +245,38 @@ def electrons_advanced(root, category, mode, interactions, common_el,
         num_l_choices = [sp_l_numerator, [], [], density_numerator]
         den_choices = [sp_denominator, [], [], density_denominator]
 
+        # Stores numerator and sets default
+        var_numerator_e = tk.StringVar(root)
+        var_numerator_e.set(get_unit(num_e_units, mode_choices, mode))
+
         # Creates dropdown menu for numerator unit
         numerator_e_choices = list(get_unit(num_e_choices, mode_choices, mode).keys())
-        make_unit_dropdown(unit_side_frame, numerator_e_choices,
-                           get_unit(num_e_units, mode_choices, mode), on_select_e_num)
+        _ = make_unit_dropdown(unit_side_frame, var_numerator_e, numerator_e_choices, on_select_e_num)
 
         if mode == "Stopping Power":
             # * label
             slash_label = ttk.Label(unit_side_frame, text="*", style="Black.TLabel")
             slash_label.pack(side='left')
 
+            # Stores numerator and sets default
+            var_numerator_l = tk.StringVar(root)
+            var_numerator_l.set(get_unit(num_l_units, mode_choices, mode))
+
             # Creates dropdown menu for numerator unit
             numerator_l_choices = list(get_unit(num_l_choices, mode_choices, mode).keys())
-            make_unit_dropdown(unit_side_frame, numerator_l_choices,
-                               get_unit(num_l_units, mode_choices, mode), on_select_l_num)
+            _ = make_unit_dropdown(unit_side_frame, var_numerator_l, numerator_l_choices, on_select_l_num)
 
         # / label
         slash_label = ttk.Label(unit_side_frame, text="/", style="Black.TLabel")
         slash_label.pack(side='left')
 
+        # Stores denominator and sets default
+        var_denominator = tk.StringVar(root)
+        var_denominator.set(get_unit(den_units, mode_choices, mode))
+
         # Creates dropdown menu for denominator unit
         denominator_choices = list(get_unit(den_choices, mode_choices, mode).keys())
-        make_unit_dropdown(unit_side_frame, denominator_choices,
-                           get_unit(den_units, mode_choices, mode), on_select_den)
+        _ = make_unit_dropdown(unit_side_frame, var_denominator, denominator_choices, on_select_den)
 
     # Spacer
     empty_frame3 = make_spacer(root)
@@ -295,10 +304,13 @@ def electrons_advanced(root, category, mode, interactions, common_el,
             root.focus()
             energy_unit = event.widget.get()
 
+        # Stores energy unit and sets default
+        var_energy = tk.StringVar(root)
+        var_energy.set(energy_unit)
+
         # Creates dropdown menu for energy unit
         energy_choices = list(energy_units.keys())
-        make_unit_dropdown(energy_unit_side_frame, energy_choices,
-                           energy_unit, on_select_energy)
+        _ = make_unit_dropdown(energy_unit_side_frame, var_energy, energy_choices, on_select_energy)
 
         # Creates Export Menu button
         export_button = ttk.Button(bottom_frame, text="Export Menu", style="Maize.TButton",

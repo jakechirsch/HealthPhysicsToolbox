@@ -64,25 +64,27 @@ def interaction_checkbox(frame, variable, interaction, command):
 """
 This function makes a generic Combobox dropdown.
 """
-def make_dropdown(frame, var, choices, on_select, pady=0):
+def make_dropdown(frame, var, choices, on_select, **pack_args):
     dropdown = ttk.Combobox(frame, textvariable=var, values=choices,
                             justify="center", style="Maize.TCombobox",
                             state='readonly')
     dropdown.config(width=get_width(choices))
-    dropdown.pack(pady=pady)
+    dropdown.pack(**pack_args)
     dropdown.bind("<<ComboboxSelected>>", on_select)
     return dropdown
 
 """
 This function makes a Combobox dropdown for unit options.
 """
-def make_unit_dropdown(frame, choices, unit, on_select_u):
-    dropdown = ttk.Combobox(frame, values=choices, justify="center", state='readonly',
-                            style="Maize.TCombobox")
-    dropdown.config(width=get_width(choices))
-    dropdown.set(unit)
-    dropdown.pack(side='left', padx=5)
-    dropdown.bind("<<ComboboxSelected>>", on_select_u)
+def make_unit_dropdown(frame, var, choices, on_select):
+    dropdown = make_dropdown(frame, var, choices, on_select, side='left', padx=5)
+
+    def on_map(event):
+        if var.get() in choices:
+            event.widget.current(choices.index(var.get()))
+
+    dropdown.bind("<Map>", on_map)
+    return dropdown
 
 """
 This function makes a Combobox dropdown for category options.

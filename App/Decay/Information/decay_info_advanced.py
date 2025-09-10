@@ -101,9 +101,12 @@ def decay_info_advanced(root, category, mode, common_el, element, half_life_unit
             root.focus()
             half_life_unit = event.widget.get()
 
+        # Stores half life unit and sets default
+        var_unit = tk.StringVar(root)
+        var_unit.set(half_life_unit)
+
         # Creates dropdown menu for unit
-        make_unit_dropdown(unit_side_frame, half_life_units,
-                           half_life_unit, on_select_unit)
+        _ = make_unit_dropdown(unit_side_frame, var_unit, half_life_units, on_select_unit)
 
         # Spacer
         empty_frame2 = make_spacer(root)

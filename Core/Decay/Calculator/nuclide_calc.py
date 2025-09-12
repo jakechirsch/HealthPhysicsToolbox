@@ -3,6 +3,7 @@ import math
 import tkinter as tk
 import radioactivedecay as rd
 import matplotlib.pyplot as plt
+from Utility.Functions.gui_utility import edit_result
 
 #####################################################################################
 # CALCULATIONS SECTION
@@ -14,8 +15,14 @@ The function decides what calculation to perform
 based on the selected calculation mode.
 """
 def handle_calculation(root, mode, isotope, initial_amount, amount_type, amount_unit,
-                       time, time_unit, result_box):
+                       time, time_unit, dates, result_box):
     root.focus()
+
+    if dates:
+        if isinstance(time, str) and time[0:5] == "Error":
+            edit_result(time, result_box)
+            return
+
     match mode:
         case "Activities":
             nuclide_activities(isotope, initial_amount, amount_type, amount_unit,
@@ -44,7 +51,6 @@ def nuclide_activities(isotope, initial_amount, amount_type, amount_unit, time, 
     # Retrieves activities
     t0 = rd.Inventory({isotope: initial_amount}, amount_unit)
     t1 = t0.decay(time, time_unit)
-    print(amount_type)
     if amount_type == "Mass":
         activities = t1.masses(amount_unit)
     elif amount_type == "Moles":

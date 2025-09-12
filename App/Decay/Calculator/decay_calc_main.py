@@ -5,6 +5,7 @@ from tkinter import ttk
 import tkinter.font as font
 from App.style import SectionFrame
 from App.scroll import scroll_to_top
+from Utility.Functions.time import get_time
 from Utility.Functions.gui_utility import make_exit_button
 from Utility.Functions.choices import get_choices, get_isotopes
 from Core.Decay.Calculator.nuclide_calc import handle_calculation
@@ -36,7 +37,7 @@ accessed later by clear_main.
 """
 def decay_calc_main(root, category="Common Elements", mode="Activities",
                     common_el="Ag", element="Ac", time_unit="s", amount_type="Activity (Bq)",
-                    amount_unit="Bq"):
+                    amount_unit="Bq", dates=False):
     global main_list
 
     # Makes title frame
@@ -230,24 +231,70 @@ def decay_calc_main(root, category="Common Elements", mode="Activities",
     # Spacer
     empty_frame2 = make_spacer(root)
 
+    # Input box width
+    small_entry_width = 7 if platform.system() == "Windows" else 8
+    entry_width = 20 if platform.system() == "Windows" else 22
+
     # Frame for details
     details_frame = SectionFrame(root, title="Input Details")
     details_frame.pack()
     inner_details_frame = details_frame.get_inner_frame()
 
-    # Time label
-    time_label = ttk.Label(inner_details_frame, text="Time (" + time_unit + "):",
-                           style="Black.TLabel")
-    time_label.pack(pady=(15,1))
+    # Placeholder
+    time_input = tk.Entry()
+    start_date_input = tk.Entry()
+    end_date_input = tk.Entry()
 
-    # Input box width
-    small_entry_width = 7 if platform.system() == "Windows" else 8
+    if not dates:
+        # Time label
+        time_label = ttk.Label(inner_details_frame, text="Time Elapsed (" + time_unit + "):",
+                               style="Black.TLabel")
+        time_label.pack(pady=(15,1))
 
-    # Time input
-    time_input = tk.Entry(inner_details_frame, width=small_entry_width, insertbackground="black",
-                          background="white", foreground="black", borderwidth=3, bd=3,
-                          highlightthickness=0, relief='solid', font=monospace_font)
-    time_input.pack(pady=(1,20))
+        # Time input
+        time_input = tk.Entry(inner_details_frame, width=small_entry_width, insertbackground="black",
+                              background="white", foreground="black", borderwidth=3, bd=3,
+                              highlightthickness=0, relief='solid', font=monospace_font)
+        time_input.pack(pady=(1,20))
+    else:
+        # Format label
+        format_label = ttk.Label(inner_details_frame, text="Format: YYYY-MM-DD-HH-MM-SS",
+                                 style="Black.TLabel")
+        format_label.pack(pady=(15,1))
+
+        # Frame for dates
+        date_side_frame = tk.Frame(inner_details_frame, bg="#F2F2F2")
+        date_side_frame.pack(pady=20)
+
+        # Frame for start_date
+        start_date_frame = tk.Frame(date_side_frame, bg="#F2F2F2")
+        start_date_frame.pack(side="left", padx=5)
+
+        # Start date label
+        start_date_label = ttk.Label(start_date_frame, text="Start Date:",
+                               style="Black.TLabel")
+        start_date_label.pack(pady=(0,1))
+
+        # Start date input
+        start_date_input = tk.Entry(start_date_frame, width=entry_width, insertbackground="black",
+                                    background="white", foreground="black", borderwidth=3, bd=3,
+                                    highlightthickness=0, relief='solid', font=monospace_font)
+        start_date_input.pack(pady=(1,20))
+
+        # Frame for end date
+        end_date_frame = tk.Frame(date_side_frame, bg="#F2F2F2")
+        end_date_frame.pack(side="left", padx=5)
+
+        # End date label
+        end_date_label = ttk.Label(end_date_frame, text="End Date:",
+                                   style="Black.TLabel")
+        end_date_label.pack(pady=(0,1))
+
+        # End date input
+        end_date_input = tk.Entry(end_date_frame, width=entry_width, insertbackground="black",
+                                  background="white", foreground="black", borderwidth=3, bd=3,
+                                  highlightthickness=0, relief='solid', font=monospace_font)
+        end_date_input.pack(pady=(1,20))
 
     # Initial amount label
     initial_label = ttk.Label(inner_details_frame, text="Initial Amount (" + amount_unit + "):",
@@ -272,9 +319,10 @@ def decay_calc_main(root, category="Common Elements", mode="Activities",
     calc_button = ttk.Button(inner_result_frame, text="Calculate",
                              style="Maize.TButton", padding=(0,0),
                              command=lambda: handle_calculation(root, mode, isotope,
-                                                                initial_input.get(), amount_type, amount_unit,
-                                                                time_input.get(), time_unit,
-                                                                result_box))
+                                                                initial_input.get(),
+                                                                amount_type, amount_unit,
+            get_time(dates, time_input.get(), start_date_input.get(), end_date_input.get()),
+                                        time_unit if not dates else "s", dates, result_box))
     calc_button.config(width=get_width(["Calculate"]))
     calc_button.pack(pady=(20,5))
 
@@ -289,7 +337,7 @@ def decay_calc_main(root, category="Common Elements", mode="Activities",
                                  style="Maize.TButton", padding=(0,0),
                                  command=lambda: to_advanced(root, category, mode,
                                                              common_el, element, time_unit,
-                                                             amount_type, amount_unit))
+                                                             amount_type, amount_unit, dates))
     advanced_button.config(width=get_width(["Advanced Settings"]))
     advanced_button.pack(pady=5)
 
@@ -342,10 +390,12 @@ decay calculator main screen and then creating the
 decay calculator advanced screen.
 It is called when the Advanced Settings button is hit.
 """
-def to_advanced(root, category, mode, common_el, element, time_unit, amount_type, amount_unit):
+def to_advanced(root, category, mode, common_el, element, time_unit,
+                amount_type, amount_unit, dates):
     root.focus()
     from App.Decay.Calculator.decay_calc_advanced import decay_calc_advanced
 
     clear_main()
-    decay_calc_advanced(root, category, mode, common_el, element, time_unit, amount_type, amount_unit)
+    decay_calc_advanced(root, category, mode, common_el, element, time_unit,
+                        amount_type, amount_unit, dates)
     scroll_to_top()

@@ -17,7 +17,7 @@ advanced_list = []
 #####################################################################################
 
 def decay_calc_advanced(root, category, mode, common_el, element,
-                        time_unit, amount_type, amount_unit):
+                        time_unit, amount_type, amount_unit, dates):
     global advanced_list
 
     # Makes title frame
@@ -76,6 +76,25 @@ def decay_calc_advanced(root, category, mode, common_el, element,
     unit_frame.pack()
     inner_unit_frame = unit_frame.get_inner_frame()
 
+    # Stores whether dates are used
+    var_dates = tk.IntVar()
+    var_dates.set(dates)
+
+    def on_use_dates():
+        nonlocal dates
+        dates = var_dates.get()
+        if dates:
+            time_unit_dropdown.config(state='disabled')
+        else:
+            time_unit_dropdown.config(state='enabled')
+        root.focus()
+
+    # Creates checkbox for using dates
+    use_dates = ttk.Checkbutton(inner_unit_frame, text="Use Dates Instead of Time Elapsed",
+                                variable=var_dates, style="Maize.TCheckbutton",
+                                command=on_use_dates)
+    use_dates.pack(pady=(25,0))
+
     # Horizontal frame for time unit settings
     time_unit_side_frame = tk.Frame(inner_unit_frame, bg="#F2F2F2")
     time_unit_side_frame.pack(pady=20)
@@ -95,9 +114,10 @@ def decay_calc_advanced(root, category, mode, common_el, element,
     var_time = tk.StringVar(root)
     var_time.set(time_unit)
 
-    # Creates dropdown menu for numerator unit
+    # Creates dropdown menu for time unit
     time_choices = ['μs', 'ms', 's', 'm', 'h', 'd', 'y']
-    _ = make_unit_dropdown(time_unit_side_frame, var_time, time_choices, on_select_time_unit)
+    time_unit_dropdown = make_unit_dropdown(time_unit_side_frame, var_time, time_choices,
+                                            on_select_time_unit)
 
     # Horizontal frame for amount unit settings
     amount_unit_side_frame = tk.Frame(inner_unit_frame, bg="#F2F2F2")
@@ -197,7 +217,8 @@ def decay_calc_advanced(root, category, mode, common_el, element,
     back_button = ttk.Button(root, text="Back", style="Maize.TButton",
                              padding=(0,0),
                              command=lambda: to_main(root, category, mode, common_el, element,
-                                                     time_unit, amount_type, amount_unit))
+                                                     time_unit, amount_type, amount_unit,
+                                                     dates))
     back_button.config(width=get_width(["Back"]))
     back_button.pack(pady=5)
 
@@ -230,11 +251,13 @@ decay calculator advanced screen and then creating the
 decay calculator main screen.
 It is called when the Back button is hit.
 """
-def to_main(root, category, mode, common_el, element, time_unit, amount_type, amount_unit):
+def to_main(root, category, mode, common_el, element, time_unit,
+            amount_type, amount_unit, dates):
     from App.Decay.Calculator.decay_calc_main import decay_calc_main
 
     clear_advanced()
-    decay_calc_main(root, category, mode, common_el, element, time_unit, amount_type, amount_unit)
+    decay_calc_main(root, category, mode, common_el, element, time_unit,
+                    amount_type, amount_unit, dates)
 
 """
 This function opens the decay calculator References.txt file.

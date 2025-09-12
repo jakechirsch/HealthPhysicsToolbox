@@ -13,64 +13,72 @@ This function is called when the Calculate button is hit.
 The function decides what calculation to perform
 based on the selected calculation mode.
 """
-def handle_calculation(root, mode, isotope, initial, initial_unit, time, time_unit,
-                       activity_unit, result_box):
+def handle_calculation(root, mode, isotope, initial_amount, amount_type, amount_unit,
+                       time, time_unit, result_box):
     root.focus()
     match mode:
         case "Activities":
-            nuclide_activities(isotope, initial, initial_unit, time, time_unit,
-                               activity_unit, result_box)
+            nuclide_activities(isotope, initial_amount, amount_type, amount_unit,
+                               time, time_unit, result_box)
         case "Plot":
-            nuclide_plot(isotope, initial, initial_unit, time, time_unit,
-                         activity_unit, result_box)
+            nuclide_plot(isotope, initial_amount, amount_unit,
+                         time, time_unit, result_box)
 
 """
 This function retrieves the activities
 given a particular isotope, initial amount, and time.
 """
-def nuclide_activities(isotope, initial, initial_unit, time, time_unit,
-                       activity_unit, result_box):
+def nuclide_activities(isotope, initial_amount, amount_type, amount_unit, time, time_unit,
+                       result_box):
     # Clears result box
     result_box.config(state="normal")
     result_box.delete("1.0", tk.END)
 
     # Error checks
-    if is_error(isotope, time, initial, result_box):
+    if is_error(isotope, time, initial_amount, result_box):
         return
     else:
         time = float(time)
-        initial = float(initial)
+        initial_amount = float(initial_amount)
 
     # Retrieves activities
-    t0 = rd.Inventory({isotope: initial}, initial_unit)
+    t0 = rd.Inventory({isotope: initial_amount}, amount_unit)
     t1 = t0.decay(time, time_unit)
-    activities = t1.activities(activity_unit)
+    print(amount_type)
+    if amount_type == "Mass":
+        activities = t1.masses(amount_unit)
+    elif amount_type == "Moles":
+        activities = t1.moles(amount_unit)
+    elif amount_type == "Nuclei Number":
+        activities = t1.contents
+    else:
+        activities = t1.activities(amount_unit)
 
     # Fills result box
     for activity in activities:
-        result_box.insert(tk.END, f"{activity}, {activities[activity]}\n")
+        result_box.insert(tk.END, f"{activity}, {activities[activity]:.4g}\n")
     result_box.config(state="disabled", height=len(activities))
 
 """
 This function retrieves the activities plot
 given a particular isotope, initial amount, and time.
 """
-def nuclide_plot(isotope, initial, initial_unit, time, time_unit,
-                 activity_unit, result_box):
+def nuclide_plot(isotope, initial_amount, amount_unit, time, time_unit,
+                 result_box):
     # Clears result box
     result_box.config(state="normal")
     result_box.delete("1.0", tk.END)
 
     # Error checks
-    if is_error(isotope, time, initial, result_box):
+    if is_error(isotope, time, initial_amount, result_box):
         return
     else:
         time = float(time)
-        initial = float(initial)
+        initial_amount = float(initial_amount)
 
     # Retrieves plot
-    t0 = rd.Inventory({isotope: initial}, initial_unit)
-    t0.plot(time, time_unit, yunits=activity_unit)
+    t0 = rd.Inventory({isotope: initial_amount}, amount_unit)
+    t0.plot(time, time_unit, yunits=amount_unit)
 
     # Fills result box
     result_box.insert(tk.END, "Plotted!")
@@ -91,7 +99,7 @@ The function handles the following errors:
 The function returns a bool indicating whether or not
 an error occurred.
 """
-def is_error(isotope, time, initial, result_box):
+def is_error(isotope, time, initial_amount, result_box):
     # Error check for a non-number time input
     try:
         time = float(time)
@@ -108,14 +116,14 @@ def is_error(isotope, time, initial, result_box):
 
     # Error check for a non-number initial input
     try:
-        initial = float(initial)
+        initial_amount = float(initial_amount)
     except ValueError:
         result_box.insert(tk.END, "Error: Non-number initial input.")
         result_box.config(state="disabled", height=1)
         return True
 
-    # Error check for a negative initial input
-    if initial < 0:
+    # Error check for a negative initial amount input
+    if initial_amount < 0:
         result_box.insert(tk.END, "Error: Initial cannot be negative.")
         result_box.config(state="disabled", height=1)
         return True

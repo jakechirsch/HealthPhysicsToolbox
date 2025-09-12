@@ -8,9 +8,9 @@ from App.scroll import scroll_to_top
 from Utility.Functions.gui_utility import make_exit_button
 from Utility.Functions.choices import get_choices, get_isotopes
 from Core.Decay.Calculator.nuclide_calc import handle_calculation
+from Utility.Functions.gui_utility import basic_label, make_title_frame
 from Utility.Functions.gui_utility import make_item_dropdown, make_category_dropdown
 from Utility.Functions.gui_utility import make_dropdown, result_label, make_result_box
-from Utility.Functions.gui_utility import basic_label, make_title_frame, make_unit_dropdown
 from Utility.Functions.gui_utility import make_spacer, get_width, get_item, valid_saved
 
 # For global access to nodes on decay calculator main screen
@@ -35,7 +35,8 @@ The sections and widgets are stored in main_list so they can be
 accessed later by clear_main.
 """
 def decay_calc_main(root, category="Common Elements", mode="Activities",
-                    common_el="Ag", element="Ac"):
+                    common_el="Ag", element="Ac", time_unit="s", amount_type="Activity (Bq)",
+                    amount_unit="Bq"):
     global main_list
 
     # Makes title frame
@@ -234,185 +235,30 @@ def decay_calc_main(root, category="Common Elements", mode="Activities",
     details_frame.pack()
     inner_details_frame = details_frame.get_inner_frame()
 
-    # Horizontal frame for time
-    time_side_frame = tk.Frame(inner_details_frame, bg="#F2F2F2")
-    time_side_frame.pack(pady=20)
-
     # Time label
-    time_label = ttk.Label(time_side_frame, text="Time:", style="Black.TLabel")
-    time_label.pack(side='left', padx=5)
-
-    # Variable to hold time unit input
-    time_unit = "s"
+    time_label = ttk.Label(inner_details_frame, text="Time (" + time_unit + "):",
+                           style="Black.TLabel")
+    time_label.pack(pady=(15,1))
 
     # Input box width
     small_entry_width = 7 if platform.system() == "Windows" else 8
 
     # Time input
-    time_input = tk.Entry(time_side_frame, width=small_entry_width, insertbackground="black",
+    time_input = tk.Entry(inner_details_frame, width=small_entry_width, insertbackground="black",
                           background="white", foreground="black", borderwidth=3, bd=3,
                           highlightthickness=0, relief='solid', font=monospace_font)
-    time_input.pack(side='left', padx=5)
-
-    # Possible unit choices
-    time_choices = ['μs', 'ms', 's', 'm', 'h', 'd', 'y']
-
-    # Logic for when a time is selected
-    def on_select_time_unit(event):
-        nonlocal time_unit
-        event.widget.selection_clear()
-        root.focus()
-        time_unit = event.widget.get()
-
-    # Stores time unit and sets default
-    var_time = tk.StringVar(root)
-    var_time.set("s")
-
-    # Creates dropdown menu for time unit
-    _ = make_unit_dropdown(time_side_frame, var_time, time_choices, on_select_time_unit)
-
-    # Horizontal frame for initial amount
-    initial_side_frame = tk.Frame(inner_details_frame, bg="#F2F2F2")
-    initial_side_frame.pack(pady=20)
+    time_input.pack(pady=(1,20))
 
     # Initial amount label
-    initial_label = ttk.Label(initial_side_frame, text="Initial Amount:", style="Black.TLabel")
-    initial_label.pack(side='left', padx=5)
-
-    # Variable to hold initial unit type input
-    initial_type = "Activity (Bq)"
-
-    # Variable to hold initial amount unit input
-    initial_unit = "Bq"
+    initial_label = ttk.Label(inner_details_frame, text="Initial Amount (" + amount_unit + "):",
+                              style="Black.TLabel")
+    initial_label.pack(pady=(0,1))
 
     # Initial amount input
-    initial_input = tk.Entry(initial_side_frame, width=small_entry_width, insertbackground="black",
+    initial_input = tk.Entry(inner_details_frame, width=small_entry_width, insertbackground="black",
                              background="white", foreground="black", borderwidth=3, bd=3,
                              highlightthickness=0, relief='solid', font=monospace_font)
-    initial_input.pack(side='left', padx=5)
-
-    # Possible unit types
-    initial_types = ["Activity (Bq)",
-                     "Activity (Ci)",
-                     "Activity (dpm)",
-                     "Mass",
-                     "Moles",
-                     "Nuclei Number"]
-
-    # Logic for when an initial type is selected
-    def on_select_initial_type(event):
-        nonlocal initial_type, initial_unit
-        event.widget.selection_clear()
-        new_type = event.widget.get()
-
-        # Adjusts unit choices
-        unit_choices = initial_choices[new_type]
-        if initial_type != new_type:
-            initial_unit = default_choices[new_type]
-            initial_type = new_type
-        initial_unit_dropdown.set(initial_unit)
-        initial_unit_dropdown.config(values=unit_choices, width=get_width(unit_choices))
-
-        initial_type = event.widget.get()
-        root.focus()
-
-    # Stores initial amount type and sets default
-    var_initial_type = tk.StringVar(root)
-    var_initial_type.set("Activity (Bq)")
-
-    # Creates dropdown menu for initial amount unit type
-    _ = make_unit_dropdown(initial_side_frame, var_initial_type, initial_types, on_select_initial_type)
-
-    # Possible unit choices
-    default_choices = {
-        "Activity (Bq)": "Bq",
-        "Activity (Ci)": "Ci",
-        "Activity (dpm)": "dpm",
-        "Mass": "g",
-        "Moles": "mol",
-        "Nuclei Number": "num"
-    }
-    initial_choices = {
-        "Activity (Bq)" : ["pBq", "nBq", "μBq", "mBq", "Bq", "kBq", "MBq", "GBq", "TBq"],
-        "Activity (Ci)" : ["pCi", "nCi", "μCi", "mCi", "Ci", "kCi", "MCi", "GCi", "TCi"],
-        "Activity (dpm)" : ["dpm"],
-        "Mass" : ["pg", "ng", "μg", "mg", "g", "kg", "t"],
-        "Moles" : ["pmol", "nmol", "μmol", "mmol", "mol", "kmol", "Mmol"],
-        "Nuclei Number" : ["num"]
-    }
-
-    # Logic for when an initial amount unit is selected
-    def on_select_initial_unit(event):
-        nonlocal initial_unit
-        event.widget.selection_clear()
-        root.focus()
-        initial_unit = event.widget.get()
-
-    # Stores initial amount unit and sets default
-    var_initial = tk.StringVar(root)
-    var_initial.set("Bq")
-
-    # Creates dropdown menu for initial amount unit
-    initial_unit_dropdown = make_unit_dropdown(initial_side_frame, var_initial, initial_choices[initial_type],
-                                               on_select_initial_unit)
-
-    # Horizontal frame for initial amount
-    activity_side_frame = tk.Frame(inner_details_frame, bg="#F2F2F2")
-    activity_side_frame.pack(pady=20)
-
-    # Initial amount label
-    activity_label = ttk.Label(activity_side_frame, text="Activity Unit:", style="Black.TLabel")
-    activity_label.pack(side='left', padx=5)
-
-    # Variable to hold activity unit type input
-    activity_type = "Activity (Bq)"
-
-    # Variable to hold activity unit input
-    activity_unit = "Bq"
-
-    # Possible unit types
-    activity_types = ["Activity (Bq)",
-                      "Activity (Ci)",
-                      "Activity (dpm)"]
-
-    # Logic for when an activity type is selected
-    def on_select_activity_type(event):
-        nonlocal activity_type, activity_unit
-        event.widget.selection_clear()
-        new_type = event.widget.get()
-
-        # Adjusts unit choices
-        unit_choices = initial_choices[new_type]
-        if activity_type != new_type:
-            activity_unit = default_choices[new_type]
-            activity_type = new_type
-        activity_unit_dropdown.set(activity_unit)
-        activity_unit_dropdown.config(values=unit_choices, width=get_width(unit_choices))
-
-        activity_type = event.widget.get()
-        root.focus()
-
-    # Stores activity type and sets default
-    var_activity_type = tk.StringVar(root)
-    var_activity_type.set("Activity (Bq)")
-
-    # Creates dropdown menu for activity unit type
-    _ = make_unit_dropdown(activity_side_frame, var_activity_type, activity_types, on_select_activity_type)
-
-    # Logic for when an activity unit is selected
-    def on_select_activity_unit(event):
-        nonlocal initial_unit
-        event.widget.selection_clear()
-        root.focus()
-        initial_unit = event.widget.get()
-
-    # Stores activity unit and sets default
-    var_activity = tk.StringVar(root)
-    var_activity.set("Bq")
-
-    # Creates dropdown menu for initial amount unit
-    activity_unit_dropdown = make_unit_dropdown(activity_side_frame, var_activity, initial_choices[activity_type],
-                                                on_select_activity_unit)
+    initial_input.pack(pady=(1,20))
 
     # Spacer
     empty_frame3 = make_spacer(root)
@@ -426,9 +272,8 @@ def decay_calc_main(root, category="Common Elements", mode="Activities",
     calc_button = ttk.Button(inner_result_frame, text="Calculate",
                              style="Maize.TButton", padding=(0,0),
                              command=lambda: handle_calculation(root, mode, isotope,
-                                                            initial_input.get(), initial_unit,
+                                                                initial_input.get(), amount_type, amount_unit,
                                                                 time_input.get(), time_unit,
-                                                                activity_unit,
                                                                 result_box))
     calc_button.config(width=get_width(["Calculate"]))
     calc_button.pack(pady=(20,5))
@@ -443,7 +288,8 @@ def decay_calc_main(root, category="Common Elements", mode="Activities",
     advanced_button = ttk.Button(root, text="Advanced Settings",
                                  style="Maize.TButton", padding=(0,0),
                                  command=lambda: to_advanced(root, category, mode,
-                                                             common_el, element))
+                                                             common_el, element, time_unit,
+                                                             amount_type, amount_unit))
     advanced_button.config(width=get_width(["Advanced Settings"]))
     advanced_button.pack(pady=5)
 
@@ -496,10 +342,10 @@ decay calculator main screen and then creating the
 decay calculator advanced screen.
 It is called when the Advanced Settings button is hit.
 """
-def to_advanced(root, category, mode, common_el, element):
+def to_advanced(root, category, mode, common_el, element, time_unit, amount_type, amount_unit):
     root.focus()
     from App.Decay.Calculator.decay_calc_advanced import decay_calc_advanced
 
     clear_main()
-    decay_calc_advanced(root, category, mode, common_el, element)
+    decay_calc_advanced(root, category, mode, common_el, element, time_unit, amount_type, amount_unit)
     scroll_to_top()

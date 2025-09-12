@@ -5,9 +5,9 @@ from App.style import SectionFrame
 from Utility.Functions.choices import get_choices
 from Utility.Functions.files import resource_path, open_file
 from Utility.Functions.gui_utility import make_vertical_frame
-from Utility.Functions.gui_utility import make_action_dropdown
 from Utility.Functions.gui_utility import make_spacer, get_width
 from Utility.Functions.gui_utility import make_title_frame, basic_label
+from Utility.Functions.gui_utility import make_action_dropdown, make_unit_dropdown
 
 # For global access to nodes on decay calculator advanced screen
 advanced_list = []
@@ -16,7 +16,8 @@ advanced_list = []
 # MENU SECTION
 #####################################################################################
 
-def decay_calc_advanced(root, category, mode, common_el, element):
+def decay_calc_advanced(root, category, mode, common_el, element,
+                        time_unit, amount_type, amount_unit):
     global advanced_list
 
     # Makes title frame
@@ -70,6 +71,110 @@ def decay_calc_advanced(root, category, mode, common_el, element):
     # Spacer
     empty_frame1 = make_spacer(root)
 
+    # Frame for units
+    unit_frame = SectionFrame(root, title="Select Units")
+    unit_frame.pack()
+    inner_unit_frame = unit_frame.get_inner_frame()
+
+    # Horizontal frame for time unit settings
+    time_unit_side_frame = tk.Frame(inner_unit_frame, bg="#F2F2F2")
+    time_unit_side_frame.pack(pady=20)
+
+    # Time unit label
+    time_unit_label = ttk.Label(time_unit_side_frame, text="Time Units:", style="Black.TLabel")
+    time_unit_label.pack(side='left', padx=5)
+
+    # Logic for when time unit is selected
+    def on_select_time_unit(event):
+        nonlocal time_unit
+        event.widget.selection_clear()
+        root.focus()
+        time_unit = event.widget.get()
+
+    # Stores time unit and sets default
+    var_time = tk.StringVar(root)
+    var_time.set(time_unit)
+
+    # Creates dropdown menu for numerator unit
+    time_choices = ['μs', 'ms', 's', 'm', 'h', 'd', 'y']
+    _ = make_unit_dropdown(time_unit_side_frame, var_time, time_choices, on_select_time_unit)
+
+    # Horizontal frame for amount unit settings
+    amount_unit_side_frame = tk.Frame(inner_unit_frame, bg="#F2F2F2")
+    amount_unit_side_frame.pack(pady=(0,20))
+
+    # Amount unit label
+    amount_unit_label = ttk.Label(amount_unit_side_frame, text="Amount Units:", style="Black.TLabel")
+    amount_unit_label.pack(side='left', padx=5)
+
+    # Logic for when an amount type is selected
+    def on_select_amount_type(event):
+        nonlocal amount_type, amount_unit
+        event.widget.selection_clear()
+        new_type = event.widget.get()
+
+        # Adjusts unit choices
+        unit_choices = amount_choices[new_type]
+        if amount_type != new_type:
+            amount_unit = default_choices[new_type]
+            amount_type = new_type
+        amount_unit_dropdown.set(amount_unit)
+        amount_unit_dropdown.config(values=unit_choices, width=get_width(unit_choices))
+
+        amount_type = event.widget.get()
+        root.focus()
+
+    # Possible amount unit types
+    amount_types = ["Activity (Bq)",
+                    "Activity (Ci)",
+                    "Activity (dpm)",
+                    "Mass",
+                    "Moles",
+                    "Nuclei Number"]
+
+    # Stores amount type and sets default
+    var_amount_type = tk.StringVar(root)
+    var_amount_type.set(amount_type)
+
+    # Creates dropdown menu for amount type
+    _ = make_unit_dropdown(amount_unit_side_frame, var_amount_type, amount_types, on_select_amount_type)
+
+    # Logic for when amount unit is selected
+    def on_select_amount_unit(event):
+        nonlocal amount_unit
+        event.widget.selection_clear()
+        root.focus()
+        amount_unit = event.widget.get()
+
+    # Possible amount unit choices
+    default_choices = {
+        "Activity (Bq)": "Bq",
+        "Activity (Ci)": "Ci",
+        "Activity (dpm)": "dpm",
+        "Mass": "g",
+        "Moles": "mol",
+        "Nuclei Number": "num"
+    }
+    amount_choices = {
+        "Activity (Bq)": ["pBq", "nBq", "μBq", "mBq", "Bq", "kBq", "MBq", "GBq", "TBq"],
+        "Activity (Ci)": ["pCi", "nCi", "μCi", "mCi", "Ci", "kCi", "MCi", "GCi", "TCi"],
+        "Activity (dpm)": ["dpm"],
+        "Mass": ["pg", "ng", "μg", "mg", "g", "kg", "t"],
+        "Moles": ["pmol", "nmol", "μmol", "mmol", "mol", "kmol", "Mmol"],
+        "Nuclei Number": ["num"]
+    }
+
+    # Stores amount unit and sets default
+    var_amount = tk.StringVar(root)
+    var_amount.set(amount_unit)
+
+    # Creates dropdown menu for amount unit
+    amount_unit_dropdown = make_unit_dropdown(amount_unit_side_frame, var_amount, amount_choices[amount_type],
+                                              on_select_amount_unit)
+
+    # Spacer
+    empty_frame2 = make_spacer(root)
+
     # Frame for References, & Help
     bottom_frame = tk.Frame(root, bg="#F2F2F2")
     bottom_frame.pack(pady=5)
@@ -91,13 +196,15 @@ def decay_calc_advanced(root, category, mode, common_el, element):
     # Creates Back button to return to decay calculator main screen
     back_button = ttk.Button(root, text="Back", style="Maize.TButton",
                              padding=(0,0),
-                             command=lambda: to_main(root, category, mode, common_el, element))
+                             command=lambda: to_main(root, category, mode, common_el, element,
+                                                     time_unit, amount_type, amount_unit))
     back_button.config(width=get_width(["Back"]))
     back_button.pack(pady=5)
 
     # Stores nodes into global list
     advanced_list = [title_frame,
                      a_r_frame, empty_frame1,
+                     unit_frame, empty_frame2,
                      bottom_frame, back_button]
 
 #####################################################################################
@@ -123,11 +230,11 @@ decay calculator advanced screen and then creating the
 decay calculator main screen.
 It is called when the Back button is hit.
 """
-def to_main(root, category, mode, common_el, element):
+def to_main(root, category, mode, common_el, element, time_unit, amount_type, amount_unit):
     from App.Decay.Calculator.decay_calc_main import decay_calc_main
 
     clear_advanced()
-    decay_calc_main(root, category, mode, common_el, element)
+    decay_calc_main(root, category, mode, common_el, element, time_unit, amount_type, amount_unit)
 
 """
 This function opens the decay calculator References.txt file.

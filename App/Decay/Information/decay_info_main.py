@@ -60,6 +60,25 @@ def decay_info_main(root, category="Common Elements", mode="Decay Scheme (Plot)"
         nonlocal mode
         event.widget.selection_clear()
 
+        if event.widget.get() != "Decay Scheme (Plot)" \
+                and mode == "Decay Scheme (Plot)":
+            # Gets rid of save file option when switching off of decay scheme plot mode
+            save.pack_forget()
+        elif mode != "Decay Scheme (Plot)" \
+                and event.widget.get() == "Decay Scheme (Plot)":
+            # Reset in preparation to re-add results section in correct place
+            calc_button.pack_forget()
+            result.pack_forget()
+            result_box.pack_forget()
+
+            # Creates save file option when switching to decay scheme plot mode
+            save.pack(pady=(20,0))
+
+            # Re-adds everything below save file option section
+            calc_button.pack(pady=(20,5))
+            result.pack(pady=(5,1))
+            result_box.pack(pady=(1,20))
+
         # Update mode variable and fixes result section title
         mode = var_mode.get()
         result_frame.change_title(mode)
@@ -228,16 +247,30 @@ def decay_info_main(root, category="Common Elements", mode="Decay Scheme (Plot)"
     result_frame.pack()
     inner_result_frame = result_frame.get_inner_frame()
 
+    # Stores whether file is saved and sets default
+    var_save = tk.IntVar()
+    var_save.set(0)
+
+    # Creates checkbox for saving file
+    save = ttk.Checkbutton(inner_result_frame, text="Save Plot", variable=var_save,
+                           style="Maize.TCheckbutton", command=lambda: root.focus())
+
+    # If we are in decay scheme plot mode we create the option
+    # to save or not save the plot
+    if mode == "Decay Scheme (Plot)":
+        save.pack(pady=(20,0))
+
     # Creates Calculate button
     calc_button = ttk.Button(inner_result_frame, text="Calculate",
                              style="Maize.TButton", padding=(0,0),
                              command=lambda: handle_calculation(root, mode, isotope,
-                                                                result_box, half_life_unit))
+                                                                result_box, var_save.get(),
+                                                                half_life_unit))
     calc_button.config(width=get_width(["Calculate"]))
     calc_button.pack(pady=(20,5))
 
     # Result label
-    result_label(inner_result_frame)
+    result = result_label(inner_result_frame)
 
     # Displays the result of calculation
     result_box = make_result_box(inner_result_frame)

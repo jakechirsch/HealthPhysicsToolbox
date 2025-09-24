@@ -1,7 +1,10 @@
 ##### IMPORTS #####
+import io
 import pandas as pd
+from PIL import Image
 from collections import deque
 import radioactivedecay as rd
+import matplotlib.pyplot as plt
 from Utility.Functions.files import save_file
 from Utility.Functions.gui_utility import edit_result
 
@@ -21,11 +24,11 @@ This function is called when the Calculate button is hit.
 The function decides what calculation to perform
 based on the selected calculation mode.
 """
-def handle_calculation(root, mode, isotope, result_box, unit):
+def handle_calculation(root, mode, isotope, result_box, save, unit):
     root.focus()
     match mode:
         case "Decay Scheme (Plot)":
-            nuclide_decay_scheme(isotope, result_box)
+            nuclide_decay_scheme(isotope, result_box, save)
         case "Decay Scheme (Tabular)":
             nuclide_decay_scheme_tabular(isotope, result_box)
         case "Half Life":
@@ -35,10 +38,20 @@ def handle_calculation(root, mode, isotope, result_box, unit):
 This function retrieves the decay scheme plot
 given a particular isotope.
 """
-def nuclide_decay_scheme(isotope, result_box):
+def nuclide_decay_scheme(isotope, result_box, save):
     nuc = rd.Nuclide(isotope)
     fig, ax = nuc.plot()
-    save_file(fig, "Plot", result_box, isotope, "decay_scheme", True)
+    if not save:
+        fig.tight_layout()
+        buf = io.BytesIO()
+        fig.savefig(buf, format="PNG", bbox_inches="tight")
+        plt.close(fig)
+        buf.seek(0)
+        img = Image.open(buf)
+        edit_result("Plot opened!", result_box)
+        img.show()
+    else:
+        save_file(fig, "Plot", result_box, isotope, "decay_scheme", True)
 
 """
 This function details the decay scheme of a given

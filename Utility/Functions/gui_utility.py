@@ -168,12 +168,13 @@ This function makes a basic label and packs it in the provided frame.
 def basic_label(frame, text, pady=(0,0)):
     label = ttk.Label(frame, text=text, style="Black.TLabel")
     label.pack(pady=pady)
+    return label
 
 """
 This function makes a result label and packs it in the provided frame.
 """
 def result_label(frame):
-    basic_label(frame, "Result:", (5,1))
+    return basic_label(frame, "Result:", (5,1))
 
 """
 This function makes a result box to display the result

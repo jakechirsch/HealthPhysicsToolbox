@@ -193,6 +193,25 @@ def make_result_box(frame, pady=(1,20)):
     result_box.config(bg='white', fg='black', state="disabled", width=entry_width,
                       font=monospace_font)
     result_box.pack(pady=pady)
+
+    # Prevent all scrolling
+    def block_scroll(*_, **__):
+        return "break"
+
+    # Prevent mouse/pad scrolling
+    result_box.bind("<MouseWheel>", block_scroll) # Windows & macOS
+    result_box.bind("<Button-4>", block_scroll) # Linux scroll up
+    result_box.bind("<Button-5>", block_scroll) # Linux scroll down
+
+    # Prevent arrow scrolling
+    for key in ("<Up>", "<Down>", "<Left>", "<Right>", "<Prior>", "<Next>"):
+        result_box.bind(key, block_scroll)
+
+    # Force view back to top on mouse release to prevent drag-text scrolling
+    def reset_view(_):
+        result_box.yview_moveto(0) # Always show top line
+    result_box.bind("<ButtonRelease-1>", reset_view)
+
     return result_box
 
 """

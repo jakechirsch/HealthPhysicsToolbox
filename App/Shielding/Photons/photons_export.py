@@ -62,6 +62,7 @@ def photons_export(root, category, mode, interactions, common_el, common_mat,
     var6 = tk.IntVar()
     interaction_vars = [var0, var1, var2, var3, var4, var5, var6]
 
+    # Frame for interaction checkboxes
     checks = tk.Frame(inner_interactions_frame, bg="#F2F2F2")
     checks.pack()
 

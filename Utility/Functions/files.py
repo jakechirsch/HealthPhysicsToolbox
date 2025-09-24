@@ -105,7 +105,7 @@ def save_file(obj, choice, error_label, item, name, decay = False):
         else:
             obj.to_csv(file_path, index=False)
         if decay:
-            edit_result("Plot exported!", error_label)
+            edit_result(choice+" exported!", error_label)
         else:
             error_label.config(style="Success.TLabel", text=choice + " exported!")
         open_file(file_path)

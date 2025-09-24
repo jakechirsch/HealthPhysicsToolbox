@@ -30,7 +30,7 @@ behaviors.
 The sections and widgets are stored in main_list so they can be
 accessed later by clear_main.
 """
-def decay_info_main(root, category="Common Elements", mode="Decay Scheme",
+def decay_info_main(root, category="Common Elements", mode="Decay Scheme (Plot)",
                     common_el="Ag", element="Ac", half_life_unit="s"):
     global main_list
 
@@ -72,7 +72,8 @@ def decay_info_main(root, category="Common Elements", mode="Decay Scheme",
         root.focus()
 
     # Creates dropdown menu for mode
-    mode_choices = ["Decay Scheme",
+    mode_choices = ["Decay Scheme (Plot)",
+                    "Decay Scheme (Tabular)",
                     "Half Life"]
     _ = make_dropdown(inner_mode_frame, var_mode, mode_choices, select_mode, pady=20)
 

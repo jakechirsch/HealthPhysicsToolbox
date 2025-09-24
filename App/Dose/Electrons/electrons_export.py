@@ -61,6 +61,7 @@ def electrons_export(root, category, mode, interactions, common_el, common_mat,
         # Logic for when an interaction type is selected
         on_select = lambda: root.focus()
 
+        # Frame for interaction checkboxes
         checks = tk.Frame(inner_interactions_frame, bg="#F2F2F2")
         checks.pack()
 

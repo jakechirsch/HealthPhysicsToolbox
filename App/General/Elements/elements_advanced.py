@@ -1,12 +1,13 @@
 ##### IMPORTS #####
+import shelve
 import tkinter as tk
 from tkinter import ttk
 from App.style import SectionFrame
 from Utility.Functions.choices import get_choices
-from Utility.Functions.files import resource_path, open_file
 from Utility.Functions.gui_utility import make_vertical_frame
 from Utility.Functions.gui_utility import make_spacer, get_width
 from Utility.Functions.gui_utility import make_title_frame, basic_label
+from Utility.Functions.files import resource_path, open_file, get_user_data_path
 from Utility.Functions.gui_utility import make_unit_dropdown, make_action_dropdown
 from Utility.Functions.math_utility import atomic_mass_numerator, atomic_mass_denominator
 
@@ -17,8 +18,14 @@ advanced_list = []
 # MENU SECTION
 #####################################################################################
 
-def elements_advanced(root, category, mode, common_el, element, am_num, am_den):
+def elements_advanced(root, category, mode, common_el, element):
     global advanced_list
+
+    # Gets atomic mass units from user prefs
+    db_path = get_user_data_path("Settings/General/Elements")
+    with shelve.open(db_path) as prefs:
+        am_num = prefs.get("am_num", "g")
+        am_den = prefs.get("am_den", "mol")
 
     # Makes title frame
     title_frame = make_title_frame(root, "Element Information", "General/Elements")
@@ -95,17 +102,19 @@ def elements_advanced(root, category, mode, common_el, element, am_num, am_den):
 
         # Logic for when a numerator is selected
         def on_select_num(event):
-            nonlocal am_num
             event.widget.selection_clear()
             root.focus()
-            am_num = event.widget.get()
+            selection = event.widget.get()
+            with shelve.open(db_path) as shelve_prefs:
+                shelve_prefs["am_num"] = selection
 
         # Logic for when a denominator is selected
         def on_select_den(event):
-            nonlocal am_den
             event.widget.selection_clear()
             root.focus()
-            am_den = event.widget.get()
+            selection = event.widget.get()
+            with shelve.open(db_path) as shelve_prefs:
+                shelve_prefs["am_den"] = selection
 
         # Stores numerator and sets default
         var_numerator = tk.StringVar(root)
@@ -149,8 +158,7 @@ def elements_advanced(root, category, mode, common_el, element, am_num, am_den):
     # Creates Back button to return to elements main screen
     back_button = ttk.Button(root, text="Back", style="Maize.TButton",
                              padding=(0,0),
-                             command=lambda: to_main(root, category, mode, common_el, element,
-                                                     am_num, am_den))
+                             command=lambda: to_main(root, category, mode, common_el, element))
     back_button.config(width=get_width(["Back"]))
     back_button.pack(pady=5)
 
@@ -183,11 +191,11 @@ elements advanced screen and then creating the
 elements main screen.
 It is called when the Back button is hit.
 """
-def to_main(root, category, mode, common_el, element, am_num, am_den):
+def to_main(root, category, mode, common_el, element):
     from App.General.Elements.elements_main import elements_main
 
     clear_advanced()
-    elements_main(root, category, mode, common_el, element, am_num, am_den)
+    elements_main(root, category, mode, common_el, element)
 
 """
 This function opens the elements References.txt file.

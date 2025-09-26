@@ -1,7 +1,9 @@
 ##### IMPORTS #####
 import csv
+import shelve
 from Utility.Functions.files import resource_path
 from Utility.Functions.gui_utility import edit_result
+from Utility.Functions.files import get_user_data_path
 from Utility.Functions.math_utility import atomic_mass_numerator, atomic_mass_denominator
 
 #####################################################################################
@@ -15,8 +17,14 @@ based on the selected calculation mode.
 If the calculation mode is Atomic Mass, the result is
 converted to the desired units.
 """
-def handle_calculation(root, mode, element, result_box, num, den):
+def handle_calculation(root, mode, element, result_box):
     root.focus()
+
+    # Gets atomic mass units from user prefs
+    db_path = get_user_data_path("Settings/General/Elements")
+    with shelve.open(db_path) as prefs:
+        num = prefs.get("am_num", "g")
+        den = prefs.get("am_den", "mol")
 
     path = resource_path('Data/General Data/Periodic Table of Elements.csv')
     with open(path, 'r') as file:

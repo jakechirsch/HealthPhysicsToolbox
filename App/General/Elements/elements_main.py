@@ -19,7 +19,7 @@ main_list = []
 #####################################################################################
 
 def elements_main(root, category="Common Elements", mode="Atomic Number",
-                  common_el="Ag", element="Ac", am_num="g", am_den="mol"):
+                  common_el="Ag", element="Ac"):
     global main_list
 
     # Makes title frame
@@ -144,7 +144,7 @@ def elements_main(root, category="Common Elements", mode="Atomic Number",
     calc_button = ttk.Button(inner_result_frame, text="Calculate",
                              style="Maize.TButton", padding=(0,0),
                              command=lambda: handle_calculation(root, mode, var_element.get(),
-                                                                result_box, am_num, am_den))
+                                                                result_box))
     calc_button.config(width=get_width(["Calculate"]))
     calc_button.pack(pady=(20,5))
 
@@ -158,8 +158,7 @@ def elements_main(root, category="Common Elements", mode="Atomic Number",
     advanced_button = ttk.Button(root, text="Advanced Settings",
                                  style="Maize.TButton", padding=(0,0),
                                  command=lambda: to_advanced(root, category, mode,
-                                                             common_el, element,
-                                                             am_num, am_den))
+                                                             common_el, element))
     advanced_button.config(width=get_width(["Advanced Settings"]))
     advanced_button.pack(pady=5)
 
@@ -207,9 +206,9 @@ elements main screen and then creating the
 elements advanced screen.
 It is called when the Advanced Settings button is hit.
 """
-def to_advanced(root, category, mode, common_el, element, am_num, am_den):
+def to_advanced(root, category, mode, common_el, element):
     root.focus()
     from App.General.Elements.elements_advanced import elements_advanced
 
     clear_main()
-    elements_advanced(root, category, mode, common_el, element, am_num, am_den)
+    elements_advanced(root, category, mode, common_el, element)

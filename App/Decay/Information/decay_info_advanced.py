@@ -1,8 +1,10 @@
 ##### IMPORTS #####
+import shelve
 import tkinter as tk
 from tkinter import ttk
 from App.style import SectionFrame
 from Utility.Functions.choices import get_choices
+from Utility.Functions.files import get_user_data_path
 from Utility.Functions.files import resource_path, open_file
 from Utility.Functions.gui_utility import make_vertical_frame
 from Core.Decay.Information.nuclide_info import half_life_units
@@ -17,8 +19,13 @@ advanced_list = []
 # MENU SECTION
 #####################################################################################
 
-def decay_info_advanced(root, category, mode, common_el, element, half_life_unit):
+def decay_info_advanced(root, category, mode, common_el, element):
     global advanced_list
+
+    # Gets half-life unit from user prefs
+    db_path = get_user_data_path("Settings/Decay/Information")
+    with shelve.open(db_path) as prefs:
+        half_life_unit = prefs.get("hl_unit", "s")
 
     # Makes title frame
     title_frame = make_title_frame(root, "Decay Information", "Decay/Information")
@@ -94,12 +101,13 @@ def decay_info_advanced(root, category, mode, common_el, element, half_life_unit
                                style="Black.TLabel")
         unit_label.pack(side='left', padx=5)
 
-        # Logic for when a unit is selected
+        # Logic for when a half-life unit is selected
         def on_select_unit(event):
-            nonlocal half_life_unit
             event.widget.selection_clear()
             root.focus()
-            half_life_unit = event.widget.get()
+            selection = event.widget.get()
+            with shelve.open(db_path) as shelve_prefs:
+                shelve_prefs["hl_unit"] = selection
 
         # Stores half life unit and sets default
         var_unit = tk.StringVar(root)
@@ -132,7 +140,7 @@ def decay_info_advanced(root, category, mode, common_el, element, half_life_unit
     # Creates Back button to return to decay information main screen
     back_button = ttk.Button(root, text="Back", style="Maize.TButton",
                              padding=(0,0),
-                             command=lambda: to_main(root, category, mode, common_el, element, half_life_unit))
+                             command=lambda: to_main(root, category, mode, common_el, element))
     back_button.config(width=get_width(["Back"]))
     back_button.pack(pady=5)
 
@@ -165,11 +173,11 @@ decay information advanced screen and then creating the
 decay information main screen.
 It is called when the Back button is hit.
 """
-def to_main(root, category, mode, common_el, element, half_life_unit):
+def to_main(root, category, mode, common_el, element):
     from App.Decay.Information.decay_info_main import decay_info_main
 
     clear_advanced()
-    decay_info_main(root, category, mode, common_el, element, half_life_unit)
+    decay_info_main(root, category, mode, common_el, element)
 
 """
 This function opens the decay information References.txt file.

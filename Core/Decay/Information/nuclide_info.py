@@ -1,5 +1,6 @@
 ##### IMPORTS #####
 import io
+import shelve
 import pandas as pd
 from PIL import Image
 from collections import deque
@@ -7,6 +8,7 @@ import radioactivedecay as rd
 import matplotlib.pyplot as plt
 from Utility.Functions.files import save_file
 from Utility.Functions.gui_utility import edit_result
+from Utility.Functions.files import get_user_data_path
 
 #####################################################################################
 # UNITS SECTION
@@ -24,7 +26,7 @@ This function is called when the Calculate button is hit.
 The function decides what calculation to perform
 based on the selected calculation mode.
 """
-def handle_calculation(root, mode, isotope, result_box, save, unit):
+def handle_calculation(root, mode, isotope, result_box, save):
     root.focus()
     match mode:
         case "Decay Scheme (Plot)":
@@ -32,7 +34,7 @@ def handle_calculation(root, mode, isotope, result_box, save, unit):
         case "Decay Scheme (Tabular)":
             nuclide_decay_scheme_tabular(isotope, result_box)
         case "Half Life":
-            nuclide_half_life(isotope, result_box, unit)
+            nuclide_half_life(isotope, result_box)
 
 """
 This function retrieves the decay scheme plot
@@ -106,7 +108,12 @@ def nuclide_decay_scheme_tabular(isotope, result_box):
 This function retrieves the half-life
 given a particular isotope.
 """
-def nuclide_half_life(isotope, result_box, unit):
+def nuclide_half_life(isotope, result_box):
+    # Gets half-life unit from user prefs
+    db_path = get_user_data_path("Settings/Decay/Information")
+    with shelve.open(db_path) as prefs:
+        unit = prefs.get("hl_unit", "s")
+
     nuc = rd.Nuclide(isotope)
     result = nuc.half_life(unit)
     if unit == "readable":

@@ -1,12 +1,13 @@
 ##### IMPORTS #####
+import shelve
 import tkinter as tk
 from tkinter import ttk
 from App.style import SectionFrame
 from Utility.Functions.choices import get_choices
-from Utility.Functions.files import resource_path, open_file
 from Utility.Functions.gui_utility import make_vertical_frame
 from Utility.Functions.gui_utility import make_spacer, get_width
 from Utility.Functions.gui_utility import make_title_frame, basic_label
+from Utility.Functions.files import resource_path, open_file, get_user_data_path
 from Utility.Functions.gui_utility import make_action_dropdown, make_unit_dropdown
 
 # For global access to nodes on decay calculator advanced screen
@@ -16,9 +17,15 @@ advanced_list = []
 # MENU SECTION
 #####################################################################################
 
-def decay_calc_advanced(root, category, mode, common_el, element,
-                        time_unit, amount_type, amount_unit, dates):
+def decay_calc_advanced(root, category, mode, common_el, element, dates):
     global advanced_list
+
+    # Gets units from user prefs
+    db_path = get_user_data_path("Settings/Decay/Calculator")
+    with shelve.open(db_path) as prefs:
+        amount_type = prefs.get("amount_type", "Activity (Bq)")
+        amount_unit = prefs.get("amount_unit", "Bq")
+        time_unit = prefs.get("time_unit", "s")
 
     # Makes title frame
     title_frame = make_title_frame(root, "Decay Calculator", "Decay/Calculator")
@@ -105,10 +112,11 @@ def decay_calc_advanced(root, category, mode, common_el, element,
 
     # Logic for when time unit is selected
     def on_select_time_unit(event):
-        nonlocal time_unit
         event.widget.selection_clear()
         root.focus()
-        time_unit = event.widget.get()
+        selection = event.widget.get()
+        with shelve.open(db_path) as shelve_prefs:
+            shelve_prefs["time_unit"] = selection
 
     # Stores time unit and sets default
     var_time = tk.StringVar(root)
@@ -129,19 +137,23 @@ def decay_calc_advanced(root, category, mode, common_el, element,
 
     # Logic for when an amount type is selected
     def on_select_amount_type(event):
-        nonlocal amount_type, amount_unit
         event.widget.selection_clear()
-        new_type = event.widget.get()
+        selection = event.widget.get()
+
+        with shelve.open(db_path) as shelve_prefs:
+            og_amount_type = shelve_prefs.get("amount_type", "Activity (Bq)")
 
         # Adjusts unit choices
-        unit_choices = amount_choices[new_type]
-        if amount_type != new_type:
-            amount_unit = default_choices[new_type]
-            amount_type = new_type
-        amount_unit_dropdown.set(amount_unit)
-        amount_unit_dropdown.config(values=unit_choices, width=get_width(unit_choices))
+        unit_choices = amount_choices[selection]
+        if og_amount_type != selection:
+            with shelve.open(db_path) as shelve_prefs:
+                shelve_prefs["amount_unit"] = default_choices[selection]
+                amount_unit_dropdown.set(default_choices[selection])
+                amount_unit_dropdown.config(values=unit_choices,
+                                            width=get_width(unit_choices))
 
-        amount_type = event.widget.get()
+        with shelve.open(db_path) as shelve_prefs:
+            shelve_prefs["amount_type"] = selection
         root.focus()
 
     # Possible amount unit types
@@ -161,10 +173,11 @@ def decay_calc_advanced(root, category, mode, common_el, element,
 
     # Logic for when amount unit is selected
     def on_select_amount_unit(event):
-        nonlocal amount_unit
         event.widget.selection_clear()
         root.focus()
-        amount_unit = event.widget.get()
+        selection = event.widget.get()
+        with shelve.open(db_path) as shelve_prefs:
+            shelve_prefs["amount_unit"] = selection
 
     # Possible amount unit choices
     default_choices = {
@@ -189,7 +202,8 @@ def decay_calc_advanced(root, category, mode, common_el, element,
     var_amount.set(amount_unit)
 
     # Creates dropdown menu for amount unit
-    amount_unit_dropdown = make_unit_dropdown(amount_unit_side_frame, var_amount, amount_choices[amount_type],
+    amount_unit_dropdown = make_unit_dropdown(amount_unit_side_frame, var_amount,
+                                              amount_choices[amount_type],
                                               on_select_amount_unit)
 
     # Spacer
@@ -217,7 +231,6 @@ def decay_calc_advanced(root, category, mode, common_el, element,
     back_button = ttk.Button(root, text="Back", style="Maize.TButton",
                              padding=(0,0),
                              command=lambda: to_main(root, category, mode, common_el, element,
-                                                     time_unit, amount_type, amount_unit,
                                                      dates))
     back_button.config(width=get_width(["Back"]))
     back_button.pack(pady=5)
@@ -251,13 +264,11 @@ decay calculator advanced screen and then creating the
 decay calculator main screen.
 It is called when the Back button is hit.
 """
-def to_main(root, category, mode, common_el, element, time_unit,
-            amount_type, amount_unit, dates):
+def to_main(root, category, mode, common_el, element, dates):
     from App.Decay.Calculator.decay_calc_main import decay_calc_main
 
     clear_advanced()
-    decay_calc_main(root, category, mode, common_el, element, time_unit,
-                    amount_type, amount_unit, dates)
+    decay_calc_main(root, category, mode, common_el, element, dates)
 
 """
 This function opens the decay calculator References.txt file.

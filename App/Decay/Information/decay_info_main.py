@@ -32,7 +32,7 @@ The sections and widgets are stored in main_list so they can be
 accessed later by clear_main.
 """
 def decay_info_main(root, category="Common Elements", mode="Decay Scheme (Plot)",
-                    common_el="Ag", element="Ac", half_life_unit="s"):
+                    common_el="Ag", element="Ac"):
     global main_list
 
     # Makes title frame
@@ -265,8 +265,7 @@ def decay_info_main(root, category="Common Elements", mode="Decay Scheme (Plot)"
     calc_button = ttk.Button(inner_result_frame, text="Calculate",
                              style="Maize.TButton", padding=(0,0),
                              command=lambda: handle_calculation(root, mode, isotope,
-                                                                result_box, var_save.get(),
-                                                                half_life_unit))
+                                                                result_box, var_save.get()))
     calc_button.config(width=get_width(["Calculate"]))
     calc_button.pack(pady=(20,5))
 
@@ -280,8 +279,7 @@ def decay_info_main(root, category="Common Elements", mode="Decay Scheme (Plot)"
     advanced_button = ttk.Button(root, text="Advanced Settings",
                                  style="Maize.TButton", padding=(0,0),
                                  command=lambda: to_advanced(root, category, mode,
-                                                             common_el, element,
-                                                             half_life_unit))
+                                                             common_el, element))
     advanced_button.config(width=get_width(["Advanced Settings"]))
     advanced_button.pack(pady=5)
 
@@ -329,9 +327,9 @@ decay information main screen and then creating the
 decay information advanced screen.
 It is called when the Advanced Settings button is hit.
 """
-def to_advanced(root, category, mode, common_el, element, half_life_unit):
+def to_advanced(root, category, mode, common_el, element):
     root.focus()
     from App.Decay.Information.decay_info_advanced import decay_info_advanced
 
     clear_main()
-    decay_info_advanced(root, category, mode, common_el, element, half_life_unit)
+    decay_info_advanced(root, category, mode, common_el, element)

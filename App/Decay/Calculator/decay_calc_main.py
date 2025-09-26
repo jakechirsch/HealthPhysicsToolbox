@@ -1,4 +1,5 @@
 ##### IMPORTS #####
+import shelve
 import platform
 import tkinter as tk
 from tkinter import ttk
@@ -6,6 +7,7 @@ import tkinter.font as font
 from App.style import SectionFrame
 from App.scroll import scroll_to_top
 from Utility.Functions.time import get_time
+from Utility.Functions.files import get_user_data_path
 from Utility.Functions.gui_utility import make_exit_button
 from Utility.Functions.choices import get_choices, get_isotopes
 from Utility.Functions.gui_utility import make_spacer, get_width
@@ -37,9 +39,14 @@ The sections and widgets are stored in main_list so they can be
 accessed later by clear_main.
 """
 def decay_calc_main(root, category="Common Elements", mode="Activities",
-                    common_el="Ag", element="Ac", time_unit="s", amount_type="Activity (Bq)",
-                    amount_unit="Bq", dates=False):
+                    common_el="Ag", element="Ac", dates=False):
     global main_list
+
+    # Gets units from user prefs
+    db_path = get_user_data_path("Settings/Decay/Calculator")
+    with shelve.open(db_path) as prefs:
+        amount_unit = prefs.get("amount_unit", "Bq")
+        time_unit = prefs.get("time_unit", "s")
 
     # Makes title frame
     title_frame = make_title_frame(root, "Decay Calculator", "Decay/Calculator")
@@ -321,9 +328,8 @@ def decay_calc_main(root, category="Common Elements", mode="Activities",
                              style="Maize.TButton", padding=(0,0),
                              command=lambda: handle_calculation(root, mode, isotope,
                                                                 initial_input.get(),
-                                                                amount_type, amount_unit,
             get_time(dates, time_input.get(), start_date_input.get(), end_date_input.get()),
-                                        time_unit if not dates else "s", dates, result_box))
+                                                                dates, result_box))
     calc_button.config(width=get_width(["Calculate"]))
     calc_button.pack(pady=(20,5))
 
@@ -337,8 +343,7 @@ def decay_calc_main(root, category="Common Elements", mode="Activities",
     advanced_button = ttk.Button(root, text="Advanced Settings",
                                  style="Maize.TButton", padding=(0,0),
                                  command=lambda: to_advanced(root, category, mode,
-                                                             common_el, element, time_unit,
-                                                             amount_type, amount_unit, dates))
+                                                             common_el, element, dates))
     advanced_button.config(width=get_width(["Advanced Settings"]))
     advanced_button.pack(pady=5)
 
@@ -391,12 +396,10 @@ decay calculator main screen and then creating the
 decay calculator advanced screen.
 It is called when the Advanced Settings button is hit.
 """
-def to_advanced(root, category, mode, common_el, element, time_unit,
-                amount_type, amount_unit, dates):
+def to_advanced(root, category, mode, common_el, element, dates):
     root.focus()
     from App.Decay.Calculator.decay_calc_advanced import decay_calc_advanced
 
     clear_main()
-    decay_calc_advanced(root, category, mode, common_el, element, time_unit,
-                        amount_type, amount_unit, dates)
+    decay_calc_advanced(root, category, mode, common_el, element, dates)
     scroll_to_top()

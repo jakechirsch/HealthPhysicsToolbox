@@ -4,8 +4,8 @@ from tkinter import ttk
 from App.style import SectionFrame
 from Core.Dose.Electrons.electrons_plots import export_data
 from Utility.Functions.gui_utility import make_spacer, get_width
+from Utility.Functions.logic_utility import get_item, get_interactions
 from Utility.Functions.gui_utility import make_title_frame, basic_label
-from Utility.Functions.logic_utility import get_item, get_unit, get_interactions
 from Utility.Functions.gui_utility import make_export_dropdown, interaction_checkbox
 
 # For global access to nodes on electron stopping power export screen
@@ -28,8 +28,7 @@ The sections and widgets are stored in export_list so they can be
 accessed later by clear_export.
 """
 def electrons_export(root, category, mode, interactions, common_el, common_mat,
-                     element, material, custom_mat, sp_num, d_num, sp_den,
-                     d_den, energy_unit):
+                     element, material, custom_mat):
     global export_list
 
     # Makes title frame
@@ -114,16 +113,6 @@ def electrons_export(root, category, mode, interactions, common_el, common_mat,
     # Creates dropdown menu for export type
     _ = make_export_dropdown(export_type_frame, var_export, on_select_export)
 
-    # Mode choices
-    mode_choices = ["Stopping Power",
-                    "Radiation Yield",
-                    "Density Effect Delta",
-                    "Density"]
-
-    # Stores units in list
-    num_units = [sp_num, "", "", d_num]
-    den_units = [sp_den, "", "", d_den]
-
     # Creates Export button
     export_button = ttk.Button(inner_options_frame, text="Export", style="Maize.TButton",
                                padding=(0,0),
@@ -133,10 +122,7 @@ def electrons_export(root, category, mode, interactions, common_el, common_mat,
                                         element, material, custom_mat),
                                            category, mode,
                                get_interactions(interaction_choices, interaction_vars),
-                               get_unit(num_units, mode_choices, mode),
-                               get_unit(den_units, mode_choices, mode),
-                                           energy_unit, var_export.get(),
-                                           var_save.get(), error_label))
+                                           var_export.get(), var_save.get(), error_label))
     export_button.config(width=get_width(["Export"]))
     export_button.pack(pady=(10,5))
 
@@ -148,8 +134,7 @@ def electrons_export(root, category, mode, interactions, common_el, common_mat,
     back_button = ttk.Button(root, text="Back", style="Maize.TButton", padding=(0,0),
                              command=lambda: advanced_back(root, category, mode, interactions,
                                                            common_el, common_mat, element,
-                                                           material, custom_mat, sp_num,
-                                                           d_num, sp_den, d_den, energy_unit))
+                                                           material, custom_mat))
     back_button.config(width=get_width(["Back"]))
     back_button.pack(pady=5)
 
@@ -182,11 +167,9 @@ electron stopping power advanced screen.
 It is called when the Back button is hit.
 """
 def advanced_back(root, category, mode, interactions, common_el, common_mat,
-                  element, material, custom_mat, sp_num, d_num, sp_den,
-                  d_den, energy_unit):
+                  element, material, custom_mat):
     from App.Dose.Electrons.electrons_advanced import electrons_advanced
 
     clear_export()
     electrons_advanced(root, category, mode, interactions, common_el, common_mat,
-                       element, material, custom_mat, sp_num, d_num, sp_den,
-                       d_den, energy_unit)
+                       element, material, custom_mat)

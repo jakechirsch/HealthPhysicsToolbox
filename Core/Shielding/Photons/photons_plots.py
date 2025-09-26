@@ -4,6 +4,7 @@ import csv
 import shelve
 import pandas as pd
 import matplotlib.pyplot as plt
+from Utility.Functions.logic_utility import get_unit
 from Utility.Functions.gui_utility import no_selection
 from Utility.Functions.choices import element_choices, material_choices
 from Utility.Functions.files import save_file, resource_path, get_user_data_path
@@ -36,9 +37,28 @@ configure_plot.
 Finally, if the file is meant to be saved, we pass on the
 work to the save_file function. Otherwise, we show the plot.
 """
-def export_data(root, item, category, mode, interactions, num, den,
-                energy_unit, choice, save, error_label):
+def export_data(root, item, category, mode, interactions, choice, save, error_label):
     root.focus()
+
+    # Gets units from user prefs
+    db_path = get_user_data_path("Settings/Shielding/Photons")
+    with shelve.open(db_path) as prefs:
+        mac_num = prefs.get("mac_num", "cm\u00B2")
+        d_num = prefs.get("d_num", "g")
+        lac_num = prefs.get("lac_num", "1")
+        mac_den = prefs.get("mac_den", "g")
+        d_den = prefs.get("d_den", "cm\u00B3")
+        lac_den = prefs.get("lac_den", "cm")
+        energy_unit = prefs.get("energy_unit", "MeV")
+
+    # Gets applicable units
+    num_units = [mac_num, d_num, lac_num]
+    den_units = [mac_den, d_den, lac_den]
+    mode_choices = ["Mass Attenuation Coefficient",
+                    "Density",
+                    "Linear Attenuation Coefficient"]
+    num = get_unit(num_units, mode_choices, mode)
+    den = get_unit(den_units, mode_choices, mode)
 
     # Error-check for no selected item
     if item == "":

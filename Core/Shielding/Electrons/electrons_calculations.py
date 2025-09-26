@@ -1,5 +1,8 @@
 ##### IMPORTS #####
+import shelve
 from Utility.Functions.math_utility import too_low
+from Utility.Functions.logic_utility import get_unit
+from Utility.Functions.files import get_user_data_path
 from Utility.Functions.gui_utility import edit_result, non_number, no_selection
 from Utility.Functions.math_utility import density_numerator, density_denominator
 from Utility.Functions.math_utility import find_data, find_density, errors, energy_units
@@ -31,8 +34,30 @@ the result is converted to the desired units, and then
 displayed in the result label.
 """
 def handle_calculation(root, category, mode, item, energy_str,
-                       result_box, warning_label, num, den, energy_unit, range_result):
+                       result_box, warning_label, range_result):
     root.focus()
+
+    # Gets units from user prefs
+    db_path = get_user_data_path("Settings/Shielding/Electrons")
+    with shelve.open(db_path) as prefs:
+        csda_num = prefs.get("csda_num", "g")
+        rec_num = prefs.get("rec_num", "g")
+        d_num = prefs.get("d_num", "g")
+        csda_den = prefs.get("csda_den", "cm\u00B2")
+        rec_den = prefs.get("rec_den", "cm\u00B2")
+        d_den = prefs.get("d_den", "cm\u00B3")
+        energy_unit = prefs.get("energy_unit", "MeV")
+
+    # Gets applicable units
+    num_units = [csda_num, rec_num, "", "", d_num]
+    den_units = [csda_den, rec_den, "", "", d_den]
+    mode_choices = ["CSDA Range",
+                    "Range-Energy Curve",
+                    "Radiation Yield",
+                    "Density Effect Delta",
+                    "Density"]
+    num = get_unit(num_units, mode_choices, mode)
+    den = get_unit(den_units, mode_choices, mode)
 
     # Error-check for no selected item
     if item == "":

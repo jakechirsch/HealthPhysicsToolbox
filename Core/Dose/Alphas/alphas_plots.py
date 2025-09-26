@@ -4,6 +4,7 @@ import csv
 import shelve
 import pandas as pd
 import matplotlib.pyplot as plt
+from Utility.Functions.logic_utility import get_unit
 from Utility.Functions.gui_utility import no_selection
 from Core.Dose.Alphas.alphas_calculations import sp_denominator
 from Utility.Functions.math_utility import find_data, energy_units
@@ -34,9 +35,29 @@ configure_plot.
 Finally, if the file is meant to be saved, we pass on the
 work to the save_file function. Otherwise, we show the plot.
 """
-def export_data(root, item, category, mode, interactions, num, den,
-                energy_unit, choice, save, error_label):
+def export_data(root, item, category, mode, interactions, choice, save, error_label):
     root.focus()
+
+    # Gets units from user prefs
+    db_path = get_user_data_path("Settings/Dose/Alphas")
+    with shelve.open(db_path) as prefs:
+        sp_e_num = prefs.get("sp_e_num", "MeV")
+        sp_l_num = prefs.get("sp_l_num", "cm\u00B2")
+        d_num = prefs.get("d_num", "g")
+        sp_den = prefs.get("sp_den", "g")
+        d_den = prefs.get("d_den", "cm\u00B3")
+        energy_unit = prefs.get("energy_unit", "MeV")
+
+    # Gets applicable units
+    num_e_units = [sp_e_num, d_num]
+    num_l_units = [sp_l_num, d_num]
+    den_units = [sp_den, d_den]
+    mode_choices = ["Stopping Power",
+                    "Density"]
+    num_e = get_unit(num_e_units, mode_choices, mode)
+    num_l = get_unit(num_l_units, mode_choices, mode)
+    num = num_e + " * " + num_l if mode == "Stopping Power" else num_e
+    den = get_unit(den_units, mode_choices, mode)
 
     # Error-check for no selected item
     if item == "":
@@ -86,8 +107,8 @@ def export_data(root, item, category, mode, interactions, num, den,
 
     # Convert to desired unit
     for interaction in interactions:
-        df[interaction] *= sp_e_numerator[num.split(" ", 1)[0]]
-        df[interaction] *= sp_l_numerator[num.split(" ", 2)[2]]
+        df[interaction] *= sp_e_numerator[num_e]
+        df[interaction] *= sp_l_numerator[num_l]
         df[interaction] /= sp_denominator[den]
 
     unit = " (" + num + "/" + den + ")"

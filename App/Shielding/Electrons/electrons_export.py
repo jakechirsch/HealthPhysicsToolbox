@@ -2,7 +2,7 @@
 import tkinter as tk
 from tkinter import ttk
 from App.style import SectionFrame
-from Utility.Functions.logic_utility import get_item, get_unit
+from Utility.Functions.logic_utility import get_item
 from Core.Shielding.Electrons.electrons_plots import export_data
 from Utility.Functions.gui_utility import make_title_frame, basic_label
 from Utility.Functions.gui_utility import get_width, make_export_dropdown
@@ -26,8 +26,7 @@ The sections and widgets are stored in export_list so they can be
 accessed later by clear_export.
 """
 def electrons_export(root, category, mode, common_el, common_mat, element,
-                     material, custom_mat, csda_num, d_num, rec_num, csda_den, d_den,
-                     rec_den, energy_unit, linear):
+                     material, custom_mat, linear):
     global export_list
 
     # Makes title frame
@@ -73,17 +72,6 @@ def electrons_export(root, category, mode, common_el, common_mat, element,
     # Creates dropdown menu for export type
     _ = make_export_dropdown(export_type_frame, var_export, on_select_export)
 
-    # Mode choices
-    mode_choices = ["CSDA Range",
-                    "Range-Energy Curve",
-                    "Radiation Yield",
-                    "Density Effect Delta",
-                    "Density"]
-
-    # Stores units in list
-    num_units = [csda_num, rec_num, "", "", d_num]
-    den_units = [csda_den, rec_den, "", "", d_den]
-
     # Creates Export button
     export_button = ttk.Button(inner_options_frame, text="Export", style="Maize.TButton",
                                padding=(0,0),
@@ -91,10 +79,7 @@ def electrons_export(root, category, mode, common_el, common_mat, element,
                                export_data(root,
                                get_item(category, common_el, common_mat,
                                         element, material, custom_mat),
-                                           category, mode,
-                               get_unit(num_units, mode_choices, mode),
-                               get_unit(den_units, mode_choices, mode),
-                                           energy_unit, var_export.get(),
+                                           category, mode, var_export.get(),
                                            var_save.get(), error_label, linear))
     export_button.config(width=get_width(["Export"]))
     export_button.pack(pady=(10,5))
@@ -107,9 +92,7 @@ def electrons_export(root, category, mode, common_el, common_mat, element,
     back_button = ttk.Button(root, text="Back", style="Maize.TButton", padding=(0,0),
                              command=lambda: advanced_back(root, category, mode,
                                                            common_el, common_mat, element,
-                                                           material, custom_mat, csda_num,
-                                                           d_num, rec_num, csda_den, d_den,
-                                                           rec_den, energy_unit, linear))
+                                                           material, custom_mat, linear))
     back_button.config(width=get_width(["Back"]))
     back_button.pack(pady=5)
 
@@ -141,11 +124,9 @@ electron range advanced screen.
 It is called when the Back button is hit.
 """
 def advanced_back(root, category, mode, common_el, common_mat, element,
-                  material, custom_mat, csda_num, d_num, rec_num, csda_den, d_den,
-                  rec_den, energy_unit, linear):
+                  material, custom_mat, linear):
     from App.Shielding.Electrons.electrons_advanced import electrons_advanced
 
     clear_export()
     electrons_advanced(root, category, mode, common_el, common_mat, element,
-                       material, custom_mat, csda_num, d_num, rec_num, csda_den, d_den,
-                       rec_den, energy_unit, linear)
+                       material, custom_mat, linear)

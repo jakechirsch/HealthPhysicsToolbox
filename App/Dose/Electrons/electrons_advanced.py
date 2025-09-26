@@ -1,17 +1,18 @@
 ##### IMPORTS #####
+import shelve
 import tkinter as tk
 from tkinter import ttk
 from App.style import SectionFrame
 from App.add_custom_menu import add_custom_menu
 from Utility.Functions.choices import get_choices
 from Utility.Functions.math_utility import energy_units
-from Utility.Functions.files import resource_path, open_file
 from Utility.Functions.gui_utility import make_vertical_frame
 from Utility.Functions.gui_utility import make_spacer, get_width
 from App.Dose.Electrons.electrons_export import electrons_export
 from Core.Dose.Electrons.electrons_calculations import sp_denominator
 from Utility.Functions.logic_utility import get_unit, get_interactions
 from Utility.Functions.gui_utility import make_title_frame, basic_label
+from Utility.Functions.files import resource_path, open_file, get_user_data_path
 from Utility.Functions.math_utility import density_numerator, density_denominator
 from Utility.Functions.gui_utility import make_unit_dropdown, interaction_checkbox
 from Core.Dose.Electrons.electrons_calculations import sp_e_numerator, sp_l_numerator
@@ -40,9 +41,18 @@ The sections and widgets are stored in advanced_list so they can be
 accessed later by clear_advanced.
 """
 def electrons_advanced(root, category, mode, interactions, common_el,
-                       common_mat, element, material, custom_mat,
-                       sp_num, d_num, sp_den, d_den, energy_unit):
+                       common_mat, element, material, custom_mat):
     global advanced_list
+
+    # Gets units from user prefs
+    db_path = get_user_data_path("Settings/Dose/Electrons")
+    with shelve.open(db_path) as prefs:
+        sp_e_num = prefs.get("sp_e_num", "MeV")
+        sp_l_num = prefs.get("sp_l_num", "cm\u00B2")
+        d_num = prefs.get("d_num", "g")
+        sp_den = prefs.get("sp_den", "g")
+        d_den = prefs.get("d_den", "cm\u00B3")
+        energy_unit = prefs.get("energy_unit", "MeV")
 
     # Makes title frame
     title_frame = make_title_frame(root, "Electron Stopping Power", "Dose/Electrons")
@@ -93,10 +103,7 @@ def electrons_advanced(root, category, mode, interactions, common_el,
         to_custom = lambda: to_custom_menu(root, category, mode,
                             get_interactions(interaction_choices, interaction_vars),
                                            common_el, common_mat,
-                                           element, material, custom_mat,
-                                           num_e_units[0] + " * " + num_l_units[0],
-                                           num_e_units[3], den_units[0], den_units[3],
-                                           energy_unit)
+                                           element, material, custom_mat)
         return make_vertical_frame(root, inner_a_r_frame, var_action.get(),
                                    var_customize_category.get(), non_common, common,
                                    non_common_m, common_m, custom, a_r_button,
@@ -139,8 +146,8 @@ def electrons_advanced(root, category, mode, interactions, common_el,
     _ = make_customize_category_dropdown(category_frame, var_customize_category, on_select_options)
 
     # Stores updatable units
-    num_e_units = [sp_num.split(" ", 1)[0], "", "", d_num]
-    num_l_units = [sp_num.split(" ", 2)[2], "", "", d_num]
+    num_e_units = [sp_e_num, "", "", d_num]
+    num_l_units = [sp_l_num, "", "", d_num]
     den_units = [sp_den, "", "", d_den]
 
     # Frame for specific add/remove settings
@@ -220,19 +227,44 @@ def electrons_advanced(root, category, mode, interactions, common_el,
         unit_label = ttk.Label(unit_side_frame, text=mode + " Units:", style="Black.TLabel")
         unit_label.pack(side='left', padx=5)
 
-        # Logic for when a unit is selected
-        def get_select_unit(units):
-            def on_select_unit(event):
-                event.widget.selection_clear()
-                root.focus()
+        # Logic for when a numerator unit is selected
+        def on_select_e_num(event):
+            event.widget.selection_clear()
+            root.focus()
+            selection = event.widget.get()
+            with shelve.open(db_path) as shelve_prefs:
                 if mode == "Stopping Power":
-                    units[0] = event.widget.get()
+                    shelve_prefs["sp_e_num"] = selection
+                    num_e_units[0] = selection
                 elif mode == "Density":
-                    units[3] = event.widget.get()
-            return on_select_unit
-        on_select_e_num = get_select_unit(num_e_units)
-        on_select_l_num = get_select_unit(num_l_units)
-        on_select_den = get_select_unit(den_units)
+                    shelve_prefs["d_num"] = selection
+                    num_e_units[3] = selection
+
+        # Logic for when a numerator unit is selected
+        def on_select_l_num(event):
+            event.widget.selection_clear()
+            root.focus()
+            selection = event.widget.get()
+            with shelve.open(db_path) as shelve_prefs:
+                if mode == "Stopping Power":
+                    shelve_prefs["sp_l_num"] = selection
+                    num_l_units[0] = selection
+                elif mode == "Density":
+                    shelve_prefs["d_num"] = selection
+                    num_l_units[3] = selection
+
+        # Logic for when a denominator unit is selected
+        def on_select_den(event):
+            event.widget.selection_clear()
+            root.focus()
+            selection = event.widget.get()
+            with shelve.open(db_path) as shelve_prefs:
+                if mode == "Stopping Power":
+                    shelve_prefs["sp_den"] = selection
+                    den_units[0] = selection
+                elif mode == "Density":
+                    shelve_prefs["d_den"] = selection
+                    den_units[3] = selection
 
         # Mode choices
         mode_choices = ["Stopping Power",
@@ -319,10 +351,7 @@ def electrons_advanced(root, category, mode, interactions, common_el,
                                    to_export_menu(root, category, mode,
                             get_interactions(interaction_choices, interaction_vars),
                                                   common_el, common_mat,
-                                                  element, material, custom_mat,
-                                                  num_e_units[0] + " * " + num_l_units[0],
-                                                  num_e_units[3], den_units[0], den_units[3],
-                                                  energy_unit))
+                                                  element, material, custom_mat))
         export_button.config(width=get_width(["Export Menu"]))
         export_button.pack(side='left', padx=5)
 
@@ -346,11 +375,7 @@ def electrons_advanced(root, category, mode, interactions, common_el,
                              command=lambda: to_main(root, category, mode,
                              get_interactions(interaction_choices, interaction_vars),
                                                      common_el, common_mat,
-                                                     element, material, custom_mat,
-                                                     num_e_units[0] + " * " + num_l_units[0],
-                                                     num_e_units[3],
-                                                     den_units[0], den_units[3],
-                                                     energy_unit))
+                                                     element, material, custom_mat))
     back_button.config(width=get_width(["Back"]))
     back_button.pack(pady=5)
 
@@ -385,14 +410,12 @@ electron stopping power main screen.
 It is called when the Back button is hit.
 """
 def to_main(root, category, mode, interactions, common_el, common_mat,
-            element, material, custom_mat, sp_num, d_num, sp_den,
-            d_den, energy_unit):
+            element, material, custom_mat):
     from App.Dose.Electrons.electrons_main import electrons_main
 
     clear_advanced()
     electrons_main(root, category, mode, interactions, common_el, common_mat,
-                   element, material, custom_mat, sp_num, d_num, sp_den,
-                   d_den, energy_unit)
+                   element, material, custom_mat)
 
 """
 This function transitions from the electron stopping power advanced screen
@@ -402,12 +425,17 @@ add custom materials menu.
 It is called when the Add Custom Materials button is hit.
 """
 def to_custom_menu(root, category, mode, interactions, common_el, common_mat,
-                   element, material, custom_mat, sp_num, d_num, sp_den,
-                   d_den, energy_unit):
+                   element, material, custom_mat):
     clear_advanced()
     back = lambda: electrons_advanced(root, category, mode, interactions, common_el,
-                                      common_mat, element, material, custom_mat,
-                                      sp_num, d_num, sp_den, d_den, energy_unit)
+                                      common_mat, element, material, custom_mat)
+
+    # Gets density units from user prefs
+    db_path = get_user_data_path("Settings/Dose/Electrons")
+    with shelve.open(db_path) as prefs:
+        d_num = prefs.get("d_num", "g")
+        d_den = prefs.get("d_den", "cm\u00B3")
+
     add_custom_menu(root, d_num, d_den, back)
 
 """
@@ -418,12 +446,10 @@ electron stopping power export screen.
 It is called when the Export Menu button is hit.
 """
 def to_export_menu(root, category, mode, interactions, common_el, common_mat,
-                   element, material, custom_mat, sp_num, d_num, sp_den,
-                   d_den, energy_unit):
+                   element, material, custom_mat):
     clear_advanced()
     electrons_export(root, category, mode, interactions, common_el, common_mat,
-                     element, material, custom_mat, sp_num, d_num, sp_den,
-                     d_den, energy_unit)
+                     element, material, custom_mat)
 
 """
 This function opens the electron stopping power References.txt file.

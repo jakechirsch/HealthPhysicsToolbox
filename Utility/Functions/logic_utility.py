@@ -1,3 +1,7 @@
+#####################################################################################
+# LOGIC SECTION
+#####################################################################################
+
 """
 This function returns the list of selected interactions
 given the list of all interactions and the list of the

@@ -2,8 +2,8 @@
 import tkinter as tk
 from tkinter import ttk
 from App.style import SectionFrame
+from Utility.Functions.logic_utility import get_item
 from Core.Dose.Photons.photons_plots import export_data
-from Utility.Functions.logic_utility import get_item, get_unit
 from Utility.Functions.gui_utility import make_title_frame, basic_label
 from Utility.Functions.gui_utility import get_width, make_export_dropdown
 
@@ -27,8 +27,7 @@ The sections and widgets are stored in export_list so they can be
 accessed later by clear_export.
 """
 def photons_export(root, category, mode, common_el, common_mat, element,
-                   material, custom_mat, mea_num, d_num, mea_den, d_den,
-                   energy_unit):
+                   material, custom_mat):
     global export_list
 
     # Makes title frame
@@ -74,14 +73,6 @@ def photons_export(root, category, mode, common_el, common_mat, element,
     # Creates dropdown menu for export type
     _ = make_export_dropdown(export_type_frame, var_export, on_select_export)
 
-    # Mode choices
-    mode_choices = ["Mass Energy-Absorption",
-                    "Density"]
-
-    # Stores units in list
-    num_units = [mea_num, d_num]
-    den_units = [mea_den, d_den]
-
     # Creates Export button
     export_button = ttk.Button(inner_options_frame, text="Export", style="Maize.TButton",
                                padding=(0,0),
@@ -89,10 +80,7 @@ def photons_export(root, category, mode, common_el, common_mat, element,
                                export_data(root,
                                get_item(category, common_el, common_mat,
                                         element, material, custom_mat),
-                                           category, mode,
-                               get_unit(num_units, mode_choices, mode),
-                               get_unit(den_units, mode_choices, mode),
-                                           energy_unit, var_export.get(),
+                                           category, mode, var_export.get(),
                                            var_save.get(), error_label))
     export_button.config(width=get_width(["Export"]))
     export_button.pack(pady=(10,5))
@@ -106,9 +94,7 @@ def photons_export(root, category, mode, common_el, common_mat, element,
                              command=lambda: advanced_back(root, category, mode,
                                                            common_el, common_mat,
                                                            element, material,
-                                                           custom_mat, mea_num,
-                                                           d_num, mea_den, d_den,
-                                                           energy_unit))
+                                                           custom_mat))
     back_button.config(width=get_width(["Back"]))
     back_button.pack(pady=5)
 
@@ -140,11 +126,9 @@ photon energy absorption advanced screen.
 It is called when the Back button is hit.
 """
 def advanced_back(root, category, mode, common_el, common_mat, element,
-                  material, custom_mat, mea_num, d_num, mea_den, d_den,
-                  energy_unit):
+                  material, custom_mat):
     from App.Dose.Photons.photons_advanced import photons_advanced
 
     clear_export()
     photons_advanced(root, category, mode, common_el, common_mat, element,
-                     material, custom_mat, mea_num, d_num, mea_den, d_den,
-                     energy_unit)
+                     material, custom_mat)

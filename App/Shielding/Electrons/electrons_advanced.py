@@ -1,4 +1,5 @@
 ##### IMPORTS #####
+import shelve
 import tkinter as tk
 from tkinter import ttk
 from App.style import SectionFrame
@@ -6,12 +7,12 @@ from App.add_custom_menu import add_custom_menu
 from Utility.Functions.choices import get_choices
 from Utility.Functions.logic_utility import get_unit
 from Utility.Functions.math_utility import energy_units
-from Utility.Functions.files import resource_path, open_file
 from Utility.Functions.gui_utility import make_unit_dropdown
 from Utility.Functions.gui_utility import make_vertical_frame
 from Utility.Functions.gui_utility import make_spacer, get_width
 from App.Shielding.Electrons.electrons_export import electrons_export
 from Utility.Functions.gui_utility import make_title_frame, basic_label
+from Utility.Functions.files import resource_path, open_file, get_user_data_path
 from Utility.Functions.math_utility import density_numerator, density_denominator
 from Core.Shielding.Electrons.electrons_calculations import csda_numerator, csda_denominator
 from Utility.Functions.gui_utility import make_action_dropdown, make_customize_category_dropdown
@@ -39,9 +40,19 @@ The sections and widgets are stored in advanced_list so they can be
 accessed later by clear_advanced.
 """
 def electrons_advanced(root, category, mode, common_el, common_mat, element,
-                       material, custom_mat, csda_num, d_num, rec_num, csda_den, d_den,
-                       rec_den, energy_unit, linear):
+                       material, custom_mat, linear):
     global advanced_list
+
+    # Gets units from user prefs
+    db_path = get_user_data_path("Settings/Shielding/Electrons")
+    with shelve.open(db_path) as prefs:
+        csda_num = prefs.get("csda_num", "g")
+        rec_num = prefs.get("rec_num", "g")
+        d_num = prefs.get("d_num", "g")
+        csda_den = prefs.get("csda_den", "cm\u00B2")
+        rec_den = prefs.get("rec_den", "cm\u00B2")
+        d_den = prefs.get("d_den", "cm\u00B3")
+        energy_unit = prefs.get("energy_unit", "MeV")
 
     # Makes title frame
     title_frame = make_title_frame(root, "Electron Range", "Shielding/Electrons")
@@ -75,10 +86,7 @@ def electrons_advanced(root, category, mode, common_el, common_mat, element,
     def make_v_frame():
         to_custom = lambda: to_custom_menu(root, category, mode,
                                            common_el, common_mat,
-                                           element, material, custom_mat,
-                                           num_units[0], num_units[4], num_units[1],
-                                           den_units[0], den_units[4], den_units[1],
-                                           energy_unit, linear)
+                                           element, material, custom_mat, linear)
         return make_vertical_frame(root, inner_a_r_frame, var_action.get(),
                                    var_customize_category.get(), non_common, common,
                                    non_common_m, common_m, custom, a_r_button,
@@ -144,20 +152,37 @@ def electrons_advanced(root, category, mode, common_el, common_mat, element,
         unit_label = ttk.Label(unit_side_frame, text=mode + " Units:", style="Black.TLabel")
         unit_label.pack(side='left', padx=5)
 
-        # Logic for when a unit is selected
-        def get_select_unit(units):
-            def on_select_unit(event):
-                event.widget.selection_clear()
-                root.focus()
+        # Logic for when a numerator unit is selected
+        def on_select_num(event):
+            event.widget.selection_clear()
+            root.focus()
+            selection = event.widget.get()
+            with shelve.open(db_path) as shelve_prefs:
                 if mode == "CSDA Range":
-                    units[0] = event.widget.get()
+                    shelve_prefs["csda_num"] = selection
+                    num_units[0] = selection
                 elif mode == "Density":
-                    units[4] = event.widget.get()
+                    shelve_prefs["d_num"] = selection
+                    num_units[4] = selection
                 elif mode == "Range-Energy Curve":
-                    units[1] = event.widget.get()
-            return on_select_unit
-        on_select_num = get_select_unit(num_units)
-        on_select_den = get_select_unit(den_units)
+                    shelve_prefs["rec_num"] = selection
+                    num_units[1] = selection
+
+        # Logic for when a denominator unit is selected
+        def on_select_den(event):
+            event.widget.selection_clear()
+            root.focus()
+            selection = event.widget.get()
+            with shelve.open(db_path) as shelve_prefs:
+                if mode == "CSDA Range":
+                    shelve_prefs["csda_den"] = selection
+                    den_units[0] = selection
+                elif mode == "Density":
+                    shelve_prefs["d_den"] = selection
+                    den_units[4] = selection
+                elif mode == "Range-Energy Curve":
+                    shelve_prefs["rec_den"] = selection
+                    den_units[1] = selection
 
         # Mode choices
         mode_choices = ["CSDA Range",
@@ -231,9 +256,7 @@ def electrons_advanced(root, category, mode, common_el, common_mat, element,
                                    to_export_menu(root, category, mode,
                                                   common_el, common_mat,
                                                   element, material, custom_mat,
-                                                  num_units[0], num_units[4], num_units[1],
-                                                  den_units[0], den_units[4], den_units[1],
-                                                  energy_unit, linear))
+                                                  linear))
         export_button.config(width=get_width(["Export Menu"]))
         export_button.pack(side='left', padx=5)
 
@@ -256,10 +279,7 @@ def electrons_advanced(root, category, mode, common_el, common_mat, element,
                              padding=(0,0),
                              command=lambda: to_main(root, category, mode, common_el,
                                                      common_mat, element, material,
-                                                     custom_mat,
-                                                num_units[0], num_units[4], num_units[1],
-                                                den_units[0], den_units[4], den_units[1],
-                                                     energy_unit, linear))
+                                                     custom_mat, linear))
     back_button.config(width=get_width(["Back"]))
     back_button.pack(pady=5)
 
@@ -293,14 +313,12 @@ electron range main screen.
 It is called when the Back button is hit.
 """
 def to_main(root, category, mode, common_el, common_mat, element,
-            material, custom_mat, csda_num, d_num, rec_num, csda_den, d_den, rec_den,
-            energy_unit, linear):
+            material, custom_mat, linear):
     from App.Shielding.Electrons.electrons_main import electrons_main
 
     clear_advanced()
     electrons_main(root, category, mode, common_el, common_mat, element,
-                   material, custom_mat, csda_num, d_num, rec_num, csda_den, d_den,
-                   rec_den, energy_unit, linear)
+                   material, custom_mat, linear)
 
 """
 This function transitions from the electron range advanced screen
@@ -310,12 +328,17 @@ add custom materials menu.
 It is called when the Add Custom Materials button is hit.
 """
 def to_custom_menu(root, category, mode, common_el, common_mat, element,
-                   material, custom_mat, csda_num, d_num, rec_num, csda_den, d_den,
-                   rec_den, energy_unit, linear):
+                   material, custom_mat, linear):
     clear_advanced()
     back = lambda: electrons_advanced(root, category, mode, common_el, common_mat, element,
-                                      material, custom_mat, csda_num, d_num, rec_num, csda_den,
-                                      d_den, rec_den, energy_unit, linear)
+                                      material, custom_mat, linear)
+
+    # Gets density units from user prefs
+    db_path = get_user_data_path("Settings/Shielding/Electrons")
+    with shelve.open(db_path) as prefs:
+        d_num = prefs.get("d_num", "g")
+        d_den = prefs.get("d_den", "cm\u00B3")
+
     add_custom_menu(root, d_num, d_den, back)
 
 """
@@ -326,12 +349,10 @@ electron range export screen.
 It is called when the Export Menu button is hit.
 """
 def to_export_menu(root, category, mode, common_el, common_mat, element,
-                   material, custom_mat, csda_num, d_num, rec_num, csda_den, d_den,
-                   rec_den, energy_unit, linear):
+                   material, custom_mat, linear):
     clear_advanced()
     electrons_export(root, category, mode, common_el, common_mat, element,
-                     material, custom_mat, csda_num, d_num, rec_num, csda_den, d_den,
-                     rec_den, energy_unit, linear)
+                     material, custom_mat, linear)
 
 """
 This function opens the electron range References.txt file.

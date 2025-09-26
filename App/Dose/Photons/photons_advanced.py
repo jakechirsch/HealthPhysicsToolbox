@@ -1,4 +1,5 @@
 ##### IMPORTS #####
+import shelve
 import tkinter as tk
 from tkinter import ttk
 from App.style import SectionFrame
@@ -7,11 +8,11 @@ from Utility.Functions.choices import get_choices
 from Utility.Functions.logic_utility import get_unit
 from Utility.Functions.math_utility import energy_units
 from App.Dose.Photons.photons_export import photons_export
-from Utility.Functions.files import resource_path, open_file
 from Utility.Functions.gui_utility import make_unit_dropdown
 from Utility.Functions.gui_utility import make_vertical_frame
 from Utility.Functions.gui_utility import make_spacer, get_width
 from Utility.Functions.gui_utility import make_title_frame, basic_label
+from Utility.Functions.files import resource_path, open_file, get_user_data_path
 from Utility.Functions.math_utility import density_numerator, density_denominator
 from Core.Dose.Photons.photons_calculations import mea_numerator, mea_denominator
 from Utility.Functions.gui_utility import make_action_dropdown, make_customize_category_dropdown
@@ -40,9 +41,17 @@ The sections and widgets are stored in advanced_list so they can be
 accessed later by clear_advanced.
 """
 def photons_advanced(root, category, mode, common_el, common_mat, element,
-                     material, custom_mat, mea_num, d_num, mea_den, d_den,
-                     energy_unit):
+                     material, custom_mat):
     global advanced_list
+
+    # Gets units from user prefs
+    db_path = get_user_data_path("Settings/Dose/Photons")
+    with shelve.open(db_path) as prefs:
+        mea_num = prefs.get("mac_num", "cm\u00B2")
+        d_num = prefs.get("d_num", "g")
+        mea_den = prefs.get("mac_den", "g")
+        d_den = prefs.get("d_den", "cm\u00B3")
+        energy_unit = prefs.get("energy_unit", "MeV")
 
     # Makes title frame
     title_frame = make_title_frame(root, "Photon Energy Absorption", "Dose/Photons")
@@ -76,10 +85,7 @@ def photons_advanced(root, category, mode, common_el, common_mat, element,
     def make_v_frame():
         to_custom = lambda: to_custom_menu(root, category, mode,
                                            common_el, common_mat,
-                                           element, material, custom_mat,
-                                           num_units[0], num_units[1],
-                                           den_units[0], den_units[1],
-                                           energy_unit)
+                                           element, material, custom_mat)
         return make_vertical_frame(root, inner_a_r_frame, var_action.get(),
                                    var_customize_category.get(), non_common, common,
                                    non_common_m, common_m, custom, a_r_button,
@@ -144,18 +150,31 @@ def photons_advanced(root, category, mode, common_el, common_mat, element,
     unit_label = ttk.Label(unit_side_frame, text=mode+" Units:", style="Black.TLabel")
     unit_label.pack(side='left', padx=5)
 
-    # Logic for when a unit is selected
-    def get_select_unit(units):
-        def on_select_unit(event):
-            event.widget.selection_clear()
-            root.focus()
+    # Logic for when a numerator unit is selected
+    def on_select_num(event):
+        event.widget.selection_clear()
+        root.focus()
+        selection = event.widget.get()
+        with shelve.open(db_path) as shelve_prefs:
             if mode == "Mass Energy-Absorption":
-                units[0] = event.widget.get()
+                shelve_prefs["mea_num"] = selection
+                num_units[0] = selection
             else:
-                units[1] = event.widget.get()
-        return on_select_unit
-    on_select_num = get_select_unit(num_units)
-    on_select_den = get_select_unit(den_units)
+                shelve_prefs["d_num"] = selection
+                num_units[1] = selection
+
+    # Logic for when a denominator unit is selected
+    def on_select_den(event):
+        event.widget.selection_clear()
+        root.focus()
+        selection = event.widget.get()
+        with shelve.open(db_path) as shelve_prefs:
+            if mode == "Mass Energy-Absorption":
+                shelve_prefs["mea_den"] = selection
+                den_units[0] = selection
+            else:
+                shelve_prefs["d_den"] = selection
+                den_units[1] = selection
 
     # Mode choices
     mode_choices = ["Mass Energy-Absorption",
@@ -225,10 +244,7 @@ def photons_advanced(root, category, mode, common_el, common_mat, element,
                                    command=lambda:
                                    to_export_menu(root, category, mode,
                                                   common_el, common_mat, element,
-                                                  material, custom_mat,
-                                                  num_units[0], num_units[1],
-                                                  den_units[0], den_units[1],
-                                                  energy_unit))
+                                                  material, custom_mat))
         export_button.config(width=get_width(["Export Menu"]))
         export_button.pack(side='left', padx=5)
 
@@ -251,10 +267,7 @@ def photons_advanced(root, category, mode, common_el, common_mat, element,
                              padding=(0,0),
                              command=lambda: to_main(root, category, mode, common_el,
                                                      common_mat, element, material,
-                                                     custom_mat,
-                                                     num_units[0], num_units[1],
-                                                     den_units[0], den_units[1],
-                                                     energy_unit))
+                                                     custom_mat))
     back_button.config(width=get_width(["Back"]))
     back_button.pack(pady=5)
 
@@ -288,14 +301,12 @@ photon energy absorption main screen.
 It is called when the Back button is hit.
 """
 def to_main(root, category, mode, common_el, common_mat, element,
-            material, custom_mat, mea_num, d_num, mea_den, d_den,
-            energy_unit):
+            material, custom_mat):
     from App.Dose.Photons.photons_main import photons_main
 
     clear_advanced()
     photons_main(root, category, mode, common_el, common_mat, element,
-                 material, custom_mat, mea_num, d_num, mea_den, d_den,
-                 energy_unit)
+                 material, custom_mat)
 
 """
 This function transitions from the photon energy absorption advanced screen
@@ -305,12 +316,17 @@ add custom materials menu.
 It is called when the Add Custom Materials button is hit.
 """
 def to_custom_menu(root, category, mode, common_el, common_mat, element,
-                   material, custom_mat, mea_num, d_num, mea_den, d_den,
-                   energy_unit):
+                   material, custom_mat):
     clear_advanced()
     back = lambda: photons_advanced(root, category, mode, common_el, common_mat, element,
-                                    material, custom_mat, mea_num, d_num, mea_den, d_den,
-                                    energy_unit)
+                                    material, custom_mat)
+
+    # Gets density units from user prefs
+    db_path = get_user_data_path("Settings/Dose/Photons")
+    with shelve.open(db_path) as prefs:
+        d_num = prefs.get("d_num", "g")
+        d_den = prefs.get("d_den", "cm\u00B3")
+
     add_custom_menu(root, d_num, d_den, back)
 
 """
@@ -321,12 +337,10 @@ photon energy absorption export screen.
 It is called when the Export Menu button is hit.
 """
 def to_export_menu(root, category, mode, common_el, common_mat, element,
-                   material, custom_mat, mea_num, d_num, mea_den, d_den,
-                   energy_unit):
+                   material, custom_mat):
     clear_advanced()
     photons_export(root, category, mode, common_el, common_mat, element,
-                   material, custom_mat, mea_num, d_num, mea_den, d_den,
-                   energy_unit)
+                   material, custom_mat)
 
 """
 This function opens the photon energy absorption References.txt file.

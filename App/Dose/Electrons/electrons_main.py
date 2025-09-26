@@ -1,15 +1,17 @@
 ##### IMPORTS #####
+import shelve
 import platform
 import tkinter as tk
 from tkinter import ttk
 import tkinter.font as font
 from App.style import SectionFrame
 from Utility.Functions.choices import get_choices
+from Utility.Functions.files import get_user_data_path
 from Utility.Functions.gui_utility import make_exit_button
 from Utility.Functions.gui_utility import make_spacer, get_width
+from Utility.Functions.logic_utility import get_item, valid_saved
 from Utility.Functions.gui_utility import make_dropdown, make_result_box
 from Core.Dose.Electrons.electrons_calculations import handle_calculation
-from Utility.Functions.logic_utility import get_item, get_unit, valid_saved
 from Utility.Functions.gui_utility import make_category_dropdown, make_item_dropdown
 from Utility.Functions.gui_utility import basic_label, result_label, make_title_frame
 
@@ -39,9 +41,13 @@ def electrons_main(root, category="Common Elements",
                    mode="Stopping Power", interactions=None, common_el="Ag",
                    common_mat="Air (dry, near sea level)", element="Ac",
                    material="A-150 Tissue-Equivalent Plastic (A150TEP)",
-                   custom_mat="", sp_num="MeV * cm\u00B2", d_num="g", sp_den="g",
-                   d_den="cm\u00B3", energy_unit="MeV"):
+                   custom_mat=""):
     global main_list
+
+    # Gets energy unit from user prefs
+    db_path = get_user_data_path("Settings/Dose/Electrons")
+    with shelve.open(db_path) as prefs:
+        energy_unit = prefs.get("energy_unit", "MeV")
 
     # Sets default interaction - Stopping Power - Total
     if mode == "Stopping Power" and (interactions is None or not interactions):
@@ -233,20 +239,13 @@ def electrons_main(root, category="Common Elements",
     result_frame.pack()
     inner_result_frame = result_frame.get_inner_frame()
 
-    # Stores units in list
-    num_units = [sp_num, "", "", d_num]
-    den_units = [sp_den, "", "", d_den]
-
     # Creates Calculate button
     calc_button = ttk.Button(inner_result_frame, text="Calculate",
                              style="Maize.TButton", padding=(0,0),
                              command=lambda: handle_calculation(root, category,
                                                                 mode, interactions, var.get(),
                                                                 energy_entry.get(),
-                                                                result_box,
-                                                get_unit(num_units, mode_choices, mode),
-                                                get_unit(den_units, mode_choices, mode),
-                                                                energy_unit))
+                                                                result_box))
     calc_button.config(width=get_width(["Calculate"]))
     calc_button.pack(pady=(20,5))
 
@@ -262,8 +261,7 @@ def electrons_main(root, category="Common Elements",
                                  command=lambda: to_advanced(root, category,
                                                              mode, interactions, common_el,
                                                              common_mat, element, material,
-                                                             custom_mat, sp_num, d_num,
-                                                             sp_den, d_den, energy_unit))
+                                                             custom_mat))
     advanced_button.config(width=get_width(["Advanced Settings"]))
     advanced_button.pack(pady=5)
 
@@ -313,12 +311,10 @@ electron stopping power advanced screen.
 It is called when the Advanced Settings button is hit.
 """
 def to_advanced(root, category, mode, interactions, common_el,
-                common_mat, element, material, custom_mat,
-                sp_num, d_num, sp_den, d_den, energy_unit):
+                common_mat, element, material, custom_mat):
     root.focus()
     from App.Dose.Electrons.electrons_advanced import electrons_advanced
 
     clear_main()
     electrons_advanced(root, category, mode, interactions, common_el,
-                       common_mat, element, material, custom_mat,
-                       sp_num, d_num, sp_den, d_den, energy_unit)
+                       common_mat, element, material, custom_mat)

@@ -1,15 +1,17 @@
 ##### IMPORTS #####
+import shelve
 import platform
 import tkinter as tk
 from tkinter import ttk
 import tkinter.font as font
 from App.style import SectionFrame
 from Utility.Functions.choices import get_choices
+from Utility.Functions.files import get_user_data_path
 from Utility.Functions.gui_utility import make_exit_button
 from Utility.Functions.gui_utility import make_spacer, get_width
+from Utility.Functions.logic_utility import get_item, valid_saved
 from Utility.Functions.gui_utility import make_dropdown, make_result_box
 from Core.Shielding.Photons.photons_calculations import handle_calculation
-from Utility.Functions.logic_utility import get_item, get_unit, valid_saved
 from Utility.Functions.gui_utility import make_category_dropdown, make_item_dropdown
 from Utility.Functions.gui_utility import basic_label, result_label, make_title_frame
 
@@ -40,10 +42,13 @@ def photons_main(root, category="Common Elements",
                  interactions=None, common_el="Ag",
                  common_mat="Air (dry, near sea level)", element="Ac",
                  material="A-150 Tissue-Equivalent Plastic (A150TEP)",
-                 custom_mat="", mac_num="cm\u00B2", d_num="g", lac_num="1",
-                 mac_den="g", d_den="cm\u00B3", lac_den="cm",
-                 energy_unit="MeV"):
+                 custom_mat=""):
     global main_list
+
+    # Gets energy unit from user prefs
+    db_path = get_user_data_path("Settings/Shielding/Photons")
+    with shelve.open(db_path) as prefs:
+        energy_unit = prefs.get("energy_unit", "MeV")
 
     # Sets default interaction - Total Attenuation with Coherent Scattering
     if interactions is None or not interactions:
@@ -237,19 +242,12 @@ def photons_main(root, category="Common Elements",
 
     result_frame.pack()
 
-    # Stores units in list
-    num_units = [mac_num, d_num, lac_num]
-    den_units = [mac_den, d_den, lac_den]
-
     # Creates Calculate button
     calc_button = ttk.Button(inner_result_frame, text="Calculate",
                              style="Maize.TButton", padding=(0,0),
                              command=lambda: handle_calculation(root, category, mode,
                                                                 interactions, var.get(),
-                                                                energy_entry.get(), result_box,
-                                                get_unit(num_units, mode_choices, mode),
-                                                get_unit(den_units, mode_choices, mode),
-                                                                energy_unit))
+                                                                energy_entry.get(), result_box))
     calc_button.config(width=get_width(["Calculate"]))
     calc_button.pack(pady=(20,5))
 
@@ -265,10 +263,7 @@ def photons_main(root, category="Common Elements",
                                  command=lambda: to_advanced(root, category,
                                                              mode, interactions,
                                                              common_el, common_mat,
-                                                             element, material, custom_mat,
-                                                             mac_num, d_num, lac_num,
-                                                             mac_den, d_den, lac_den,
-                                                             energy_unit))
+                                                             element, material, custom_mat))
     advanced_button.config(width=get_width(["Advanced Settings"]))
     advanced_button.pack(pady=5)
 
@@ -318,12 +313,10 @@ photon attenuation advanced screen.
 It is called when the Advanced Settings button is hit.
 """
 def to_advanced(root, category, mode, interactions, common_el, common_mat,
-                element, material, custom_mat, mac_num, d_num, lac_num,
-                mac_den, d_den, lac_den, energy_unit):
+                element, material, custom_mat):
     root.focus()
     from App.Shielding.Photons.photons_advanced import photons_advanced
 
     clear_main()
     photons_advanced(root, category, mode, interactions, common_el, common_mat,
-                     element, material, custom_mat, mac_num, d_num, lac_num,
-                     mac_den, d_den, lac_den, energy_unit)
+                     element, material, custom_mat)

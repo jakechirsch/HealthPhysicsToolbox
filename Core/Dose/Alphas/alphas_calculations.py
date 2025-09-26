@@ -1,4 +1,7 @@
 ##### IMPORTS #####
+import shelve
+from Utility.Functions.logic_utility import get_unit
+from Utility.Functions.files import get_user_data_path
 from Utility.Functions.gui_utility import edit_result, non_number, no_selection
 from Utility.Functions.math_utility import density_numerator, density_denominator
 from Utility.Functions.math_utility import find_data, find_density, errors, energy_units
@@ -32,8 +35,29 @@ the result is converted to the desired units, and then
 displayed in the result label.
 """
 def handle_calculation(root, category, mode, interactions, item,
-                       energy_str, result_box, num, den, energy_unit):
+                       energy_str, result_box):
     root.focus()
+
+    # Gets units from user prefs
+    db_path = get_user_data_path("Settings/Dose/Alphas")
+    with shelve.open(db_path) as prefs:
+        sp_e_num = prefs.get("sp_e_num", "MeV")
+        sp_l_num = prefs.get("sp_l_num", "cm\u00B2")
+        d_num = prefs.get("d_num", "g")
+        sp_den = prefs.get("sp_den", "g")
+        d_den = prefs.get("d_den", "cm\u00B3")
+        energy_unit = prefs.get("energy_unit", "MeV")
+
+    # Gets applicable units
+    num_e_units = [sp_e_num, d_num]
+    num_l_units = [sp_l_num, d_num]
+    den_units = [sp_den, d_den]
+    mode_choices = ["Stopping Power",
+                    "Density"]
+    num_e = get_unit(num_e_units, mode_choices, mode)
+    num_l = get_unit(num_l_units, mode_choices, mode)
+    num = num_e + " * " + num_l if mode == "Stopping Power" else num_e
+    den = get_unit(den_units, mode_choices, mode)
 
     # Error-check for no selected item
     if item == "":
@@ -69,8 +93,8 @@ def handle_calculation(root, category, mode, interactions, item,
     if not result in errors:
         # Converts result to desired units
         if mode == "Stopping Power":
-            result *= sp_e_numerator[num.split(" ", 1)[0]]
-            result *= sp_l_numerator[num.split(" ", 2)[2]]
+            result *= sp_e_numerator[num_e]
+            result *= sp_l_numerator[num_l]
             result /= sp_denominator[den]
         else:
             result *= density_numerator[num]

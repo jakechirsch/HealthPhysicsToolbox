@@ -4,6 +4,7 @@ import csv
 import shelve
 import pandas as pd
 import matplotlib.pyplot as plt
+from Utility.Functions.logic_utility import get_unit
 from Utility.Functions.gui_utility import no_selection
 from Utility.Functions.math_utility import find_data, energy_units
 from Utility.Functions.choices import element_choices, material_choices
@@ -31,9 +32,25 @@ configure_plot.
 Finally, if the file is meant to be saved, we pass on the
 work to the save_file function. Otherwise, we show the plot.
 """
-def export_data(root, item, category, mode, num, den,
-                energy_unit, choice, save, error_label):
+def export_data(root, item, category, mode, choice, save, error_label):
     root.focus()
+
+    # Gets units from user prefs
+    db_path = get_user_data_path("Settings/Shielding/Alphas")
+    with shelve.open(db_path) as prefs:
+        csda_num = prefs.get("csda_num", "g")
+        d_num = prefs.get("d_num", "g")
+        csda_den = prefs.get("csda_den", "cm\u00B2")
+        d_den = prefs.get("d_den", "cm\u00B3")
+        energy_unit = prefs.get("energy_unit", "MeV")
+
+    # Gets applicable units
+    num_units = [csda_num, d_num]
+    den_units = [csda_den, d_den]
+    mode_choices = ["CSDA Range",
+                    "Density"]
+    num = get_unit(num_units, mode_choices, mode)
+    den = get_unit(den_units, mode_choices, mode)
 
     # Error-check for no selected item
     if item == "":

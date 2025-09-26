@@ -3,6 +3,7 @@ import tkinter as tk
 from tkinter import ttk
 from App.style import SectionFrame
 from Core.Shielding.Alphas.alphas_plots import export_data
+from Utility.Functions.gui_utility import make_export_dropdown
 from Utility.Functions.gui_utility import make_title_frame, basic_label
 from Utility.Functions.gui_utility import get_width, get_unit, get_item
 
@@ -65,15 +66,12 @@ def alphas_export(root, category, mode, common_el, common_mat, element,
         else:
             save.config(state="normal")
 
+    # Stores export type and sets default
+    var_export = tk.StringVar(root)
+    var_export.set("Plot")
+
     # Creates dropdown menu for export type
-    export_choices = ["Plot", "Data"]
-    export_dropdown = ttk.Combobox(export_type_frame, values=export_choices,
-                                   justify="center", state='readonly',
-                                   style="Maize.TCombobox")
-    export_dropdown.config(width=get_width(export_choices))
-    export_dropdown.set("Plot")
-    export_dropdown.pack()
-    export_dropdown.bind("<<ComboboxSelected>>", on_select_export)
+    _ = make_export_dropdown(export_type_frame, var_export, on_select_export)
 
     # Mode choices
     mode_choices = ["CSDA Range",
@@ -93,7 +91,7 @@ def alphas_export(root, category, mode, common_el, common_mat, element,
                                            category, mode,
                                get_unit(num_units, mode_choices, mode),
                                get_unit(den_units, mode_choices, mode),
-                                           energy_unit, export_dropdown.get(),
+                                           energy_unit, var_export.get(),
                                            var_save.get(), error_label))
     export_button.config(width=get_width(["Export"]))
     export_button.pack(pady=(10,5))

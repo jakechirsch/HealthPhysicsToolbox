@@ -74,16 +74,29 @@ def make_dropdown(frame, var, choices, on_select, **pack_args):
     return dropdown
 
 """
+This function loads the default value into a Combobox dropdown.
+"""
+def load_default(dropdown, var, choices):
+    def on_map(event):
+        if var.get() in choices:
+            event.widget.current(choices.index(var.get()))
+    dropdown.bind("<Map>", on_map)
+
+"""
 This function makes a Combobox dropdown for unit options.
 """
 def make_unit_dropdown(frame, var, choices, on_select):
     dropdown = make_dropdown(frame, var, choices, on_select, side='left', padx=5)
+    load_default(dropdown, var, choices)
+    return dropdown
 
-    def on_map(event):
-        if var.get() in choices:
-            event.widget.current(choices.index(var.get()))
-
-    dropdown.bind("<Map>", on_map)
+"""
+This function makes a Combobox dropdown for export options.
+"""
+def make_export_dropdown(frame, var, on_select):
+    export_choices = ["Plot", "Data"]
+    dropdown = make_dropdown(frame, var, export_choices, on_select)
+    load_default(dropdown, var, export_choices)
     return dropdown
 
 """

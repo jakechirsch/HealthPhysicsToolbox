@@ -127,10 +127,6 @@ def photons_advanced(root, category, mode, common_el, common_mat, element,
     # Creates dropdown menu for customize category
     _ = make_customize_category_dropdown(category_frame, var_customize_category, on_select_options)
 
-    # Stores updatable units
-    num_units = [mea_num, d_num]
-    den_units = [mea_den, d_den]
-
     # Frame for specific add/remove settings
     vertical_frame = make_v_frame()
 
@@ -158,10 +154,8 @@ def photons_advanced(root, category, mode, common_el, common_mat, element,
         with shelve.open(db_path) as shelve_prefs:
             if mode == "Mass Energy-Absorption":
                 shelve_prefs["mea_num"] = selection
-                num_units[0] = selection
             else:
                 shelve_prefs["d_num"] = selection
-                num_units[1] = selection
 
     # Logic for when a denominator unit is selected
     def on_select_den(event):
@@ -171,10 +165,8 @@ def photons_advanced(root, category, mode, common_el, common_mat, element,
         with shelve.open(db_path) as shelve_prefs:
             if mode == "Mass Energy-Absorption":
                 shelve_prefs["mea_den"] = selection
-                den_units[0] = selection
             else:
                 shelve_prefs["d_den"] = selection
-                den_units[1] = selection
 
     # Mode choices
     mode_choices = ["Mass Energy-Absorption",
@@ -186,7 +178,7 @@ def photons_advanced(root, category, mode, common_el, common_mat, element,
 
     # Stores numerator and sets default
     var_numerator = tk.StringVar(root)
-    var_numerator.set(get_unit(num_units, mode_choices, mode))
+    var_numerator.set(get_unit([mea_num, d_num], mode_choices, mode))
 
     # Creates dropdown menu for numerator unit
     numerator_choices = list(get_unit(num_choices, mode_choices, mode).keys())
@@ -198,7 +190,7 @@ def photons_advanced(root, category, mode, common_el, common_mat, element,
 
     # Stores denominator and sets default
     var_denominator = tk.StringVar(root)
-    var_denominator.set(get_unit(den_units, mode_choices, mode))
+    var_denominator.set(get_unit([mea_den, d_den], mode_choices, mode))
 
     # Creates dropdown menu for denominator unit
     denominator_choices = list(get_unit(den_choices, mode_choices, mode).keys())

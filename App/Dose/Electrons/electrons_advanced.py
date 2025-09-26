@@ -145,11 +145,6 @@ def electrons_advanced(root, category, mode, interactions, common_el,
     # Creates dropdown menu for customize category
     _ = make_customize_category_dropdown(category_frame, var_customize_category, on_select_options)
 
-    # Stores updatable units
-    num_e_units = [sp_e_num, "", "", d_num]
-    num_l_units = [sp_l_num, "", "", d_num]
-    den_units = [sp_den, "", "", d_den]
-
     # Frame for specific add/remove settings
     vertical_frame = make_v_frame()
 
@@ -235,10 +230,8 @@ def electrons_advanced(root, category, mode, interactions, common_el,
             with shelve.open(db_path) as shelve_prefs:
                 if mode == "Stopping Power":
                     shelve_prefs["sp_e_num"] = selection
-                    num_e_units[0] = selection
                 elif mode == "Density":
                     shelve_prefs["d_num"] = selection
-                    num_e_units[3] = selection
 
         # Logic for when a numerator unit is selected
         def on_select_l_num(event):
@@ -248,10 +241,8 @@ def electrons_advanced(root, category, mode, interactions, common_el,
             with shelve.open(db_path) as shelve_prefs:
                 if mode == "Stopping Power":
                     shelve_prefs["sp_l_num"] = selection
-                    num_l_units[0] = selection
                 elif mode == "Density":
                     shelve_prefs["d_num"] = selection
-                    num_l_units[3] = selection
 
         # Logic for when a denominator unit is selected
         def on_select_den(event):
@@ -261,10 +252,8 @@ def electrons_advanced(root, category, mode, interactions, common_el,
             with shelve.open(db_path) as shelve_prefs:
                 if mode == "Stopping Power":
                     shelve_prefs["sp_den"] = selection
-                    den_units[0] = selection
                 elif mode == "Density":
                     shelve_prefs["d_den"] = selection
-                    den_units[3] = selection
 
         # Mode choices
         mode_choices = ["Stopping Power",
@@ -279,7 +268,7 @@ def electrons_advanced(root, category, mode, interactions, common_el,
 
         # Stores numerator and sets default
         var_numerator_e = tk.StringVar(root)
-        var_numerator_e.set(get_unit(num_e_units, mode_choices, mode))
+        var_numerator_e.set(get_unit([sp_e_num, "", "", d_num], mode_choices, mode))
 
         # Creates dropdown menu for numerator unit
         numerator_e_choices = list(get_unit(num_e_choices, mode_choices, mode).keys())
@@ -292,7 +281,7 @@ def electrons_advanced(root, category, mode, interactions, common_el,
 
             # Stores numerator and sets default
             var_numerator_l = tk.StringVar(root)
-            var_numerator_l.set(get_unit(num_l_units, mode_choices, mode))
+            var_numerator_l.set(get_unit([sp_l_num, "", "", d_num], mode_choices, mode))
 
             # Creates dropdown menu for numerator unit
             numerator_l_choices = list(get_unit(num_l_choices, mode_choices, mode).keys())
@@ -304,7 +293,7 @@ def electrons_advanced(root, category, mode, interactions, common_el,
 
         # Stores denominator and sets default
         var_denominator = tk.StringVar(root)
-        var_denominator.set(get_unit(den_units, mode_choices, mode))
+        var_denominator.set(get_unit([sp_den, "", "", d_den], mode_choices, mode))
 
         # Creates dropdown menu for denominator unit
         denominator_choices = list(get_unit(den_choices, mode_choices, mode).keys())

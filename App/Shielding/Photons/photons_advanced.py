@@ -155,10 +155,6 @@ def photons_advanced(root, category, mode, interactions, common_el, common_mat,
     # Creates dropdown menu for customize category
     _ = make_customize_category_dropdown(category_frame, var_customize_category, on_select_options)
 
-    # Stores updatable units
-    num_units = [mac_num, d_num, lac_num]
-    den_units = [mac_den, d_den, lac_den]
-
     # Frame for specific add/remove settings
     vertical_frame = make_v_frame()
 
@@ -272,13 +268,10 @@ def photons_advanced(root, category, mode, interactions, common_el, common_mat,
         with shelve.open(db_path) as shelve_prefs:
             if mode == "Mass Attenuation Coefficient":
                 shelve_prefs["mac_num"] = selection
-                num_units[0] = selection
             elif mode == "Density":
                 shelve_prefs["d_num"] = selection
-                num_units[1] = selection
             else:
                 shelve_prefs["lac_num"] = selection
-                num_units[2] = selection
 
     # Logic for when a denominator unit is selected
     def on_select_den(event):
@@ -288,13 +281,10 @@ def photons_advanced(root, category, mode, interactions, common_el, common_mat,
         with shelve.open(db_path) as shelve_prefs:
             if mode == "Mass Attenuation Coefficient":
                 shelve_prefs["mac_den"] = selection
-                den_units[0] = selection
             elif mode == "Density":
                 shelve_prefs["d_den"] = selection
-                den_units[1] = selection
             else:
                 shelve_prefs["lac_den"] = selection
-                den_units[2] = selection
 
     # Mode choices
     mode_choices = ["Mass Attenuation Coefficient",
@@ -307,7 +297,7 @@ def photons_advanced(root, category, mode, interactions, common_el, common_mat,
 
     # Stores numerator and sets default
     var_numerator = tk.StringVar(root)
-    var_numerator.set(get_unit(num_units, mode_choices, mode))
+    var_numerator.set(get_unit([mac_num, d_num, lac_num], mode_choices, mode))
 
     # Creates dropdown menu for numerator unit
     numerator_choices = list(get_unit(num_choices, mode_choices, mode).keys())
@@ -319,7 +309,7 @@ def photons_advanced(root, category, mode, interactions, common_el, common_mat,
 
     # Stores denominator and sets default
     var_denominator = tk.StringVar(root)
-    var_denominator.set(get_unit(den_units, mode_choices, mode))
+    var_denominator.set(get_unit([mac_den, d_den, lac_den], mode_choices, mode))
 
     # Creates dropdown menu for denominator unit
     denominator_choices = list(get_unit(den_choices, mode_choices, mode).keys())

@@ -2,10 +2,10 @@
 import tkinter as tk
 from tkinter import ttk
 from App.style import SectionFrame
-from Utility.Functions.gui_utility import make_export_dropdown
+from Utility.Functions.logic_utility import get_item, get_unit
 from Core.Shielding.Electrons.electrons_plots import export_data
 from Utility.Functions.gui_utility import make_title_frame, basic_label
-from Utility.Functions.gui_utility import get_width, get_unit, get_item
+from Utility.Functions.gui_utility import get_width, make_export_dropdown
 
 # For global access to nodes on electron range export screen
 export_list = []

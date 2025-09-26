@@ -8,7 +8,7 @@ from Utility.Functions.choices import get_choices
 from Utility.Functions.gui_utility import make_exit_button
 from Utility.Functions.gui_utility import make_spacer, get_width
 from Utility.Functions.gui_utility import make_dropdown, make_result_box
-from Utility.Functions.gui_utility import get_item, get_unit, valid_saved
+from Utility.Functions.logic_utility import get_item, get_unit, valid_saved
 from Core.Shielding.Electrons.electrons_calculations import handle_calculation
 from Utility.Functions.gui_utility import make_category_dropdown, make_item_dropdown
 from Utility.Functions.gui_utility import basic_label, result_label, make_title_frame

@@ -4,12 +4,13 @@ from tkinter import ttk
 from App.style import SectionFrame
 from App.add_custom_menu import add_custom_menu
 from Utility.Functions.choices import get_choices
+from Utility.Functions.logic_utility import get_unit
 from Utility.Functions.math_utility import energy_units
 from Utility.Functions.files import resource_path, open_file
+from Utility.Functions.gui_utility import make_unit_dropdown
 from Utility.Functions.gui_utility import make_vertical_frame
 from Utility.Functions.gui_utility import make_spacer, get_width
 from App.Shielding.Electrons.electrons_export import electrons_export
-from Utility.Functions.gui_utility import make_unit_dropdown, get_unit
 from Utility.Functions.gui_utility import make_title_frame, basic_label
 from Utility.Functions.math_utility import density_numerator, density_denominator
 from Core.Shielding.Electrons.electrons_calculations import csda_numerator, csda_denominator

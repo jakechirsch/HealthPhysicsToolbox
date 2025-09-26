@@ -8,11 +8,12 @@ from App.scroll import scroll_to_top
 from Utility.Functions.time import get_time
 from Utility.Functions.gui_utility import make_exit_button
 from Utility.Functions.choices import get_choices, get_isotopes
+from Utility.Functions.gui_utility import make_spacer, get_width
+from Utility.Functions.logic_utility import get_item, valid_saved
 from Core.Decay.Calculator.nuclide_calc import handle_calculation
 from Utility.Functions.gui_utility import basic_label, make_title_frame
 from Utility.Functions.gui_utility import make_item_dropdown, make_category_dropdown
 from Utility.Functions.gui_utility import make_dropdown, result_label, make_result_box
-from Utility.Functions.gui_utility import make_spacer, get_width, get_item, valid_saved
 
 # For global access to nodes on decay calculator main screen
 main_list = []

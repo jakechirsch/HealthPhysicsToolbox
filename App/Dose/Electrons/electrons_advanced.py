@@ -10,10 +10,10 @@ from Utility.Functions.gui_utility import make_vertical_frame
 from Utility.Functions.gui_utility import make_spacer, get_width
 from App.Dose.Electrons.electrons_export import electrons_export
 from Core.Dose.Electrons.electrons_calculations import sp_denominator
-from Utility.Functions.gui_utility import make_unit_dropdown, get_unit
+from Utility.Functions.logic_utility import get_unit, get_interactions
 from Utility.Functions.gui_utility import make_title_frame, basic_label
-from Utility.Functions.gui_utility import interaction_checkbox, get_interactions
 from Utility.Functions.math_utility import density_numerator, density_denominator
+from Utility.Functions.gui_utility import make_unit_dropdown, interaction_checkbox
 from Core.Dose.Electrons.electrons_calculations import sp_e_numerator, sp_l_numerator
 from Utility.Functions.gui_utility import make_action_dropdown, make_customize_category_dropdown
 

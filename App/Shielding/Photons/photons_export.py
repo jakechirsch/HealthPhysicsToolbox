@@ -3,10 +3,10 @@ import tkinter as tk
 from tkinter import ttk
 from App.style import SectionFrame
 from Core.Shielding.Photons.photons_plots import export_data
-from Utility.Functions.gui_utility import make_export_dropdown
+from Utility.Functions.gui_utility import make_spacer, get_width
 from Utility.Functions.gui_utility import make_title_frame, basic_label
-from Utility.Functions.gui_utility import interaction_checkbox, get_interactions
-from Utility.Functions.gui_utility import make_spacer, get_width, get_unit, get_item
+from Utility.Functions.logic_utility import get_item, get_unit, get_interactions
+from Utility.Functions.gui_utility import make_export_dropdown, interaction_checkbox
 
 # For global access to nodes on photon attenuation export screen
 export_list = []

@@ -10,11 +10,11 @@ from Utility.Functions.files import resource_path, open_file
 from Utility.Functions.gui_utility import make_vertical_frame
 from Core.Dose.Alphas.alphas_calculations import sp_denominator
 from Utility.Functions.gui_utility import make_spacer, get_width
-from Utility.Functions.gui_utility import make_unit_dropdown, get_unit
+from Utility.Functions.logic_utility import get_unit, get_interactions
 from Utility.Functions.gui_utility import make_title_frame, basic_label
 from Core.Dose.Alphas.alphas_calculations import sp_e_numerator, sp_l_numerator
-from Utility.Functions.gui_utility import interaction_checkbox, get_interactions
 from Utility.Functions.math_utility import density_numerator, density_denominator
+from Utility.Functions.gui_utility import make_unit_dropdown, interaction_checkbox
 from Utility.Functions.gui_utility import make_action_dropdown, make_customize_category_dropdown
 
 # For global access to nodes on alpha stopping power advanced screen

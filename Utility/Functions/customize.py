@@ -1,7 +1,8 @@
 ##### IMPORTS #####
 import shelve
+from Utility.Functions.gui_utility import get_width
 from Utility.Functions.files import get_user_data_path
-from Utility.Functions.gui_utility import get_width, valid_saved
+from Utility.Functions.logic_utility import valid_saved
 
 """
 This function is called when the Add/Remove button is hit and

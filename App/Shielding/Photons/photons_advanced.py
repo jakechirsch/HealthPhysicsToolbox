@@ -9,10 +9,10 @@ from Utility.Functions.files import resource_path, open_file
 from Utility.Functions.gui_utility import make_vertical_frame
 from App.Shielding.Photons.photons_export import photons_export
 from Utility.Functions.gui_utility import make_spacer, get_width
-from Utility.Functions.gui_utility import make_unit_dropdown, get_unit
+from Utility.Functions.logic_utility import get_unit, get_interactions
 from Utility.Functions.gui_utility import make_title_frame, basic_label
-from Utility.Functions.gui_utility import interaction_checkbox, get_interactions
 from Utility.Functions.math_utility import density_numerator, density_denominator
+from Utility.Functions.gui_utility import make_unit_dropdown, interaction_checkbox
 from Core.Shielding.Photons.photons_calculations import mac_numerator, mac_denominator
 from Core.Shielding.Photons.photons_calculations import lac_numerator, lac_denominator
 from Utility.Functions.gui_utility import make_action_dropdown, make_customize_category_dropdown

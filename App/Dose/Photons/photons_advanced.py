@@ -4,12 +4,13 @@ from tkinter import ttk
 from App.style import SectionFrame
 from App.add_custom_menu import add_custom_menu
 from Utility.Functions.choices import get_choices
+from Utility.Functions.logic_utility import get_unit
 from Utility.Functions.math_utility import energy_units
 from App.Dose.Photons.photons_export import photons_export
 from Utility.Functions.files import resource_path, open_file
+from Utility.Functions.gui_utility import make_unit_dropdown
 from Utility.Functions.gui_utility import make_vertical_frame
 from Utility.Functions.gui_utility import make_spacer, get_width
-from Utility.Functions.gui_utility import make_unit_dropdown, get_unit
 from Utility.Functions.gui_utility import make_title_frame, basic_label
 from Utility.Functions.math_utility import density_numerator, density_denominator
 from Core.Dose.Photons.photons_calculations import mea_numerator, mea_denominator

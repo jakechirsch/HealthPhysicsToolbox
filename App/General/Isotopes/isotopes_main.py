@@ -5,10 +5,11 @@ from App.style import SectionFrame
 from Utility.Functions.gui_utility import make_exit_button
 from Core.General.Isotopes.isotopes import handle_calculation
 from Utility.Functions.choices import get_choices, get_isotopes
-from Utility.Functions.gui_utility import make_spacer, get_width, get_item
+from Utility.Functions.gui_utility import make_spacer, get_width
+from Utility.Functions.logic_utility import get_item, valid_saved
+from Utility.Functions.gui_utility import make_dropdown, make_result_box
 from Utility.Functions.gui_utility import make_item_dropdown, make_category_dropdown
 from Utility.Functions.gui_utility import basic_label, result_label, make_title_frame
-from Utility.Functions.gui_utility import make_dropdown, make_result_box, valid_saved
 
 # For global access to nodes on isotopes main screen
 main_list = []
